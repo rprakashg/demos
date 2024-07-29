@@ -49,4 +49,24 @@ export VAULT_SECRET='{replace}'
  ansible-galaxy collection install rprakashg.openshift_automation --upgrade 
 ```
 
+Create a playbook and include below snippet
+
+```yaml
+---
+- name: Install hub cluster on AWS
+  hosts: 
+  tasks:
+    - name: install cluster
+      ansible.builtin.include_role:
+        name: rprakashg.openshift_automation.install_openshift_on_aws
+      vars:
+        cluster_name: hub
+        region: us-west-2
+        base_domain: ocp.example.com
+        worker_instance_type: m5.4xlarge
+        worker_replicas: 3
+        master_instance_type: c5.4xlarge
+        master_replicas: 3
+        ssh_pubkey: '{specify or leave blank}'
+```
 
