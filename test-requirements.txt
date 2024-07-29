@@ -1,0 +1,23 @@
+# test-requirements.txt
+
+# Unit testing framework
+pytest==6.2.4
+
+# Mocking library
+pytest-mock==3.6.1
+
+# Code coverage tool
+coverage==5.5
+
+# Linter
+flake8==3.9.2
+
+# Type checker
+mypy==0.812
+
+# Test runner
+tox==3.24.3
+
+# Additional plugins or tools
+pytest-cov==2.12.1
+pytest-xdist==2.2.1
