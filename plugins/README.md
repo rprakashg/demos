@@ -54,7 +54,7 @@ Create a playbook and include below snippet
 ```yaml
 ---
 - name: Install hub cluster on AWS
-  hosts: 
+  hosts: localhost
   tasks:
     - name: install cluster
       ansible.builtin.include_role:
