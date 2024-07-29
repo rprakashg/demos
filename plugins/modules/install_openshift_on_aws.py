@@ -92,8 +92,8 @@ from ansible.constants import DEFAULT_VAULT_ID_MATCH
 from jinja2 import Environment, FileSystemLoader
 from itertools import islice
 
-from module_utils.commandrunner import CommandRunner
-from module_utils.commandresult import CommandResult
+from ansible_collections.rprakashg.openshift_automation.plugins.module_utils.commandrunner import CommandRunner
+from ansible_collections.rprakashg.openshift_automation.plugins.module_utils.commandresult import CommandResult
 
 def read_vault_file(vault_file, vault_password):
     vault_secret = VaultSecret(base64.b64encode(vault_password.encode('utf-8')))
@@ -325,7 +325,8 @@ def install_openshift(module, runner):
     result["output"] = output
 
     # Exit the module and return results
-    module.exit_json(**result)
+    module.exit_json(msg="Openshift cluster %s was created successfully" % (params["cluster_name"]), 
+                     result=result, changed=True)
 
 def main():
     module_args = dict(

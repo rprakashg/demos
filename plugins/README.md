@@ -57,9 +57,7 @@ Create a playbook and include below snippet
   hosts: localhost
   tasks:
     - name: install cluster
-      ansible.builtin.include_role:
-        name: rprakashg.openshift_automation.install_openshift_on_aws
-      vars:
+      rprakashg.openshift_automation.install_openshift_on_aws:
         cluster_name: hub
         region: us-west-2
         base_domain: ocp.example.com

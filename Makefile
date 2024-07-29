@@ -6,7 +6,7 @@ ANSIBLE_LINT := $(VENV_DIR)/bin/ansible-lint
 PYTEST := $(VENV_DIR)/bin/pytest
 BLACK := $(VENV_DIR)/bin/black
 FLAKE8 := $(VENV_DIR)/bin/flake8
-MODULE_NAME := my_ansible_module
+MODULE_NAME := install_openshift_on_aws
 
 # Default target
 all: install
