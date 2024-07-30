@@ -43,7 +43,6 @@ tags: []
 dependencies:
   ansible.posix: ">=1.0.0"
   ansible.utils: "==4.1.0"
-  ansible.builtin: ">=2.17.2"
   
 # The URL of the originating SCM repository
 repository: https://github.com/rprakashg/openshift_automation
