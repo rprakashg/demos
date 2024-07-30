@@ -1,5 +1,5 @@
 import subprocess
-from commandresult import CommandResult
+from ansible_collections.rprakashg.openshift_automation.plugins.module_utils.commandresult import CommandResult
 
 class CommandRunner(object):
     """

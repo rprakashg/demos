@@ -289,7 +289,7 @@ def install_openshift(module, runner):
     if result.exit_code == 0:
         output = result.output
     else:
-        module.fail_json()
+        module.fail_json(result)
 
     # Parse kube api server url from output and set it to result
     api_pattern = r'Kubernetes API at ([^\s]+)'
