@@ -85,10 +85,8 @@ from ansible.constants import DEFAULT_VAULT_ID_MATCH
 from jinja2 import Environment, FileSystemLoader
 from itertools import islice
 
-#from ansible_collections.rprakashg.openshift_automation.plugins.module_utils.commandrunner import CommandRunner
-#from ansible_collections.rprakashg.openshift_automation.plugins.module_utils.commandresult import CommandResult
-from commandrunner import CommandRunner
-from commandresult import CommandResult
+from ansible_collections.rprakashg.openshift_automation.plugins.module_utils.commandrunner import CommandRunner
+from ansible_collections.rprakashg.openshift_automation.plugins.module_utils.commandresult import CommandResult
 
 
 def read_vault_file(vault_file, vault_password):
