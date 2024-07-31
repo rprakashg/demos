@@ -54,6 +54,10 @@ options:
         description: SSH public key, if no key is passed will try to default parse the id_rs.pub key from ~/.ssh directory
         type: str
         required: false
+    pull_secret:
+        description: Red Hat pull secret
+        type: str
+        required: false
 notes: []
 
 '''
@@ -69,10 +73,10 @@ EXAMPLES = r'''
     master_instance_type: c5.4xlarge
     master_replicas: 3
     ssh_pubkey: 'ssh-rsa AAA ... user@email.com'
+    pull_secret: ''
 '''
 
 import boto3
-import yaml 
 import os
 import re
 import base64 
@@ -80,8 +84,6 @@ import requests
 import json
 
 from ansible.module_utils.basic import AnsibleModule  # noqa E402
-from ansible.parsing.vault import VaultLib, VaultSecret
-from ansible.constants import DEFAULT_VAULT_ID_MATCH
 from jinja2 import Environment, FileSystemLoader
 from itertools import islice
 
@@ -113,7 +115,7 @@ def get_azs(region, replicas):
     azs = [az['ZoneName'] for az in response['AvailabilityZones']]
     return dict(islice(azs, take))
     
-def generate_installconfig(params, secrets, install_config_file):
+def generate_installconfig(params, install_config_file):
 
     # Load Jinja2 template
     env = Environment(loader=FileSystemLoader('./templates'))
@@ -130,7 +132,7 @@ def generate_installconfig(params, secrets, install_config_file):
         'worker_replicas': params["worker_replicas"],
         'master_instance_type': params["master_instance_type"],
         'master_replicas': params["master_replicas"],
-        'pullsecret': secrets["pull_secret"],
+        'pullsecret': params["pull_secret"],
         'ssh_pub_key': params["ssh_pubkey"],
     }
 
@@ -143,14 +145,15 @@ def generate_installconfig(params, secrets, install_config_file):
 
     return True
 
-def download_pullsecret(rh_offline_token):
+def download_pullsecret():
+    offline_token = os.getenv("RH_OFFLINE_TOKEN")
     token_endpoint: str = "https://sso.redhat.com/auth/realms/redirect-external/protocol/openid-connect/token"
     api: str = "https://api.openshift.com/api/accounts_mgmt/v1/access_token" 
 
     data = {
         'grant_type': 'refresh_token',
         'client_id': 'rhsm-api',
-        'refresh_token': f'{rh_offline_token}'
+        'refresh_token': f'{offline_token}'
     }
 
     headers = {
@@ -216,15 +219,9 @@ def install_openshift(module, runner):
         error_payload["changed"] = False 
         module.fail_json(error_payload)
 
-    if os.getenv("VAULT_SECRET") is None:
-        error_payload["error_msg"] = "VAULT_SECRET could not be found in environment variables"
-        error_payload["changed"] = False
-        module.fail_json(error_payload)
-
-    # check if vault secrets file exists
-    if os.path.exists("vars/secrets.yml") is None:
-        error_payload["error_msg"] = "Ansible vault file is required"
-        error_payload["changed"] = False
+    if os.getenv("RH_OFFLINE_TOKEN") is None and params["pull_secret"] is None:
+        error_payload["error_msg"] = "A Red Hat pull secret was not specified and also RH_OFFLINE_TOKEN was not found in environment variable to automatically download pull secret"
+        error_payload["changed"] = False 
         module.fail_json(error_payload)
 
     # Check if aws region is specified in params if not use AWS_DEFAULT_REGION environment variable value
@@ -258,25 +255,20 @@ def install_openshift(module, runner):
         error_payload["changed"] = False
         module.fail_json(error_payload)
 
-    # decrypt the ansible vault
-    vault_secret = os.getenv("VAULT_SECRET")
-    content = read_vault_file("vars/secrets.yml", vault_secret)
-    secrets = yaml.safe_load(content)
-
-    if secrets["pull_secret"] is None:
+    if params["pull_secret"] is None:
         # Download pullsecret
-        pull_secret = download_pullsecret(secrets["rh_offline_token"])
+        pull_secret = download_pullsecret()
         pull_secret_str = json.dumps(pull_secret)
-        secrets["pull_secret"] = pull_secret_str
+        params["pull_secret"] = pull_secret_str
 
-    if module.params["ssh_pubkey"] is None:
+    if params["ssh_pubkey"] is None:
         # Get SSH Key
         ssh_pubkey = parse_ssh_key("~/.ssh/id_rsa.pub")
-        module.params["ssh_pubkey"] = ssh_pubkey
+        params["ssh_pubkey"] = ssh_pubkey
         
     # Generate install config file
     install_config = "%s/install-config.yml" % (clusters_dir)
-    generate_installconfig(module.params, secrets, install_config)
+    generate_installconfig(params, install_config)
 
     # Run openshift install
     args = [
@@ -332,6 +324,7 @@ def main():
         master_instance_type=dict(type=str, required=True),
         master_replicas=dict(type=int, required=True),
         ssh_pubkey=dict(type=str, required=False)
+        pull_secret=dict(type=str, required=False)
     )
     module = AnsibleModule(
         argument_spec=module_args,
