@@ -323,7 +323,7 @@ def main():
         worker_replicas=dict(type=int, required=True),
         master_instance_type=dict(type=str, required=True),
         master_replicas=dict(type=int, required=True),
-        ssh_pubkey=dict(type=str, required=False)
+        ssh_pubkey=dict(type=str, required=False),
         pull_secret=dict(type=str, required=False)
     )
     module = AnsibleModule(
