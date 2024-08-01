@@ -248,37 +248,25 @@ def install_openshift(module, runner):
             password = dict(type=str)
         ),
         kubeconfig = dict(type=str),
-        output = dict(type=str)
-    )
-
-    error_payload = dict(
-        changed = dict(type=bool, required=True),
-        error_msg = dict(type=str, required=True)
+        output = dict(type=str),
+        changed=dict(type=bool, required=True)    
     )
 
     # Check if AWS credentials are set in environment variables
     if os.getenv("AWS_ACCESS_KEY_ID") is None:
-        error_payload["error_msg"] = "AWS_ACCESS_KEY_ID could not be found in environment variables"
-        error_payload["changed"] = False
-        module.fail_json(error_payload)
+        module.fail_json(msg="AWS_ACCESS_KEY_ID could not be found in environment variables")
 
     if os.getenv("AWS_SECRET_ACCESS_KEY") is None:
-        error_payload["error_msg"] = "AWS_SECRET_ACCESS_KEY could not be found in environment variables"
-        error_payload["changed"] = False 
-        module.fail_json(error_payload)
+        module.fail_json(msg="AWS_SECRET_ACCESS_KEY could not be found in environment variables")
 
     if os.getenv("RH_OFFLINE_TOKEN") is None and params["pull_secret"] is None:
-        error_payload["error_msg"] = "A Red Hat pull secret was not specified and also RH_OFFLINE_TOKEN was not found in environment variable to automatically download pull secret"
-        error_payload["changed"] = False 
-        module.fail_json(error_payload)
+        module.fail_json(msg="A Red Hat pull secret was not specified and also RH_OFFLINE_TOKEN was not found in environment variable to automatically download pull secret")
 
     # Check if aws region is specified in params if not use AWS_DEFAULT_REGION environment variable value
     if params["region"] is None and not os.getenv("AWS_DEFAULT_REGION") is None:
         params["region"] = os.getenv("AWS_DEFAULT_REGION")
     elif params["region"] is None and os.getenv("AWS_DEFAULT_REGION") is None:
-        error_payload["error_msg"] = "AWS region needs to be specified as input or using 'AWS_DEFAULT_REGION' environment variable"
-        error_payload["changed"] = False
-        module.fail_json(error_payload)
+        module.fail_json(msg="AWS region needs to be specified as input or using 'AWS_DEFAULT_REGION' environment variable")
             
     # Create clusters directory if one doesn't exist
     cluster_name: str = params["cluster_name"]
@@ -299,9 +287,7 @@ def install_openshift(module, runner):
         # add worker_azs and master_azs to params dict
         params.update({"worker_azs": worker_azs, "controlplane_azs": master_azs})
     except Exception as e:
-        error_payload["error_msg"] = f"Error retrieving availability zones for region: {region}. {e}"
-        error_payload["changed"] = False
-        module.fail_json(error_payload)
+        module.fail_json(msg=f"Error retrieving availability zones for region: {region}. {e}")
 
     if params["pull_secret"] is None:
         # Download pullsecret
@@ -323,11 +309,12 @@ def install_openshift(module, runner):
         " --dir=",
         clusters_dir
     ]
-    result = runner.run("create ", "cluster", args)
-    if result.exit_code == 0:
-        output = result.output
+    cr = runner.run("create ", "cluster", args)
+    if cr.exit_code == 0:
+        result["output"] = cr.output
+        result["changed"] = True
     else:
-        module.fail_json(result)
+        module.fail_json(msg=cr.error)
 
     # Parse kube api server url from output and set it to result
     #api_pattern = r'Kubernetes API at ([^\s]+)'
@@ -355,8 +342,7 @@ def install_openshift(module, runner):
     #result["kubeconfig"] = kubeconfig_path
     
     # Exit the module and return results
-    module.exit_json(msg="Openshift cluster %s was created successfully" % (params["cluster_name"]), 
-                     result=result, changed=True)
+    module.exit_json(msg="Openshift cluster %s was created successfully" % (params["cluster_name"]), **result)
 
 def main():
     module_args = dict(
