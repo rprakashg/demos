@@ -24,25 +24,39 @@ class CommandRunner(object):
         run_command = self.binary + command + subcommand + "".join(args)
         self.logger.info("Run command: %s" %(run_command))
 
-        p = subprocess.Popen(run_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, 
-                                text=True)
+        try:
+            result = subprocess.run(run_command, shell=True, check=True, 
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, 
+                                    text=True)
+            return CommandResult(
+                exit_code=result.returncode,
+                output=result.stdout.strip(),
+                error=result.stderr.strip()
+            )
+        except subprocess.CalledProcessError as e:
+            # Handle errors from running the command
+            return CommandResult(
+                exit_code=e.returncode,
+                output=e.stdout.strip() if e.stdout else "",
+                error=e.stderr.strip() if e.stderr else ""
+            )
         
-        result = CommandResult(exit_code=0, output="", error="")
+        #p = subprocess.Popen(run_command, shell=True, stdout=subprocess.PIPE, 
+        #                     stderr=subprocess.PIPE, text=True)
+        #result = CommandResult(exit_code=0, output="", error="")
 
-        while True:
-            line = p.stdout.readline().strip()
-            if line == '' and p.poll() is not None:
-                break
-            if line:
-                self.logger.info(msg=line)
-                result.output += line
-            error = p.stderr
-            if error:
-                self.module.warn(msg=error.strip())
-                result.error = error.strip()
+        #while True:
+        #    line = p.stdout.readline().strip()
+        #    if line == '' and p.poll() is not None:
+        #        break
+        #    if line:
+        #        self.logger.info(line)
+        #        result.output += line
+        #    error = p.stderr
+        #    if error:
+        #        self.logger.warn(error.strip())
+        #        result.error = error.strip()
 
-        result.exit_code = p.returncode
+        # result.exit_code = p.returncode
 
-        return result
-
-
+        #return result
