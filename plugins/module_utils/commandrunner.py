@@ -22,7 +22,7 @@ class CommandRunner(object):
         :return: CommandResult
         """
         run_command = self.binary + command + subcommand + "".join(args)
-        self.logger.debug("Run command: %s" %(run_command))
+        self.module.log(msg="Run command: %s" %(run_command))
 
         p = subprocess.Popen(run_command, shell=True, check=True, 
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, 
