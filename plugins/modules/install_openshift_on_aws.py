@@ -243,14 +243,14 @@ def install_openshift(module, runner):
     params: dict = module.params
     
     result = dict(
-        api_server_url="",
-        web_console_url="",
+        api_server_url=dict(type=str, required=True),
+        web_console_url=dict(type=str, required=True),
         credentials = dict(
-            user = "",
-            password = ""
+            user = dict(type=str, required=True),
+            password = dict(type=str, required=True)
         ),
-        kubeconfig = "",
-        output = ""
+        kubeconfig = dict(type=str, required=True),
+        output = dict(type=str, required=True)
     )
 
     # Check if AWS credentials are set in environment variables
@@ -313,34 +313,33 @@ def install_openshift(module, runner):
     cr = runner.run("create ", "cluster", args)
     if cr.exit_code == 0:
         result["output"] = cr.output
-        result["changed"] = True
     else:
         module.fail_json(msg=cr.error)
 
     # Parse kube api server url from output and set it to result
-    #api_pattern = r'Kubernetes API at ([^\s]+)'
-    #api_server_url = parse_token(api_pattern, output)
-    #result["api_server_url"] = api_server_url
+    api_pattern = r'Kubernetes API at ([^\s]+)'
+    api_server_url = parse_token(api_pattern, cr.output)
+    result["api_server_url"] = api_server_url
 
     # Parse openshift webconsole URL from output and set it in result
-    #webconsole_pattern = r'weh-console here: ([^\s]+)'
-    #webconsole_url = parse_token(webconsole_pattern, output)
-    #result["web_console_url"] = webconsole_url
+    webconsole_pattern = r'weh-console here: ([^\s]+)'
+    webconsole_url = parse_token(webconsole_pattern, cr.output)
+    result["web_console_url"] = webconsole_url
 
     # Parse cluster credentials from output and set it in result
-    #user_pattern = r'user:\s*"([^"]+)"' 
-    #password_pattern = r'passwprd:\s*"([^"]+)"'    
-    #user = parse_token(user_pattern, output)
-    #password = parse_token(password_pattern, output)
-    #result["credentials"].update({
-    #    "user": user,
-    #    "password": password,
-    #})
+    user_pattern = r'user:\s*"([^"]+)"' 
+    password_pattern = r'passwprd:\s*"([^"]+)"'    
+    user = parse_token(user_pattern, cr.output)
+    password = parse_token(password_pattern, cr.output)
+    result["credentials"].update({
+        "user": user,
+        "password": password,
+    })
 
     # Parset kubeconfig path from output and set it in result
-    #kubeconfig_pattern = r'export KUBECONFIG=([^\s]+)'
-    #kubeconfig_path = parse_token(kubeconfig_pattern, output)
-    #result["kubeconfig"] = kubeconfig_path
+    kubeconfig_pattern = r'export KUBECONFIG=([^\s]+)'
+    kubeconfig_path = parse_token(kubeconfig_pattern, cr.output)
+    result["kubeconfig"] = kubeconfig_path
     
     # Exit the module and return results
     title = "Openshift cluster %s was created successfully" % (params["cluster_name"])
