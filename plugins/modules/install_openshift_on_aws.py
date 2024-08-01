@@ -113,54 +113,54 @@ def get_installconfig_template():
     baseDomain: {{ base_domain }}
     compute:
     - architecture: amd64
-    hyperthreading: Enabled
-    name: worker
-    platform:
+      hyperthreading: Enabled
+      name: worker
+      platform:
         aws:
-        zones:
-        {% for az in worker_azs %}
-        - {{ az }}
-        {% endfor %}
+            zones:
+            {% for az in worker_azs -%}
+            - {{ az }}
+            {% endfor %}
         rootVolume:
             iops: 2000
             size: 500
             type: io1 
         type: {{ worker_instance_type }}
-    replicas: {{ worker_replicas }}
+      replicas: {{ worker_replicas }}
     controlPlane:
-    architecture: amd64
-    hyperthreading: Enabled
-    name: master
+        architecture: amd64
+        hyperthreading: Enabled
+        name: master
+        platform:
+            aws:
+                zones:
+                {% for az in controlplane_azs -%}
+                - {{ az }}
+                {% endfor %}
+            rootVolume:
+                iops: 4000
+                size: 500
+                type: io1 
+            type: {{ master_instance_type }} 
+        replicas: {{ master_replicas }}
+    metadata:
+        name: {{ cluster_name }}
+    networking:
+        clusterNetwork:
+        - cidr: 10.128.0.0/14
+          hostPrefix: 23
+        machineNetwork:
+        - cidr: 10.0.0.0/16
+        networkType: OVNKubernetes
+        serviceNetwork:
+        - 172.30.0.0/16
     platform:
         aws:
-        zones:
-        {% for az in controlplane_azs %}
-        - {{ az }}
-        {% endfor %}
-        rootVolume:
-            iops: 4000
-            size: 500
-            type: io1 
-        type: {{ master_instance_type }} 
-    replicas: {{ master_replicas }}
-    metadata:
-    name: {{ cluster_name }}
-    networking:
-    clusterNetwork:
-    - cidr: 10.128.0.0/14
-        hostPrefix: 23
-    machineNetwork:
-    - cidr: 10.0.0.0/16
-    networkType: OVNKubernetes
-    serviceNetwork:
-    - 172.30.0.0/16
-    platform:
-    aws:
-        region: {{ region }}
+            region: {{ region }}
     publish: External
     pullSecret: '{{ pullsecret }}'
     sshKey: |
-    {{ ssh_pub_key }}
+        {{ ssh_pub_key }}
     """    
 
     return template
