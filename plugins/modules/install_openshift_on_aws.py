@@ -58,6 +58,10 @@ options:
         description: Red Hat pull secret
         type: str
         required: false
+    offline_token:
+        description: Offline token, this is only required if a pull secret is not specified. This token is used to automatically download pull secret from cloud.redhat.com. If an offline token and pull secret is not specified as inputs the module will try to read token from environment variable 'RH_OFFLINE_TOKEN'
+        type: str
+        required: false
 notes: []
 
 '''
@@ -74,6 +78,7 @@ EXAMPLES = r'''
     master_replicas: 3
     ssh_pubkey: 'ssh-rsa AAA ... user@email.com'
     pull_secret: ''
+    offline_token: ''
 '''
 
 import boto3
@@ -90,19 +95,6 @@ from itertools import islice
 from ansible_collections.rprakashg.openshift_automation.plugins.module_utils.commandrunner import CommandRunner
 from ansible_collections.rprakashg.openshift_automation.plugins.module_utils.commandresult import CommandResult
 
-
-def read_vault_file(vault_file, vault_password):
-    vault_secret = VaultSecret(base64.b64encode(vault_password.encode('utf-8')))
-    vault = VaultLib([(DEFAULT_VAULT_ID_MATCH, vault_secret)])
-
-    # Read the vault file content
-    with open(vault_file, 'rb') as f:
-        vault_content = f.read()
-
-    # Decrypt the vault content
-    decrypted_content = vault.decrypt(vault_content).decode('utf-8')
-
-    return decrypted_content
 
 def get_azs(region, replicas):
     take: int
@@ -145,15 +137,16 @@ def generate_installconfig(params, install_config_file):
 
     return True
 
-def download_pullsecret():
-    offline_token = os.getenv("RH_OFFLINE_TOKEN")
+def download_pullsecret(token):
+    if token is None:
+        token = os.getenv("RH_OFFLINE_TOKEN")
     token_endpoint: str = "https://sso.redhat.com/auth/realms/redirect-external/protocol/openid-connect/token"
     api: str = "https://api.openshift.com/api/accounts_mgmt/v1/access_token" 
 
     data = {
         'grant_type': 'refresh_token',
         'client_id': 'rhsm-api',
-        'refresh_token': f'{offline_token}'
+        'refresh_token': f'{token}'
     }
 
     headers = {
@@ -250,14 +243,14 @@ def install_openshift(module, runner):
 
         # add worker_azs and master_azs to params dict
         params.update({"worker_azs": worker_azs, "controlplane_azs": master_azs})
-    except:
-        error_payload["error_msg"] = f"Error retrieving availability zones for region: {region}"
+    except Exception as e:
+        error_payload["error_msg"] = f"Error retrieving availability zones for region: {region}. {e}"
         error_payload["changed"] = False
         module.fail_json(error_payload)
 
     if params["pull_secret"] is None:
         # Download pullsecret
-        pull_secret = download_pullsecret()
+        pull_secret = download_pullsecret(params["offline_token"])
         pull_secret_str = json.dumps(pull_secret)
         params["pull_secret"] = pull_secret_str
 
@@ -308,6 +301,7 @@ def install_openshift(module, runner):
     kubeconfig_path = parse_token(kubeconfig_pattern, output)
     result["kubeconfig"] = kubeconfig_path
     
+    # set the raw output form installer to result
     result["output"] = output
 
     # Exit the module and return results
@@ -324,7 +318,8 @@ def main():
         master_instance_type=dict(type=str, required=True),
         master_replicas=dict(type=int, required=True),
         ssh_pubkey=dict(type=str, required=False),
-        pull_secret=dict(type=str, required=False)
+        pull_secret=dict(type=str, required=False),
+        offline_token=dict(type=str, required=False)
     )
     module = AnsibleModule(
         argument_spec=module_args,
