@@ -35,13 +35,13 @@ class CommandRunner(object):
                 break
             if line:
                 self.module.log(msg=line)
-                result["output"] += line
+                result.output += line
             error = p.stderr
             if error:
                 self.module.warn(msg=error.strip())
-                result["error"] = error.strip()
+                result.error = error.strip()
 
-        result["exit_code"] = p.returncode
+        result.exit_code = p.returncode
 
         return result
 
