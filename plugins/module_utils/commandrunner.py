@@ -21,7 +21,8 @@ class CommandRunner(object):
         :return: CommandResult
         """
         run_command = [self.binary] + [command] + [subcommand] + args
-
+        print("Run command: %s" %(run_command))
+        
         try:
             result = subprocess.run(run_command, shell=True, check=True, 
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, 
