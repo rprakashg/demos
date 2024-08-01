@@ -141,7 +141,7 @@ def generate_installconfig(params, install_config_file):
 def download_pullsecret(token):
     if token is None:
         token = os.getenv("RH_OFFLINE_TOKEN")
-    token_endpoint: str = "https://sso.redhat.com/auth/realms/redirect-external/protocol/openid-connect/token"
+    token_endpoint: str = "https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token"
     api: str = "https://api.openshift.com/api/accounts_mgmt/v1/access_token" 
 
     data = {
