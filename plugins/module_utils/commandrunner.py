@@ -24,8 +24,7 @@ class CommandRunner(object):
         run_command = self.binary + command + subcommand + "".join(args)
         self.module.log(msg="Run command: %s" %(run_command))
 
-        p = subprocess.Popen(run_command, shell=True, check=True, 
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, 
+        p = subprocess.Popen(run_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, 
                                 text=True)
         result = CommandResult()
 
