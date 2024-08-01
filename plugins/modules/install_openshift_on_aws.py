@@ -166,7 +166,7 @@ def get_installconfig_template():
     return template
 
 def generate_installconfig(params, install_config_file):
-    template = Template(get_installconfig_template)
+    template = Template(get_installconfig_template())
 
     # define context data to render install config yml
     context = {
