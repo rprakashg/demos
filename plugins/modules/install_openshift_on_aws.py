@@ -248,8 +248,7 @@ def install_openshift(module, runner):
             password = dict(type=str)
         ),
         kubeconfig = dict(type=str),
-        output = dict(type=str),
-        changed=dict(type=bool, required=True)    
+        output = dict(type=str)
     )
 
     # Check if AWS credentials are set in environment variables
@@ -342,7 +341,8 @@ def install_openshift(module, runner):
     #result["kubeconfig"] = kubeconfig_path
     
     # Exit the module and return results
-    module.exit_json(msg="Openshift cluster %s was created successfully" % (params["cluster_name"]), **result)
+    title = "Openshift cluster %s was created successfully" % (params["cluster_name"])
+    module.exit_json(msg=title, changed=True, **result)
 
 def main():
     module_args = dict(
