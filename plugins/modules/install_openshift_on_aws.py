@@ -84,12 +84,11 @@ EXAMPLES = r'''
 import boto3
 import os
 import re
-import base64 
 import requests
 import json
 
 from ansible.module_utils.basic import AnsibleModule  # noqa E402
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Template
 from itertools import islice
 
 from ansible_collections.rprakashg.openshift_automation.plugins.module_utils.commandrunner import CommandRunner
@@ -107,12 +106,67 @@ def get_azs(region, replicas):
     azs = [az['ZoneName'] for az in response['AvailabilityZones']]
     
     return azs[:take]
-    
-def generate_installconfig(params, install_config_file):
 
-    # Load Jinja2 template
-    env = Environment(loader=FileSystemLoader('./templates'))
-    template = env.get_template('install-config-aws.yml.j2')
+def get_installconfig_template():
+    template = """
+    apiVersion: v1
+    baseDomain: {{ base_domain }}
+    compute:
+    - architecture: amd64
+    hyperthreading: Enabled
+    name: worker
+    platform:
+        aws:
+        zones:
+        {% for az in worker_azs %}
+        - {{ az }}
+        {% endfor %}
+        rootVolume:
+            iops: 2000
+            size: 500
+            type: io1 
+        type: {{ worker_instance_type }}
+    replicas: {{ worker_replicas }}
+    controlPlane:
+    architecture: amd64
+    hyperthreading: Enabled
+    name: master
+    platform:
+        aws:
+        zones:
+        {% for az in controlplane_azs %}
+        - {{ az }}
+        {% endfor %}
+        rootVolume:
+            iops: 4000
+            size: 500
+            type: io1 
+        type: {{ master_instance_type }} 
+    replicas: {{ master_replicas }}
+    metadata:
+    name: {{ cluster_name }}
+    networking:
+    clusterNetwork:
+    - cidr: 10.128.0.0/14
+        hostPrefix: 23
+    machineNetwork:
+    - cidr: 10.0.0.0/16
+    networkType: OVNKubernetes
+    serviceNetwork:
+    - 172.30.0.0/16
+    platform:
+    aws:
+        region: {{ region }}
+    publish: External
+    pullSecret: '{{ pullsecret }}'
+    sshKey: |
+    {{ ssh_pub_key }}
+    """    
+
+    return template
+
+def generate_installconfig(params, install_config_file):
+    template = Template(get_installconfig_template)
 
     # define context data to render install config yml
     context = {
