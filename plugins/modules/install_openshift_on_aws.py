@@ -315,7 +315,7 @@ def install_openshift(module, runner):
         params["ssh_pubkey"] = ssh_pubkey
         
     # Generate install config file
-    install_config = "%s/install-config.yml" % (clusters_dir)
+    install_config = "%s/install-config.yaml" % (clusters_dir)
     generate_installconfig(params, install_config)
 
     # Run openshift install
