@@ -26,7 +26,8 @@ class CommandRunner(object):
 
         p = subprocess.Popen(run_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, 
                                 text=True)
-        result = CommandResult()
+        
+        result = CommandResult(exit_code=0, output="", error="")
 
         while True:
             line = p.stdout.readline().strip()
