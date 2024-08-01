@@ -325,7 +325,7 @@ def install_openshift(module, runner):
         " --log-level=",
         "info"
     ]
-    result = runner.run("create", "cluster", args)
+    result = runner.run("create ", "cluster ", args)
     if result.exit_code == 0:
         output = result.output
     else:
@@ -377,7 +377,7 @@ def main():
         argument_spec=module_args,
         supports_check_mode=True
     )
-    binary = "openshift-install"
+    binary = "openshift-install "
     runner: CommandRunner = CommandRunner(binary)
 
     install_openshift(module, runner)
