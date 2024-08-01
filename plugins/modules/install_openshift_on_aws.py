@@ -237,7 +237,7 @@ def parse_token(pattern: str, log_content: str):
     if match:
         return match
     else:
-        raise ValueError(f"Pattern not found {pattern}")
+        return ""
 
 def install_openshift(module, runner):
     params: dict = module.params
