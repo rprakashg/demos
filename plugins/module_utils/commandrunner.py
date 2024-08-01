@@ -7,9 +7,9 @@ class CommandRunner(object):
 
         This is a helper utility for running commandline binaries
     """    
-    def __init__(self, binary, logger) -> None:
+    def __init__(self, binary, module) -> None:
         self.binary = binary
-        self.logger = logger
+        self.module = module
 
     def run(self, command, subcommand, args) -> CommandResult:
         """
@@ -23,20 +23,26 @@ class CommandRunner(object):
         """
         run_command = self.binary + command + subcommand + "".join(args)
         self.logger.debug("Run command: %s" %(run_command))
-        try:
-            result = subprocess.run(run_command, shell=True, check=True, 
-                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, 
-                                    text=True)
-            return CommandResult(
-                exit_code=result.returncode,
-                output=result.stdout.strip(),
-                error=result.stderr.strip()
-            )
-        except subprocess.CalledProcessError as e:
-            # Handle errors from running the command
-            return CommandResult(
-                exit_code=e.returncode,
-                output=e.stdout.strip() if e.stdout else "",
-                error=e.stderr.strip() if e.stderr else ""
-            )
+
+        p = subprocess.Popen(run_command, shell=True, check=True, 
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, 
+                                text=True)
+        result = CommandResult()
+
+        while True:
+            line = p.stdout.readline().strip()
+            if line == '' and p.poll() is not None:
+                break
+            if line:
+                self.module.log(msg=line)
+                result["output"] += line
+            error = p.stderr
+            if error:
+                self.module.warn(msg=error.strip())
+                result["error"] = error.strip()
+
+        result["exit_code"] = p.returncode
+
+        return result
+
 
