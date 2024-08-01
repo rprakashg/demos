@@ -320,9 +320,9 @@ def install_openshift(module, runner):
 
     # Run openshift install
     args = [
-        "--dir=",
+        " --dir=",
         clusters_dir,
-        "--log-level=",
+        " --log-level=",
         "info"
     ]
     result = runner.run("create", "cluster", args)
