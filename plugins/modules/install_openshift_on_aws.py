@@ -86,6 +86,8 @@ import os
 import re
 import requests
 import json
+import logging
+import sys
 
 from ansible.module_utils.basic import AnsibleModule  # noqa E402
 from jinja2 import Template
@@ -241,14 +243,14 @@ def install_openshift(module, runner):
     params: dict = module.params
     
     result = dict(
-        api_server_url = dict(type=str),
-        web_console_url = dict(type=str),
+        api_server_url="",
+        web_console_url="",
         credentials = dict(
-            user = dict(type=str),
-            password = dict(type=str)
+            user = "",
+            password = ""
         ),
-        kubeconfig = dict(type=str),
-        output = dict(type=str)
+        kubeconfig = "",
+        output = ""
     )
 
     # Check if AWS credentials are set in environment variables
@@ -361,9 +363,15 @@ def main():
         argument_spec=module_args,
         supports_check_mode=True
     )
-
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    
     binary = "openshift-install "
-    runner: CommandRunner = CommandRunner(binary, module)
+    runner: CommandRunner = CommandRunner(binary, logger)
 
     install_openshift(module, runner)
     

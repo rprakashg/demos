@@ -7,9 +7,9 @@ class CommandRunner(object):
 
         This is a helper utility for running commandline binaries
     """    
-    def __init__(self, binary, module) -> None:
+    def __init__(self, binary, logger) -> None:
         self.binary = binary
-        self.module = module
+        self.logger = logger
 
     def run(self, command, subcommand, args) -> CommandResult:
         """
@@ -22,7 +22,7 @@ class CommandRunner(object):
         :return: CommandResult
         """
         run_command = self.binary + command + subcommand + "".join(args)
-        self.module.log(msg="Run command: %s" %(run_command))
+        self.logger.info("Run command: %s" %(run_command))
 
         p = subprocess.Popen(run_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, 
                                 text=True)
@@ -34,7 +34,7 @@ class CommandRunner(object):
             if line == '' and p.poll() is not None:
                 break
             if line:
-                self.module.log(msg=line)
+                self.logger.info(msg=line)
                 result.output += line
             error = p.stderr
             if error:
