@@ -257,7 +257,7 @@ def install_openshift(module, runner):
 
     if params["ssh_pubkey"] is None:
         # Get SSH Key
-        ssh_pubkey = parse_ssh_key("~/.ssh/id_rsa.pub")
+        ssh_pubkey = parse_ssh_key("id_rsa.pub")
         params["ssh_pubkey"] = ssh_pubkey
         
     # Generate install config file
