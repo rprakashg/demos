@@ -121,10 +121,10 @@ def get_installconfig_template():
             {% for az in worker_azs -%}
             - {{ az }}
             {% endfor -%}
-        rootVolume:
-            iops: 2000
-            size: 500
-            type: io1 
+            rootVolume:
+                iops: 2000
+                size: 500
+                type: io1 
         type: {{ worker_instance_type }}
       replicas: {{ worker_replicas }}
     controlPlane:
