@@ -330,29 +330,29 @@ def install_openshift(module, runner):
         module.fail_json(result)
 
     # Parse kube api server url from output and set it to result
-    api_pattern = r'Kubernetes API at ([^\s]+)'
-    api_server_url = parse_token(api_pattern, output)
-    result["api_server_url"] = api_server_url
+    #api_pattern = r'Kubernetes API at ([^\s]+)'
+    #api_server_url = parse_token(api_pattern, output)
+    #result["api_server_url"] = api_server_url
 
     # Parse openshift webconsole URL from output and set it in result
-    webconsole_pattern = r'weh-console here: ([^\s]+)'
-    webconsole_url = parse_token(webconsole_pattern, output)
-    result["web_console_url"] = webconsole_url
+    #webconsole_pattern = r'weh-console here: ([^\s]+)'
+    #webconsole_url = parse_token(webconsole_pattern, output)
+    #result["web_console_url"] = webconsole_url
 
     # Parse cluster credentials from output and set it in result
-    user_pattern = r'user:\s*"([^"]+)"' 
-    password_pattern = r'passwprd:\s*"([^"]+)"'    
-    user = parse_token(user_pattern, output)
-    password = parse_token(password_pattern, output)
-    result["credentials"].update({
-        "user": user,
-        "password": password,
-    })
+    #user_pattern = r'user:\s*"([^"]+)"' 
+    #password_pattern = r'passwprd:\s*"([^"]+)"'    
+    #user = parse_token(user_pattern, output)
+    #password = parse_token(password_pattern, output)
+    #result["credentials"].update({
+    #    "user": user,
+    #    "password": password,
+    #})
 
     # Parset kubeconfig path from output and set it in result
-    kubeconfig_pattern = r'export KUBECONFIG=([^\s]+)'
-    kubeconfig_path = parse_token(kubeconfig_pattern, output)
-    result["kubeconfig"] = kubeconfig_path
+    #kubeconfig_pattern = r'export KUBECONFIG=([^\s]+)'
+    #kubeconfig_path = parse_token(kubeconfig_pattern, output)
+    #result["kubeconfig"] = kubeconfig_path
     
     # Exit the module and return results
     module.exit_json(msg="Openshift cluster %s was created successfully" % (params["cluster_name"]), 
