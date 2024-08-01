@@ -25,7 +25,7 @@ class CommandRunner(object):
         try:
             result = subprocess.run(run_command, shell=True, check=True, 
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, 
-                                    text=True, capture_output=True)
+                                    text=True)
             return CommandResult(
                 exit_code=result.returncode,
                 output=result.stdout.strip(),
