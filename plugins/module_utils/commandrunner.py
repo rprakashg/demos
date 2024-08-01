@@ -1,4 +1,5 @@
 import subprocess
+from logging import Logger
 from ansible_collections.rprakashg.openshift_automation.plugins.module_utils.commandresult import CommandResult
 
 class CommandRunner(object):
@@ -7,8 +8,9 @@ class CommandRunner(object):
 
         This is a helper utility for running commandline binaries
     """
-    def __init__(self, binary) -> None:
+    def __init__(self, binary, logger: Logger) -> None:
         self.binary = binary
+        self.logger - logger
 
     def run(self, command, subcommand, args) -> CommandResult:
         """
@@ -21,8 +23,8 @@ class CommandRunner(object):
         :return: CommandResult
         """
         run_command = [self.binary] + [command] + [subcommand] + args
-        print("Run command: %s" %(run_command))
-        
+        self.logger.debug("Run command: %s" %(run_command))
+
         try:
             result = subprocess.run(run_command, shell=True, check=True, 
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, 

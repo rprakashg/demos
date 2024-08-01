@@ -86,6 +86,7 @@ import os
 import re
 import requests
 import json
+import logging
 
 from ansible.module_utils.basic import AnsibleModule  # noqa E402
 from jinja2 import Template
@@ -94,6 +95,8 @@ from itertools import islice
 from ansible_collections.rprakashg.openshift_automation.plugins.module_utils.commandrunner import CommandRunner
 from ansible_collections.rprakashg.openshift_automation.plugins.module_utils.commandresult import CommandResult
 
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 def get_azs(region, replicas):
     take: int
