@@ -105,7 +105,8 @@ def get_azs(region, replicas):
     client = boto3.client('ec2', region_name=region)
     response = client.describe_availability_zones()
     azs = [az['ZoneName'] for az in response['AvailabilityZones']]
-    return dict(islice(azs, take))
+    
+    return azs[:take]
     
 def generate_installconfig(params, install_config_file):
 
