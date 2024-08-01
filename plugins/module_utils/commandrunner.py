@@ -8,6 +8,8 @@ class CommandRunner(object):
 
         This is a helper utility for running commandline binaries
     """
+    logger: Logger
+    
     def __init__(self, binary, logger: Logger) -> None:
         self.binary = binary
         self.logger - logger
