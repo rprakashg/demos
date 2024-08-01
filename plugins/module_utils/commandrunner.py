@@ -9,7 +9,7 @@ class CommandRunner(object):
     """    
     def __init__(self, binary, logger) -> None:
         self.binary = binary
-        self.logger - logger
+        self.logger = logger
 
     def run(self, command, subcommand, args) -> CommandResult:
         """
@@ -23,7 +23,6 @@ class CommandRunner(object):
         """
         run_command = self.binary + command + subcommand + "".join(args)
         self.logger.debug("Run command: %s" %(run_command))
-
         try:
             result = subprocess.run(run_command, shell=True, check=True, 
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, 
