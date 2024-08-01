@@ -381,7 +381,7 @@ def main():
         supports_check_mode=True
     )
     binary = "openshift-install "
-    runner: CommandRunner = CommandRunner(binary)
+    runner: CommandRunner = CommandRunner(binary, logger)
 
     install_openshift(module, runner)
     
