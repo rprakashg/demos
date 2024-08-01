@@ -120,7 +120,7 @@ def get_installconfig_template():
             zones:
             {% for az in worker_azs -%}
             - {{ az }}
-            {% endfor %}
+            {% endfor -%}
         rootVolume:
             iops: 2000
             size: 500
@@ -136,7 +136,7 @@ def get_installconfig_template():
                 zones:
                 {% for az in controlplane_azs -%}
                 - {{ az }}
-                {% endfor %}
+                {% endfor -%}
             rootVolume:
                 iops: 4000
                 size: 500
