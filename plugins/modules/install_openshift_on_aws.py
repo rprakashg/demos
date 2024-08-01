@@ -344,7 +344,7 @@ def install_openshift(module, runner):
     
     # Exit the module and return results
     title = "Openshift cluster %s was created successfully" % (params["cluster_name"])
-    module.exit_json(msg=title, changed=True, **result)
+    module.exit_json(msg=title, **result)
 
 def main():
     module_args = dict(
@@ -369,7 +369,7 @@ def main():
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-    
+
     binary = "openshift-install "
     runner: CommandRunner = CommandRunner(binary, logger)
 
