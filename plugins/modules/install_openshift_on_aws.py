@@ -341,7 +341,7 @@ def main():
     runner: CommandRunner = CommandRunner(binary)
     helper = Helper()
 
-    install_openshift(module, runner, helper)
+    run_module(module, runner, helper)
     
 if __name__ == '__main__':
     main()
