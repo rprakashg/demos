@@ -20,11 +20,11 @@ class CommandRunner(object):
 
         :return: CommandResult
         """
-        command = [self.binary, command, subcommand]        
+        command = [self.binary, command, subcommand] + args        
         #run_command = self.binary + command + subcommand + "".join(args)
 
         try:
-            resp = subprocess.run(command + args, shell=True, check=True, 
+            resp = subprocess.run(command, shell=True, check=True, 
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, 
                                     text=True)
             return CommandResult(
