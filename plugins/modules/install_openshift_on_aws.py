@@ -233,12 +233,12 @@ def run_module(module, runner, helper):
     params: dict = module.params
     
     result = dict(
-        api_server_url=dict(type=str, required=True),
-        web_console_url=dict(type=str, required=True),
-        user = dict(type=str, required=True),
-        password = dict(type=str, required=True),
-        kubeconfig = dict(type=str, required=True),
-        output = dict(type=str, required=True)
+        api_server_url="",
+        web_console_url="",
+        user = "",
+        password = "",
+        kubeconfig = "",
+        output = ""
     )
 
     # Check if AWS credentials are set in environment variables
@@ -307,19 +307,17 @@ def run_module(module, runner, helper):
         module.fail_json(msg=cr.error)
 
     #parse tokens from installer output
-    #tokens = helper.parse_installer_output(output)
-    #if tokens is not None:
-    #    result["api_server_url"] = tokens["api_server_url"]
-    #    result["web_console_url"] = tokens["web_console_url"]
-    #    result["kubeconfig"] = tokens["set_kubeconfig_cmd"]
-    #    result["user"] = tokens["user"]
-    #    result["password"] = tokens["password"]
+    tokens = helper.parse_installer_output(output)
+    if tokens is not None:
+        result["api_server_url"] = tokens["api_server_url"]
+        result["web_console_url"] = tokens["web_console_url"]
+        result["kubeconfig"] = tokens["set_kubeconfig_cmd"]
+        result["user"] = tokens["user"]
+        result["password"] = tokens["password"]
 
     # Exit the module and return results
     title = "Openshift cluster %s was created successfully" % (params["cluster_name"])
-    # module.exit_json(msg=title, **result)
-    module.exit_json(msg=cr.output)
-
+    module.exit_json(msg=title, **result)
 
 def main():
     module_args = dict(
