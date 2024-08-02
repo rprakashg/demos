@@ -83,7 +83,6 @@ EXAMPLES = r'''
 
 import boto3
 import os
-import re
 import requests
 import json
 
@@ -93,7 +92,7 @@ from itertools import islice
 
 from ansible_collections.rprakashg.openshift_automation.plugins.module_utils.commandrunner import CommandRunner
 from ansible_collections.rprakashg.openshift_automation.plugins.module_utils.commandresult import CommandResult
-
+from ansible_collections.rprakashg.openshift_automation.plugins.module_utils.helper import Helper
 
 def get_azs(region, replicas):
     take: int
@@ -230,16 +229,14 @@ def parse_ssh_key(key_file):
     except Exception as e:
         raise RuntimeError(f"Failed to read ssh key file: {str(e)}")
 
-def install_openshift(module, runner):
+def install_openshift(module, runner, helper):
     params: dict = module.params
     
     result = dict(
         api_server_url=dict(type=str, required=True),
         web_console_url=dict(type=str, required=True),
-        credentials = dict(
-            user = dict(type=str, required=True),
-            password = dict(type=str, required=True)
-        ),
+        user = dict(type=str, required=True),
+        password = dict(type=str, required=True)
         kubeconfig = dict(type=str, required=True),
         output = dict(type=str, required=True)
     )
@@ -308,7 +305,14 @@ def install_openshift(module, runner):
         module.fail_json(msg=cr.error)
 
     #parse tokens from installer output
-    
+    tokens = helper.parse_installer_output(cr.output)
+    if tokens is not None:
+        result["api_server_url"] = tokens["api_server_url"]
+        result["web_console_url"] = tokens["web_console_url"]
+        result["kubeconfig"] = tokens["set_kubeconfig_cmd"]
+        result["user"] = tokens["user"]
+        result["password"] = tokens["password"]
+
     # Exit the module and return results
     title = "Openshift cluster %s was created successfully" % (params["cluster_name"])
     module.exit_json(msg=title, **result)
@@ -334,7 +338,9 @@ def main():
     binary = "openshift-install "
     runner: CommandRunner = CommandRunner(binary)
 
-    install_openshift(module, runner)
+    helper = Helper()
+
+    install_openshift(module, runner, helper)
     
 if __name__ == '__main__':
     main()
