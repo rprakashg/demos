@@ -229,14 +229,14 @@ def parse_ssh_key(key_file):
     except Exception as e:
         raise RuntimeError(f"Failed to read ssh key file: {str(e)}")
 
-def install_openshift(module, runner, helper):
+def run_module(module, runner, helper):
     params: dict = module.params
     
     result = dict(
         api_server_url=dict(type=str, required=True),
         web_console_url=dict(type=str, required=True),
         user = dict(type=str, required=True),
-        password = dict(type=str, required=True)
+        password = dict(type=str, required=True),
         kubeconfig = dict(type=str, required=True),
         output = dict(type=str, required=True)
     )
@@ -296,7 +296,9 @@ def install_openshift(module, runner, helper):
     # Run openshift install
     args = [
         " --dir=",
-        clusters_dir
+        clusters_dir,
+        "--log-level=",
+        "info"
     ]
     cr = runner.run("create ", "cluster", args)
     if cr.exit_code == 0:
@@ -337,7 +339,6 @@ def main():
 
     binary = "openshift-install "
     runner: CommandRunner = CommandRunner(binary)
-
     helper = Helper()
 
     install_openshift(module, runner, helper)
