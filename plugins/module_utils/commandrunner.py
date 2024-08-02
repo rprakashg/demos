@@ -21,19 +21,26 @@ class CommandRunner(object):
         :return: CommandResult
         """
         run_command = " ".join([self.binary, command, subcommand] + args)
+        result = CommandResult(exit_code=0, output="", error="")
 
         try:
-            resp = subprocess.run(run_command, encoding='utf-8', shell=True, check=True, capture_output=True, text=True)
-            return CommandResult(
-                exit_code=resp.returncode,
-                output=resp.stdout.strip() if resp.stdout else "stdout is empty",
-                error=resp.stderr.strip() if resp.stderr else "stderr is empty"
-            )
+            process = subprocess.Popen(run_command, shell=True, text=True,
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            while True:
+                line = process.stdout.readline()
+                if not line:
+                    break
+                result["ouput"] += line.strip()
+                
+            process.stdout.close()
+            process.wait()
+            result.exit_code = process.returncode
+            if process.returncode != 0:
+                result.error = process.stderr.read() if process.stderr else None
+
         except subprocess.CalledProcessError as e:
             # Handle errors from running the command
-            return CommandResult(
-                exit_code=e.returncode,
-                output=e.stdout.strip() if e.stdout else "stdout is empty",
-                error=e.stderr.strip() if e.stderr else "stderr is empty"
-            )
-        return resp
+            result.exit_code=e.returncode,
+            result.error=e.stderr.strip() if e.stderr else "stderr is empty"
+
+        return result
