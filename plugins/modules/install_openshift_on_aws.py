@@ -297,7 +297,7 @@ def run_module(module, runner, helper):
     args = [
         " --dir=",
         clusters_dir,
-        "--log-level=",
+        " --log-level=",
         "info"
     ]
     cr = runner.run("create ", "cluster", args)
