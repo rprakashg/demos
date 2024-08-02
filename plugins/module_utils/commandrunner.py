@@ -23,7 +23,7 @@ class CommandRunner(object):
         run_command = self.binary + command + subcommand + "".join(args)
 
         try:
-            resp = subprocess.run([self.binary, command, subcommand] + args,  stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+            resp = subprocess.run(run_command,  stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             return CommandResult(
                 exit_code=resp.returncode,
                 output=resp.stdout.strip() if resp.stdout else "stdout is empty",
