@@ -295,11 +295,10 @@ def run_module(module, runner, helper):
 
     # Run openshift install
     args = [
-        " --dir=",
-        clusters_dir,
-        " --log-level=info"
+        f"--dir={clusters_dir}",
+        "--log-level=info"
     ]
-    cr = runner.run("create ", "cluster", args)
+    cr = runner.run("create", "cluster", args)
     if cr.exit_code == 0:
         result["output"] = cr.output
     else:
@@ -336,7 +335,7 @@ def main():
         supports_check_mode=True
     )
 
-    binary = "openshift-install "
+    binary = "openshift-install"
     runner: CommandRunner = CommandRunner(binary)
     helper = Helper()
 
