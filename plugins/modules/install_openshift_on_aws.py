@@ -307,13 +307,13 @@ def run_module(module, runner, helper):
         module.fail_json(msg=cr.error)
 
     #parse tokens from installer output
-    tokens = helper.parse_installer_output(output)
-    if tokens is not None:
-        result["api_server_url"] = tokens["api_server_url"]
-        result["web_console_url"] = tokens["web_console_url"]
-        result["kubeconfig"] = tokens["set_kubeconfig_cmd"]
-        result["user"] = tokens["user"]
-        result["password"] = tokens["password"]
+    #tokens = helper.parse_installer_output(result["output"])
+    #if tokens is not None:
+    #    result["api_server_url"] = tokens["api_server_url"]
+    #    result["web_console_url"] = tokens["web_console_url"]
+    #    result["kubeconfig"] = tokens["set_kubeconfig_cmd"]
+    #    result["user"] = tokens["user"]
+    #    result["password"] = tokens["password"]
 
     # Exit the module and return results
     title = "Openshift cluster %s was created successfully" % (params["cluster_name"])
