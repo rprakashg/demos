@@ -7,9 +7,8 @@ class CommandRunner(object):
 
         This is a helper utility for running commandline binaries
     """    
-    def __init__(self, binary, logger) -> None:
+    def __init__(self, binary) -> None:
         self.binary = binary
-        self.logger = logger
 
     def run(self, command, subcommand, args) -> CommandResult:
         """
@@ -22,41 +21,40 @@ class CommandRunner(object):
         :return: CommandResult
         """
         run_command = self.binary + command + subcommand + "".join(args)
-        self.logger.info("Run command: %s" %(run_command))
 
-        try:
-            result = subprocess.run(run_command, shell=True, check=True, 
-                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, 
-                                    text=True)
-            return CommandResult(
-                exit_code=result.returncode,
-                output=result.stdout.strip(),
-                error=result.stderr.strip()
-            )
-        except subprocess.CalledProcessError as e:
+        #try:
+        #    result = subprocess.run(run_command, shell=True, check=True, 
+        #                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, 
+        #                            text=True)
+        #    return CommandResult(
+        #        exit_code=result.returncode,
+        #        output=result.stdout.strip(),
+        #        error=result.stderr.strip()
+        #    )
+        #except subprocess.CalledProcessError as e:
             # Handle errors from running the command
-            return CommandResult(
-                exit_code=e.returncode,
-                output=e.stdout.strip() if e.stdout else "",
-                error=e.stderr.strip() if e.stderr else ""
-            )
+        #    return CommandResult(
+        #        exit_code=e.returncode,
+        #        output=e.stdout.strip() if e.stdout else "",
+        #        error=e.stderr.strip() if e.stderr else ""
+        #    )
         
-        #p = subprocess.Popen(run_command, shell=True, stdout=subprocess.PIPE, 
-        #                     stderr=subprocess.PIPE, text=True)
-        #result = CommandResult(exit_code=0, output="", error="")
+        p = subprocess.Popen(run_command, shell=True, stdout=subprocess.PIPE, 
+                             stderr=subprocess.PIPE, text=True)
+        result = CommandResult(exit_code=0, output="", error="")
 
-        #while True:
-        #    line = p.stdout.readline().strip()
-        #    if line == '' and p.poll() is not None:
-        #        break
-        #    if line:
-        #        self.logger.info(line)
-        #        result.output += line
-        #    error = p.stderr
-        #    if error:
-        #        self.logger.warn(error.strip())
-        #        result.error = error.strip()
+        while True:
+            line = p.stdout.readline().strip()
+            if line == '' and p.poll() is not None:
+                break
+            if line:
+                self.logger.info(line)
+                result.output += line
+            error = p.stderr
+            if error:
+                self.logger.warn(error.strip())
+                result.error = error.strip()
 
-        # result.exit_code = p.returncode
+        result.exit_code = p.returncode
 
-        #return result
+        return result

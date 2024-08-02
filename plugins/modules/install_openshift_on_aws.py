@@ -86,8 +86,6 @@ import os
 import re
 import requests
 import json
-import logging
-import sys
 
 from ansible.module_utils.basic import AnsibleModule  # noqa E402
 from jinja2 import Template
@@ -232,13 +230,6 @@ def parse_ssh_key(key_file):
     except Exception as e:
         raise RuntimeError(f"Failed to read ssh key file: {str(e)}")
 
-def parse_token(pattern: str, log_content: str):
-    match = re.search(pattern, log_content, re.IGNORECASE)
-    if match:
-        return match
-    else:
-        return ""
-
 def install_openshift(module, runner):
     params: dict = module.params
     
@@ -316,30 +307,7 @@ def install_openshift(module, runner):
     else:
         module.fail_json(msg=cr.error)
 
-    # Parse kube api server url from output and set it to result
-    api_pattern = r'Kubernetes API at ([^\s]+)'
-    api_server_url = parse_token(api_pattern, cr.output)
-    result["api_server_url"] = api_server_url
-
-    # Parse openshift webconsole URL from output and set it in result
-    webconsole_pattern = r'weh-console here: ([^\s]+)'
-    webconsole_url = parse_token(webconsole_pattern, cr.output)
-    result["web_console_url"] = webconsole_url
-
-    # Parse cluster credentials from output and set it in result
-    user_pattern = r'user:\s*"([^"]+)"' 
-    password_pattern = r'passwprd:\s*"([^"]+)"'    
-    user = parse_token(user_pattern, cr.output)
-    password = parse_token(password_pattern, cr.output)
-    result["credentials"].update({
-        "user": user,
-        "password": password,
-    })
-
-    # Parset kubeconfig path from output and set it in result
-    kubeconfig_pattern = r'export KUBECONFIG=([^\s]+)'
-    kubeconfig_path = parse_token(kubeconfig_pattern, cr.output)
-    result["kubeconfig"] = kubeconfig_path
+    #parse tokens from installer output
     
     # Exit the module and return results
     title = "Openshift cluster %s was created successfully" % (params["cluster_name"])
@@ -362,15 +330,9 @@ def main():
         argument_spec=module_args,
         supports_check_mode=True
     )
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
 
     binary = "openshift-install "
-    runner: CommandRunner = CommandRunner(binary, logger)
+    runner: CommandRunner = CommandRunner(binary)
 
     install_openshift(module, runner)
     
