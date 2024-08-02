@@ -317,7 +317,9 @@ def run_module(module, runner, helper):
 
     # Exit the module and return results
     title = "Openshift cluster %s was created successfully" % (params["cluster_name"])
-    module.exit_json(msg=title, **result)
+    # module.exit_json(msg=title, **result)
+    module.exit_json(msg=cr.output)
+
 
 def main():
     module_args = dict(
