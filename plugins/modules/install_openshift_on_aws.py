@@ -106,7 +106,7 @@ def get_azs(region, replicas):
     return azs[:take]
 
 def generate_installconfig_template():
-    template=f"""
+    template=r"""
     apiVersion: v1
     baseDomain: {{ base_domain }}
     compute:
