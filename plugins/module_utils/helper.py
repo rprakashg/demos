@@ -48,14 +48,14 @@ class Helper(object):
         
         return result
     
-    def run_command(self, command, args):
+    def run_command(self, binary, args):
         result = dict(
             exit_code=0,
             output="",
             error=""
         )
 
-        process = subprocess.Popen(command + " " + args, shell=True, text=True,
+        process = subprocess.Popen(binary + " " + args, shell=True, text=True,
                                 stdout=subprocess.PIPE, 
                                 stderr=subprocess.PIPE)
         while True:
