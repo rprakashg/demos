@@ -85,7 +85,6 @@ import boto3
 import os
 import requests
 import json
-import yaml
 import tempfile
 
 from ansible.module_utils.basic import AnsibleModule  # noqa E402
@@ -165,7 +164,7 @@ def generate_installconfig_template():
     try:
         template_file = tempfile.NamedTemporaryFile(delete=False,
                                     mode='w', suffix='.yaml.j2')
-        yaml.dump(template, template_file)
+        template_file.write(template)
         return template_file.name
     except Exception as e:
         return None
