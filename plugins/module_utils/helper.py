@@ -2,8 +2,6 @@ import re
 import subprocess
 import os
 
-from ansible.plugins.loader import loader
-
 class Helper(object):
     """
         Helper
