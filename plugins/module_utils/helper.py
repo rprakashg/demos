@@ -54,8 +54,9 @@ class Helper(object):
             output="",
             error=""
         )
+        run_command = binary + " ".join(args)
 
-        process = subprocess.Popen(binary + " " + args, shell=True, text=True,
+        process = subprocess.Popen(run_command, shell=True, text=True,
                                 stdout=subprocess.PIPE, 
                                 stderr=subprocess.PIPE)
         while True:

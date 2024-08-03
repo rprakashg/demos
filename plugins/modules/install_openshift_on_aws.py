@@ -185,7 +185,8 @@ def generate_installconfig(params, install_config_file):
     rendered_content = template.render(context)
 
     # Format 
-    formatted = yaml.dump(rendered_content, default_flow_style=False)
+    formatted = yaml.dump(rendered_content, encoding="utf-8",
+                          indent=4, default_flow_style=False)
 
     # Write rendered content to the destination file
     with open(install_config_file, 'w') as f:
@@ -298,7 +299,7 @@ def run_module(module, helper):
     # Run openshift install
     args = [
         "create"
-        "c;ister"
+        "cluster"
         f"--dir={clusters_dir}",
         "--log-level=info"
     ]
