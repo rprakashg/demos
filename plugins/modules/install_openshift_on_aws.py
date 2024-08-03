@@ -231,10 +231,8 @@ def run_module(module, helper):
         ssh_pubkey = parse_ssh_key("id_rsa.pub")
         params["ssh_pubkey"] = ssh_pubkey
 
-    # get collectioon path
-    cp = helper.get_collection_path("rprakashg", "openshift_automation")  
-    if cp is None:
-        module.fail_json(msg="Unable to get collection path")
+    # get default collectioon path
+    cp = os.path.join(home_dir, ".ansible/collections")
 
     template_dir = os.path.join(cp, "/plugins/modules/templates")
     # Generate install config file

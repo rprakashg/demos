@@ -51,14 +51,14 @@ class Helper(object):
         
         return result
     
-    def get_collection_path(self, namespace, name):
-        collection_paths = loader.collections_paths()
+    #def get_collection_path(self, namespace, name):
+    #    collection_paths = loader.collections_paths()
 
-        for path in collection_paths:
-            p = os,path.join(path, 'ansible_collections', namespace, name)
-            if os.path.isdir(p):
-                return p
-        return None
+    #    for path in collection_paths:
+    #        p = os,path.join(path, 'ansible_collections', namespace, name)
+    #        if os.path.isdir(p):
+    #            return p
+    #    return None
          
     def run_command(self, binary, args):
         result = dict(
