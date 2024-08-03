@@ -231,7 +231,7 @@ def parse_ssh_key(key_file):
     except Exception as e:
         raise RuntimeError(f"Failed to read ssh key file: {str(e)}")
 
-def run_module(module, runner, helper):
+def run_module(module, helper):
     params: dict = module.params
     
     result = dict(
