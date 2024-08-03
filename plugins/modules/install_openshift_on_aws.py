@@ -107,7 +107,7 @@ def get_azs(region, replicas):
 
 def generate_installconfig(params, template_dir, install_config_file):    
     template_env = Environment(loader=FileSystemLoader(template_dir))
-    template = template_env.get_template("install-config.yml.j2")
+    template = template_env.get_template("install-config-aws.yml.j2")
 
     # define context data to render install config yml
     context = {
@@ -232,10 +232,8 @@ def run_module(module, helper):
         params["ssh_pubkey"] = ssh_pubkey
 
     # get default collectioon path
-    cp = os.path.join(home_dir, ".ansible/collections/ansible_collections", 
-                      "rprakashg", "openshift_automation")
+    template_dir = os.path.join(home_dir, ".ansible/collections/ansible_collections/rprakashg/openshift_automation/plugins/modules/templates")
 
-    template_dir = os.path.join(cp, "/plugins/modules/templates")
     # Generate install config file
     install_config = "%s/install-config.yml" % (clusters_dir)
     generate_installconfig(params, template_dir, install_config)
