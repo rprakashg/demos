@@ -42,7 +42,7 @@ def run_module(module, helper):
     if result["exit_code"] == 0:
         module.exit_json(**result)
     else:
-        module.fail_json(**result)
+        module.fail_json(msg="Command failed", **result)
 
 def main():
     module_args = dict(
