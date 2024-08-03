@@ -22,25 +22,20 @@ class CommandRunner(object):
         """
         run_command = " ".join([self.binary, command, subcommand] + args)
         result = CommandResult(exit_code=0, output="", error="")
-        try:
-            process = subprocess.Popen(run_command, shell=True, text=True,
-                                  stdout=subprocess.PIPE, 
-                                  stderr=subprocess.PIPE)
-            while True:
-                line = process.stdout.readline()
-                if line == '' and process.poll() is not None:
-                    break
-                if line:
-                    result.output += line.strip()
-            
-            err = process.stderr.read()
+
+        process = subprocess.Popen(run_command, shell=True, text=True,
+                                stdout=subprocess.PIPE, 
+                                stderr=subprocess.PIPE)
+        while True:
+            line = process.stdout.readline()
+            if line:
+                result.output += line.strip()            
+            err = process.stderr.readline()
             if err:
-                result.error = err
-                
-        except subprocess.CalledProcessError as e:
-            # Handle errors from running the command
-            result.exit_code=e.returncode
-            result.output=e.stdout.strip() if e.stdout else "stdout is empty",
-            result.error=e.stderr.strip() if e.stderr else "stderr is empty"
+                result.error += err
+            if line == '' and err == '' and process.poll() is not None:
+                break    
+
+        result.exit_code = process.poll()
         
         return result
