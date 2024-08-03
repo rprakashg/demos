@@ -54,8 +54,7 @@ class Helper(object):
             output="",
             error=""
         )
-        run_command = binary + " ".join(args)
-        raise Exception(run_command)
+        run_command = binary + " " + " ".join(args)
         try:
             process = subprocess.run(run_command, shell=True, text=True,
                                 stdout=subprocess.PIPE, 
