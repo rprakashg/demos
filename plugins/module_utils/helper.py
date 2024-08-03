@@ -55,14 +55,19 @@ class Helper(object):
             error=""
         )
         run_command = binary + " " + " ".join(args)
-        try:
-            process = subprocess.run(run_command, shell=True, text=True,
-                                stdout=subprocess.PIPE, 
-                                stderr=subprocess.PIPE)
-            result["exit_code"] = process.returncode
-            result["output"] = process.stdout if process.stdout else ""
-        except subprocess.CalledProcessError as e:
-            result["exit_code"] = e.stderr.returncode
-            result["error"] = e.stderr if e.stderr else ""
+        process = subprocess.Popen(run_command, shell=True, text=True,
+                            stdout=subprocess.PIPE, 
+                            stderr=subprocess.PIPE)
+        while True:
+            line = process.stdout.readline()
+            if line:
+                result["output"] += line
+            err = process.stderr.readline()
+            if err:
+                result["error"] += err
+            if line == '' and err == '' and process.poll() is not None:
+                break
+                
+        result["exit_code"] = process.poll()
 
         return result
