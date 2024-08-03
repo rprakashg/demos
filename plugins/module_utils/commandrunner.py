@@ -7,8 +7,9 @@ class CommandRunner(object):
 
         This is a helper utility for running commandline binaries
     """    
-    def __init__(self, binary) -> None:
+    def __init__(self, binary, module) -> None:
         self.binary = binary
+        self.module = module
 
     def run(self, command, subcommand, args) -> CommandResult:
         """
@@ -21,26 +22,31 @@ class CommandRunner(object):
         :return: CommandResult
         """
         run_command = " ".join([self.binary, command, subcommand] + args)
+        self.module.stdout.write(f"Running command : {run_command}")
         result = CommandResult(exit_code=0, output="", error="")
-
         try:
             process = subprocess.Popen(run_command, shell=True, text=True,
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                  stdout=subprocess.PIPE, 
+                                  stderr=subprocess.PIPE)
             while True:
                 line = process.stdout.readline()
-                if not line:
+                if line == '' and process.poll() is not None:
                     break
-                result["ouput"] += line.strip()
+                if line:
+                    result.output += line.strip()
+                    self.module.stdout.write(line)
+                    self.module.stdout.flush()
+            
+            err = process.stderr.read()
+            if err:
+                self.module.stderr.write(err)
+                self.module.stderr.flush()
+                result.error = err
                 
-            process.stdout.close()
-            process.wait()
-            result.exit_code = process.returncode
-            if process.returncode != 0:
-                result.error = process.stderr.read() if process.stderr else None
-
         except subprocess.CalledProcessError as e:
             # Handle errors from running the command
-            result.exit_code=e.returncode,
+            result.exit_code=e.returncode
+            result.output=e.stdout.strip() if e.stdout else "stdout is empty",
             result.error=e.stderr.strip() if e.stderr else "stderr is empty"
-
+        
         return result
