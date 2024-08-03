@@ -107,7 +107,7 @@ def get_azs(region, replicas):
     return azs[:take]
 
 def generate_installconfig_template():
-    template = yaml.safe_load("""
+    template = yaml.load("""
     apiVersion: v1
     baseDomain: {{ base_domain }}
     compute:
@@ -160,7 +160,7 @@ def generate_installconfig_template():
     pullSecret: '{{ pullsecret }}'
     sshKey: |
         {{ ssh_pub_key }}
-    """)   
+    """, Loader=yaml.Loader)   
 
     #Write the template to tmp directory
     try:
