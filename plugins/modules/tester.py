@@ -38,13 +38,13 @@ def run_module(module, helper):
     command = module.params["command"]
     args = module.params["args"]
     
-    result = helper.run_command(command, args)
+    result = helper.run_command("openshift-install", "version")
     module.exit_json(**result)
 
 def main():
     module_args = dict(
-        command="",
-        args=""
+        command=dict(type=str, required=True),
+        args=dict(type=str, required=True)
     )
     
     module = AnsibleModule(
