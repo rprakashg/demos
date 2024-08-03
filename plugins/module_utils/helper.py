@@ -50,9 +50,9 @@ class Helper(object):
     
     def run_command(self, binary, args):
         result = dict(
-            exit_code=0,
-            output="",
-            error=""
+            exit_code=dict(type=int, required=True),
+            output=dict(type=str),
+            error=dict(type=str)
         )
         run_command = binary + " ".join(args)
 
@@ -60,10 +60,12 @@ class Helper(object):
             process = subprocess.run(run_command, shell=True, text=True,
                                 stdout=subprocess.PIPE, 
                                 stderr=subprocess.PIPE)
-            result["exit_code"] = process.returncode
-            result["output"] = process.stdout if process.stdout else ""
+            return result(
+                exit_code = process.returncode,
+                output = process.stdout if process.stdout else ""
+            )
         except subprocess.CalledProcessError as e:
-            result["exit_code"] = e.returncode
-            result["error"] = e.stderr if e.stderr else ""
-
-        return result
+            return result(
+                exit_code = e.returncode,
+                error = e.stderr if e.stderr else ""
+            )
