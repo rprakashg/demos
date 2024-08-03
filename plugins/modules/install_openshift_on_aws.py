@@ -85,6 +85,7 @@ import boto3
 import os
 import requests
 import json
+import yaml
 
 from ansible.module_utils.basic import AnsibleModule  # noqa E402
 from jinja2 import Template
@@ -162,6 +163,11 @@ def get_installconfig_template():
 
     return template
 
+def format_yaml(rendered):
+    try:
+        return 
+    except yaml.YAMLError as e:
+
 def generate_installconfig(params, install_config_file):
     template = Template(get_installconfig_template())
 
@@ -183,9 +189,12 @@ def generate_installconfig(params, install_config_file):
     # Render template with provided variables
     rendered_content = template.render(context)
 
+    # Format 
+    formatted = yaml.dump(rendered_content, default_flow_style=False)
+    
     # Write rendered content to the destination file
     with open(install_config_file, 'w') as f:
-        f.write(rendered_content)
+        f.write(formatted)
 
     return True
 
