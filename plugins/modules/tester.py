@@ -39,12 +39,15 @@ def run_module(module, helper):
     args = module.params["args"]
     
     result = helper.run_command(command, args)
-    module.exit_json(**result)
+    if result["exit_code"] == 0:
+        module.exit_json(**result)
+    else:
+        module.fail_json(**result)
 
 def main():
     module_args = dict(
         command=dict(type=str, required=True),
-        args=dict(type=str, required=True)
+        args=dict(type=list, required=True)
     )
     
     module = AnsibleModule(
