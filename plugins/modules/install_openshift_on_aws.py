@@ -185,7 +185,7 @@ def generate_installconfig(params, install_config_file):
     rendered_content = template.render(context)
 
     # Format 
-    formatted = yaml.dump(rendered_content, encoding="utf-8",
+    formatted = yaml.dump(rendered_content,
                           indent=4, default_flow_style=False)
 
     # Write rendered content to the destination file
