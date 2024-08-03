@@ -105,79 +105,9 @@ def get_azs(region, replicas):
     
     return azs[:take]
 
-def generate_installconfig_template():
-    template=r"""
-    apiVersion: v1
-    baseDomain: {{ base_domain }}
-    compute:
-    - architecture: amd64
-      hyperthreading: Enabled
-      name: worker
-      platform:
-        aws:
-            zones:
-            {% for az in worker_azs -%}
-            - {{ az }}
-            {% endfor -%}
-            rootVolume:
-                iops: 2000
-                size: 500
-                type: io1 
-        type: {{ worker_instance_type }}
-      replicas: {{ worker_replicas }}
-    controlPlane:
-        architecture: amd64
-        hyperthreading: Enabled
-        name: master
-        platform:
-            aws:
-                zones:
-                {% for az in controlplane_azs -%}
-                - {{ az }}
-                {% endfor -%}
-                rootVolume:
-                    iops: 4000
-                    size: 500
-                    type: io1 
-                type: {{ master_instance_type }} 
-        replicas: {{ master_replicas }}
-    metadata:
-        name: {{ cluster_name }}
-    networking:
-        clusterNetwork:
-        - cidr: 10.128.0.0/14
-          hostPrefix: 23
-        machineNetwork:
-        - cidr: 10.0.0.0/16
-        networkType: OVNKubernetes
-        serviceNetwork:
-        - 172.30.0.0/16
-    platform:
-        aws:
-            region: {{ region }}
-    publish: External
-    pullSecret: '{{ pullsecret }}'
-    sshKey: |
-        {{ ssh_pub_key }}
-    """   
-
-    #Write the template to tmp directory
-    try:
-        template_file = tempfile.NamedTemporaryFile(delete=False,
-                                    mode='w', suffix='.yaml.j2')
-        template_file.write(template)
-        return template_file.name
-    except Exception as e:
-        return None
-
-def generate_installconfig(params, install_config_file):
-    template_file = generate_installconfig_template()
-    if template_file is None: 
-        return False
-    template_dir = os.path.dirname(template_file)
-    template_name = os.path.basename(template_file)
+def generate_installconfig(params, template_dir, install_config_file):    
     template_env = Environment(loader=FileSystemLoader(template_dir))
-    template = template_env.get_template(template_name)
+    template = template_env.get_template("install-config.yml.j2")
 
     # define context data to render install config yml
     context = {
@@ -300,10 +230,16 @@ def run_module(module, helper):
         # Get SSH Key
         ssh_pubkey = parse_ssh_key("id_rsa.pub")
         params["ssh_pubkey"] = ssh_pubkey
-        
+
+    # get collectioon path
+    cp = helper.get_collection_path("rprakashg", "openshift_automation")  
+    if cp is None:
+        module.fail_json(msg="Unable to get collection path")
+
+    template_dir = os.path.join(cp, "/plugins/modules/templates")
     # Generate install config file
     install_config = "%s/install-config.yaml" % (clusters_dir)
-    generate_installconfig(params, install_config)
+    generate_installconfig(params, template_dir, install_config)
 
     # Run openshift install
     args = [
@@ -349,7 +285,6 @@ def main():
         supports_check_mode=True
     )
     helper = Helper()
-
     run_module(module, helper)
     
 if __name__ == '__main__':

@@ -1,5 +1,8 @@
 import re
 import subprocess
+import os
+
+from ansible.plugins.loader import loader
 
 class Helper(object):
     """
@@ -48,6 +51,15 @@ class Helper(object):
         
         return result
     
+    def get_collection_path(self, namespace, name):
+        collection_paths = loader.collections_paths()
+
+        for path in collection_paths:
+            p = os,path.join(path, 'ansible_collections', namespace, name)
+            if os.path.isdir(p):
+                return p
+        return None
+         
     def run_command(self, binary, args):
         result = dict(
             exit_code=0,
