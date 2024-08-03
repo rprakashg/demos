@@ -307,7 +307,7 @@ def run_module(module, helper):
     if cr.exit_code == 0:
         result["output"] = cr.output
     else:
-        module.fail_json(msg="error")
+        module.fail_json(msg=cr.error)
 
     #parse tokens from installer output
     tokens = helper.parse_installer_output(result["output"])

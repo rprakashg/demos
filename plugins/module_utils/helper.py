@@ -66,7 +66,7 @@ class Helper(object):
             err = process.stderr.readline()
             if err:
                 result.error += err
-            if line == '' and process.poll() is not None:
+            if line == '' and err == '' and process.poll() is not None:
                 break
 
         result.exit_code = process.poll()
