@@ -56,7 +56,6 @@ class Helper(object):
         )
         run_command = binary + " ".join(args)
         try:
-            raise subprocess.CalledProcessError(run_command)
             process = subprocess.run(run_command, shell=True, text=True,
                                 stdout=subprocess.PIPE, 
                                 stderr=subprocess.PIPE)
