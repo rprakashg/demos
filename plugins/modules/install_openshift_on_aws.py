@@ -106,7 +106,8 @@ def get_azs(region, replicas):
     return azs[:take]
 
 def generate_installconfig_template():
-    template="""apiVersion: v1
+    template="""
+    apiVersion: v1
     baseDomain: {{ base_domain }}
     compute:
     - architecture: amd64
