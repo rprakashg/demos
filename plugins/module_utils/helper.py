@@ -10,7 +10,7 @@ class Helper(object):
     def __init__(self) -> None:
         return
     
-    def parse_installer_output(output):
+    def parse_installer_output(self, output):
         """
         Parse tokens from the output of openshift installer cli create cluster command 
         :output: Stdout string
@@ -48,7 +48,7 @@ class Helper(object):
         
         return result
     
-    def run_command(command, args):
+    def run_command(self, command, args):
         result = dict(
             exit_code=0,
             output="",
