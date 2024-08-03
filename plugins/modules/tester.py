@@ -38,7 +38,7 @@ def run_module(module, helper):
     command = module.params["command"]
     args = module.params["args"]
     
-    result = helper.run_command("openshift-install", "version")
+    result = helper.run_command(command, args)
     module.exit_json(**result)
 
 def main():
