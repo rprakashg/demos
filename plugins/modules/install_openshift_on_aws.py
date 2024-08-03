@@ -232,11 +232,12 @@ def run_module(module, helper):
         params["ssh_pubkey"] = ssh_pubkey
 
     # get default collectioon path
-    cp = os.path.join(home_dir, ".ansible/collections")
+    cp = os.path.join(home_dir, ".ansible/collections/ansible_collections", 
+                      "rprakashg", "openshift_automation")
 
     template_dir = os.path.join(cp, "/plugins/modules/templates")
     # Generate install config file
-    install_config = "%s/install-config.yaml" % (clusters_dir)
+    install_config = "%s/install-config.yml" % (clusters_dir)
     generate_installconfig(params, template_dir, install_config)
 
     # Run openshift install
