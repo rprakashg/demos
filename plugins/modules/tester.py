@@ -43,8 +43,8 @@ def run_module(module, helper):
 
 def main():
     module_args = dict(
-        command=dict(type=str, required=True),
-        args=dict(type=str, required=True)
+        command="",
+        args=""
     )
     
     module = AnsibleModule(
