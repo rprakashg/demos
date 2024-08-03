@@ -63,7 +63,7 @@ class Helper(object):
             result["exit_code"] = process.returncode
             result["output"] = process.stdout if process.stdout else ""
         except Exception as e:
-            result["exit_code"] = e.returncode
+            result["exit_code"] = e.stderr.returncode
             result["error"] = e.stderr if e.stderr else ""
 
         return result
