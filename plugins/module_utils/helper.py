@@ -6,8 +6,8 @@ class Helper(object):
 
         This is a helper utility class
     """  
-    def __init__(self, module) -> None:
-        self.module = module
+    def __init__(self) -> None:
+        return
     
     def parse_installer_output(output):
         """
