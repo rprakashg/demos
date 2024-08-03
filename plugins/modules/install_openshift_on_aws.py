@@ -336,8 +336,8 @@ def main():
     )
 
     binary = "openshift-install"
-    runner: CommandRunner = CommandRunner(binary, module)
-    helper = Helper(module)
+    runner: CommandRunner = CommandRunner(binary)
+    helper = Helper()
 
     run_module(module, runner, helper)
     
