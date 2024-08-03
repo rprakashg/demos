@@ -62,13 +62,13 @@ class Helper(object):
         while True:
             line = process.stdout.readline()
             if line:
-                result["output"] += line
+                result.output += line
             err = process.stderr.readline()
             if err:
-                result["error"] += err
+                result.error += err
             if line == '' and process.poll() is not None:
                 break
 
-        result["exit_code"] = process.poll()
+        result.exit_code = process.poll()
 
         return result
