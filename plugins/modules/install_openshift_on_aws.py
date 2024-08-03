@@ -304,10 +304,10 @@ def run_module(module, helper):
         "--log-level=info"
     ]
     cr = helper.run_command("openshift-install", args)
-    if cr["exit_code"] == 0:
-        result["output"] = cr["output"]
+    if cr.exit_code == 0:
+        result["output"] = cr.output
     else:
-        module.fail_json(msg=cr["error"])
+        module.fail_json(msg=cr.error)
 
     #parse tokens from installer output
     tokens = helper.parse_installer_output(result["output"])
