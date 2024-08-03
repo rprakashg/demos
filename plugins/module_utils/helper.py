@@ -50,9 +50,9 @@ class Helper(object):
     
     def run_command(self, binary, args):
         result = dict(
-            exit_code=dict(type=int, required=True),
-            output=dict(type=str),
-            error=dict(type=str)
+            exit_code=0,
+            output="",
+            error=""
         )
         run_command = binary + " ".join(args)
 
