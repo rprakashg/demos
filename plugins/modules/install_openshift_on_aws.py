@@ -167,7 +167,7 @@ def generate_installconfig_template():
         template_file = tempfile.NamedTemporaryFile(delete=False,
                                     mode='w', suffix='.yaml.j2')
         yaml.dump(template, template_file)
-        return template_file.name
+        return template_file
     except Exception as e:
         return None
 
@@ -176,8 +176,8 @@ def generate_installconfig(params, install_config_file):
     if template_file is None: 
         return False
 
-    template_env = Environment(loader=FileSystemLoader(tempfile.gettempdir()))
-    template = template_env.get_template(template_file)
+    template_env = Environment(loader=FileSystemLoader(template_file.dir))
+    template = template_env.get_template(template_file.name)
 
     # define context data to render install config yml
     context = {
