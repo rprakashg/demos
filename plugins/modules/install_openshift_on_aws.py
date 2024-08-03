@@ -163,11 +163,6 @@ def get_installconfig_template():
 
     return template
 
-def format_yaml(rendered):
-    try:
-        return 
-    except yaml.YAMLError as e:
-
 def generate_installconfig(params, install_config_file):
     template = Template(get_installconfig_template())
 
@@ -191,7 +186,7 @@ def generate_installconfig(params, install_config_file):
 
     # Format 
     formatted = yaml.dump(rendered_content, default_flow_style=False)
-    
+
     # Write rendered content to the destination file
     with open(install_config_file, 'w') as f:
         f.write(formatted)
