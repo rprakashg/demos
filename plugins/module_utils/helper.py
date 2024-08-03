@@ -1,4 +1,5 @@
 import re
+import subprocess
 
 class Helper(object):
     """
@@ -45,4 +46,28 @@ class Helper(object):
         result['user'] = credentials.group(1) if credentials else None
         result['password'] = credentials.group(2) if credentials else None
         
+        return result
+    
+    def run_command(command, args):
+        result = dict(
+            exit_code=0,
+            output="",
+            error=""
+        )
+
+        process = subprocess.Popen(command + " " + args, shell=True, text=True,
+                                stdout=subprocess.PIPE, 
+                                stderr=subprocess.PIPE)
+        while True:
+            line = process.stdout.readline()
+            if line:
+                result["output"] += line
+            err = process.stderr.readline()
+            if err:
+                result["error"] += err
+            if line == '' and process.poll() is not None:
+                break
+
+        result["exit_code"] = process.poll()
+
         return result

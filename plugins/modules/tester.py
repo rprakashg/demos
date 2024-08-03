@@ -30,33 +30,15 @@ EXAMPLES = r'''
 
 '''
 from ansible.module_utils.basic import AnsibleModule  # noqa E402
+from ansible_collections.rprakashg.openshift_automation.plugins.module_utils.helper import Helper
 
 import subprocess
 
-def run_module(module):
+def run_module(module, helper):
     command = module.params["command"]
     args = module.params["args"]
-    result = dict(
-        exit_code=0,
-        output="",
-        error=""
-    )
-
-    process = subprocess.Popen(command + " " + args, shell=True, text=True,
-                                stdout=subprocess.PIPE, 
-                                stderr=subprocess.PIPE)
-    while True:
-        line = process.stdout.readline()
-        if line:
-            result["output"] += line.strip()
-        err = process.stderr.readline()
-        if err:
-            result["error"] += err
-        if line == '' and process.poll() is not None:
-            break
-
-    result["exit_code"] = process.poll()
-
+    
+    result = helper.run_command(command, args)
     module.exit_json(**result)
 
 def main():
@@ -69,7 +51,8 @@ def main():
         argument_spec=module_args,
         supports_check_mode=True
     )
-    run_module(module)
+    helper = Helper()
+    run_module(module, helper)
 
 if __name__ == '__main__':
     main()
