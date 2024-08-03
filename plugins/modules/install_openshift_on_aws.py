@@ -176,8 +176,9 @@ def generate_installconfig(params, install_config_file):
     if template_file is None: 
         return False
     template_dir = os.path.dirname(template_file)
+    template_name = os.path.basename(template_file)
     template_env = Environment(loader=FileSystemLoader(template_dir))
-    template = template_env.get_template(template_file)
+    template = template_env.get_template(template_name)
 
     # define context data to render install config yml
     context = {
