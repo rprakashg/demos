@@ -185,12 +185,12 @@ def generate_installconfig(params, install_config_file):
     rendered_content = template.render(context)
 
     # Format 
-    formatted = yaml.dump(rendered_content,
-                          indent=4, default_flow_style=False)
+    #formatted = yaml.dump(rendered_content,
+    #                      indent=4, default_flow_style=False)
 
     # Write rendered content to the destination file
     with open(install_config_file, 'w') as f:
-        f.write(formatted)
+        f.write(rendered_content)
 
     return True
 
