@@ -86,9 +86,10 @@ import os
 import requests
 import json
 import yaml
+import tempfile
 
 from ansible.module_utils.basic import AnsibleModule  # noqa E402
-from jinja2 import Template
+from jinja2 import Environment, FileSystemLoader
 from itertools import islice
 
 from ansible_collections.rprakashg.openshift_automation.plugins.module_utils.helper import Helper
@@ -105,8 +106,8 @@ def get_azs(region, replicas):
     
     return azs[:take]
 
-def get_installconfig_template():
-    template = """
+def generate_installconfig_template():
+    template = yaml.safe_load("""
     apiVersion: v1
     baseDomain: {{ base_domain }}
     compute:
@@ -159,12 +160,24 @@ def get_installconfig_template():
     pullSecret: '{{ pullsecret }}'
     sshKey: |
         {{ ssh_pub_key }}
-    """    
+    """)   
 
-    return template
+    #Write the template to tmp directory
+    try:
+        template_file = tempfile.NamedTemporaryFile(delete=False,
+                                    mode='w', suffix='.yaml.j2')
+        yaml.dump(template, template_file)
+        return template_file.name
+    except Exception as e:
+        return None
 
 def generate_installconfig(params, install_config_file):
-    template = Template(get_installconfig_template())
+    template_file = generate_installconfig_template()
+    if template_file is None: 
+        return False
+
+    template_env = Environment(loader=FileSystemLoader(tempfile.gettempdir()))
+    template = template_env.get_template(template_file)
 
     # define context data to render install config yml
     context = {
@@ -183,10 +196,6 @@ def generate_installconfig(params, install_config_file):
 
     # Render template with provided variables
     rendered_content = template.render(context)
-
-    # Format 
-    #formatted = yaml.dump(rendered_content,
-    #                      indent=4, default_flow_style=False)
 
     # Write rendered content to the destination file
     with open(install_config_file, 'w') as f:
@@ -320,7 +329,7 @@ def run_module(module, helper):
 
     # Exit the module and return results
     title = "Openshift cluster %s was created successfully" % (params["cluster_name"])
-    module.exit_json(msg=title, **result)
+    module.exit_json(msg=title, **result, changed=True)
 
 def main():
     module_args = dict(
