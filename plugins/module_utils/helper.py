@@ -54,7 +54,10 @@ class Helper(object):
             output="",
             error=""
         )
-        run_command = binary + " ".join(args)
+        run_command = binary
+        for a in args:
+            run_command += " " + a
+            
         raise Exception(run_command)
         try:
             process = subprocess.run(run_command, shell=True, text=True,
