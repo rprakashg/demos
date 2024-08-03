@@ -298,8 +298,8 @@ def run_module(module, helper):
 
     # Run openshift install
     args = [
-        "create"
-        "cluster"
+        "create",
+        "cluster",
         f"--dir={clusters_dir}",
         "--log-level=info"
     ]

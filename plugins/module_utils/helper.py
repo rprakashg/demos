@@ -54,18 +54,15 @@ class Helper(object):
             output="",
             error=""
         )
-        run_command = binary
-        for a in args:
-            run_command += " " + a
-            
-        raise Exception(run_command)
+        run_command = binary + " ".join(args)
         try:
+            raise Exception(run_command)
             process = subprocess.run(run_command, shell=True, text=True,
                                 stdout=subprocess.PIPE, 
                                 stderr=subprocess.PIPE)
             result["exit_code"] = process.returncode
             result["output"] = process.stdout if process.stdout else ""
-        except subprocess.CalledProcessError as e:
+        except Exception as e:
             result["exit_code"] = e.returncode
             result["error"] = e.stderr if e.stderr else ""
 
