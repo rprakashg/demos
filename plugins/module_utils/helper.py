@@ -65,7 +65,6 @@ class Helper(object):
             error=""
         )
         run_command = binary + " " + " ".join(args)
-        raise Exception(run_command)
     
         process = subprocess.Popen(run_command, shell=True, text=True,
                             stdout=subprocess.PIPE, 
