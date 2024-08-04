@@ -232,7 +232,7 @@ def run_module(module, helper):
         params["ssh_pubkey"] = ssh_pubkey
 
     # get default collectioon path
-    template_dir = os.path.join(home_dir, ".ansible/collections/ansible_collections/rprakashg/openshift_automation/plugins/modules/templates")
+    template_dir = os.path.join(home_dir, ".ansible/collections/ansible_collections/rprakashg/demos/plugins/modules/templates")
 
     # Generate install config file
     install_config = "%s/install-config.yaml" % (clusters_dir)
@@ -247,7 +247,7 @@ def run_module(module, helper):
     ]
     cr = helper.run_command("openshift-install", args)
     if cr["exit_code"] == 0:
-        result["output"] = cr["output"]
+        result["output"] = cr["error"]
     else:
         module.fail_json(msg=cr["error"])
 

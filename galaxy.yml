@@ -5,7 +5,7 @@
 namespace: rprakashg
 
 # The name of the collection. Has the same character restrictions as 'namespace'
-name: openshift_automation
+name: demos
 
 # The version of the collection. Must be compatible with semantic versioning
 version: 1.0.0
@@ -43,16 +43,16 @@ tags: []
 dependencies:
   
 # The URL of the originating SCM repository
-repository: https://github.com/rprakashg/openshift_automation
+repository: https://github.com/rprakashg/demos
 
 # The URL to any online docs (TODO: Docs URL hosted under github pages)
-documentation: https://github.com/rprakashg/openshift_automation
+documentation: https://github.com/rprakashg/demos
 
 # The URL to the homepage of the collection/project (TODO github pages)
-homepage: https://github.com/rprakashg/openshift_automation
+homepage: https://github.com/rprakashg/demos
 
 # The URL to the collection issue tracker
-issues: https://github.com/rprakashg/openshift_automation/issues
+issues: https://github.com/rprakashg/demos/issues
 
 # A list of file glob-like patterns used to filter any files or directories that should not be included in the build
 # artifact. A pattern is matched from the relative path of the file or directory of the collection directory. This
