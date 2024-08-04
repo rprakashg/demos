@@ -241,23 +241,39 @@ def run_module(module, helper):
         "create",
         "cluster",
         f"--dir={clusters_dir}",
-        "--log-level=info"
+        "--log-level=info",
+        f"> {clusters_dir}/install.log"
     ]
     cr = helper.run_command("openshift-install", args)
-    if cr["exit_code"] == 0:
-        output = cr["error"]
-    else:
+    if cr["exit_code"] != 0:
         module.fail_json(msg=cr["error"])
+
+    # read the install log
+    try:
+        with open(f"{clusters_dir}/install.log", 'r') as file:
+            output = file.read()
+    except:
+        output = ""
 
     #parse tokens from installer output
     tokens = helper.parse_installer_output(output)
-    
+
     if tokens is not None:
         result["api_server_url"] = tokens["api_server_url"]
         result["web_console_url"] = tokens["web_console_url"]
         result["kubeconfig"] = tokens["set_kubeconfig_cmd"]
-        result["user"] = tokens["user"]
-        result["password"] = tokens["password"]
+    
+    # read the kubeadmin password from the kubeadmin-password file 
+    # under auth directory
+    try:
+        with open(f"{clusters_dir}/auth/kubeadmin-password", 'r') as file:
+            password = file.read()
+    except:
+        password = ""
+
+    # set credentials    
+    result["user"] = "kubadmin"
+    result["password"] = password
 
     # Exit the module and return results
     title = "Openshift cluster %s was created successfully" % (params["cluster_name"])
