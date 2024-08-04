@@ -85,7 +85,6 @@ import boto3
 import os
 import requests
 import json
-import tempfile
 
 from ansible.module_utils.basic import AnsibleModule  # noqa E402
 from jinja2 import Environment, FileSystemLoader

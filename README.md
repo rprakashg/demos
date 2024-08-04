@@ -1,3 +1,3 @@
-# Ansible Collection - rprakashg.openshift_automation
+# Ansible Collection - rprakashg.demos
 
 Documentation for the collection.
