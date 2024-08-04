@@ -38,7 +38,8 @@ class Helper(object):
         set_kubeconfig_cmd = re.search(set_kubeconfig_cmd_pattern, output)
 
         result['api_server_url'] = api_url.group(1) if api_url else None
-        result['api_server_url'] = result['api_server_url'][:-3]
+        if result['api_server_url'].endswith('...'): 
+            result['api_server_url'] = result['api_server_url'].rstrip('...')
             
         result['web_console_url'] = console_url.group(1) if console_url else None
         result['set_kubeconfig_cmd'] = set_kubeconfig_cmd.group(1) if set_kubeconfig_cmd else None
