@@ -241,19 +241,13 @@ def run_module(module, helper):
         "create",
         "cluster",
         f"--dir={clusters_dir}",
-        "--log-level=info",
-        f"> {clusters_dir}/install.log"
+        "--log-level=info"
     ]
     cr = helper.run_command("openshift-install", args)
-    if cr["exit_code"] != 0:
+    if cr["exit_code"] == 0:
+        output = cr["error"]
+    else:
         module.fail_json(msg=cr["error"])
-
-    # read the install log
-    try:
-        with open(f"{clusters_dir}/install.log", 'r') as file:
-            output = file.read()
-    except:
-        output = ""
 
     #parse tokens from installer output
     tokens = helper.parse_installer_output(output)
