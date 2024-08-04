@@ -34,7 +34,7 @@ class Helper(object):
         api_url_pattern = re.compile(r'Kubernetes API at (https://\S+)', re.IGNORECASE)
         console_url_pattern = re.compile(r'OpenShift web-console here: (https://\S+)', re.IGNORECASE)
         set_kubeconfig_cmd_pattern = re.compile(r'run \'(export KUBECONFIG=\S+)\'', re.IGNORECASE)
-        credentials_pattern=re.compile(r'user: "(.*)", and passwprd: "(.*)"', re.IGNORECASE)
+        credentials_pattern=re.compile(r'Login to the console with user: "(.*)", and passwprd: "(.*)"', re.IGNORECASE)
 
         api_url = re.search(api_url_pattern, output)
         console_url = re.search(console_url_pattern, output)
@@ -42,22 +42,16 @@ class Helper(object):
         credentials = re.search(credentials_pattern, output)
 
         result['api_server_url'] = api_url.group(1) if api_url else None
+        if result['api_server_url'].endswith("..."):
+            result['api_server_url'] = result['api_server_url'][:-3]
+            
         result['web_console_url'] = console_url.group(1) if console_url else None
         result['set_kubeconfig_cmd'] = set_kubeconfig_cmd.group(1) if set_kubeconfig_cmd else None
         result['user'] = credentials.group(1) if credentials else None
         result['password'] = credentials.group(2) if credentials else None
         
         return result
-    
-    #def get_collection_path(self, namespace, name):
-    #    collection_paths = loader.collections_paths()
-
-    #    for path in collection_paths:
-    #        p = os,path.join(path, 'ansible_collections', namespace, name)
-    #        if os.path.isdir(p):
-    #            return p
-    #    return None
-         
+             
     def run_command(self, binary, args):
         result = dict(
             exit_code=0,
