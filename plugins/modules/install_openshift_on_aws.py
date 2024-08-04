@@ -179,7 +179,6 @@ def run_module(module, helper):
         user = "",
         password = "",
         kubeconfig = "",
-        output = ""
     )
 
     # Check if AWS credentials are set in environment variables
@@ -246,12 +245,13 @@ def run_module(module, helper):
     ]
     cr = helper.run_command("openshift-install", args)
     if cr["exit_code"] == 0:
-        result["output"] = cr["error"]
+        output = cr["error"]
     else:
         module.fail_json(msg=cr["error"])
 
     #parse tokens from installer output
-    tokens = helper.parse_installer_output(result["output"])
+    tokens = helper.parse_installer_output(output)
+    
     if tokens is not None:
         result["api_server_url"] = tokens["api_server_url"]
         result["web_console_url"] = tokens["web_console_url"]
