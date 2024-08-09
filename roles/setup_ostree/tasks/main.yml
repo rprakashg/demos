@@ -1,4 +1,4 @@
---
+---
 - name: provision required infrastructure for building ostree images 
   ansible.builtin.import_tasks: provision_infra.yml
   when: provision_infra | default(true)

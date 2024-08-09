@@ -1,3 +1,4 @@
+---
 - name: provision required infrastructure for building/managing ostree repo content
   block:
   - name: generate the tfvars file

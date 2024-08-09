@@ -1,3 +1,4 @@
+---
 - name: include secrets
   include_vars:
     file: "./vars/secrets.yml"
