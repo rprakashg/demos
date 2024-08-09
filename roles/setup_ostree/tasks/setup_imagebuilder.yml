@@ -19,7 +19,7 @@
     _setup_server_base_packages:
       - rsync
       - osbuild-composer
-      - compser-cli
+      - composer-cli
       - cockpit-composer
       - bash-completion
       - firewalld
