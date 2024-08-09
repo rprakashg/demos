@@ -34,9 +34,15 @@
   become: true
   when: microshift | default(true)
   block:
+    - name: "creating rhocp-{{ microshift_release }}.toml file"
+      ansible.builtin.tempfile:
+        state: file
+        suffix: toml
+      register: microshift_source
+
     - name: creating rhocp-{{ microshift_release }}.toml configuration file
       copy:
-        dest: "{{ ansible_tmp }}/rhocp-{{ microshift_release }}.toml"
+        dest: microshift_source.path
         content: |
           id = "rhocp--{{ microshift_release }}"
           name = "Microshift version {{ microshift_release }}"
@@ -47,9 +53,15 @@
           system = false
           rhsm = true
     
+    - name: "creating fastdatapath.toml file"
+      ansible.builtin.tempfile:
+        state: file
+        suffix: toml
+      register: fastdatapath_source
+
     - name: create fast-datapath.toml configuration file
       copy:
-        dest: "{{ ansible_tmp }}/fast-datapath.toml"
+        dest: fastdatapath_source.path
         content: |
           id = "fast-datapath"
           name = "Fast Datapath for RHEL 9 System"
@@ -63,5 +75,5 @@
     - name: add sources to image builder
       command: "sudo composer-cli sources add {{ item }}"
       loop:
-        - "{{ ansible_tmp }}/rhocp-{{ microshift_release }}.toml"
-        - "{{ ansible_tmp }}/fast-datapath.toml"
+        - microshift_source.path
+        - fastdatapath_source.path
