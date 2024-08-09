@@ -1,0 +1,66 @@
+- name: include secrets
+  include_vars:
+    file: "./vars/secrets.yml"
+- name: register the system
+  become: true
+  shell: |
+    subscription-manager register --username={{ rhuser }} --password={{ rhpassword }} --force
+    subscription-manager role --set="Red Hat Enterprise Linux Server"
+    subscription-manager service-level --set="Self-Support"
+    subscription-manager usage --set="Development/Test"
+    subscription-manager attach
+
+- name: setup imagebuilder server
+  become: true
+  ansible.builtin.import_role:
+    name: infra.osbuild.setup_server
+  vars:
+    _setup_server_base_packages:
+      - rsync
+      - osbuild-composer
+      - compser-cli
+      - cockpit-composer
+      - bash-completion
+      - firewalld
+      - genisoimage
+      - httpd
+      - cockpit
+      - weldr-client
+      - python3
+      - pykickstart
+
+- name: setup imagebuilder with microshift
+  become: true
+  when: microshift | default(true)
+  block:
+    - name: creating rhocp-{{ microshift_release }}.toml configuration file
+      copy:
+        dest: "{{ ansible_tmp }}/rhocp-{{ microshift_release }}.toml"
+        content: |
+          id = "rhocp--{{ microshift_release }}"
+          name = "Microshift version {{ microshift_release }}"
+          type = "yum-baseurl"
+          url = "https://cdn.redhat.com/content/dist/layered/rhel9/{{ ansible_architecture }}/rhocp/{{ microshift_release }}/os"
+          check_gpg = true
+          check_ssl = true
+          system = false
+          rhsm = true
+    
+    - name: create fast-datapath.toml configuration file
+      copy:
+        dest: "{{ ansible_tmp }}/fast-datapath.toml"
+        content: |
+          id = "fast-datapath"
+          name = "Fast Datapath for RHEL 9 System"
+          type = "yum-baseurl"
+          url = "https://cdn.redhat.com/content/dist/layered/rhel9/{{ ansible_architecture }}/fast-datapath/os"
+          check_gpg = true
+          check_ssl = true
+          system = false
+          rhsm = true
+
+    - name: add sources to image builder
+      command: "sudo composer-cli sources add {{ item }}"
+      loop:
+        - "{{ ansible_tmp }}/rhocp-{{ microshift_release }}.toml"
+        - "{{ ansible_tmp }}/fast-datapath.toml"

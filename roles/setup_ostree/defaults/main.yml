@@ -1,0 +1,15 @@
+---
+### Defaults for configuring local environment
+provision_infra: false
+aws_region: us-west-2
+stack: ostree-stack
+instance_name: imagebuilder
+ec2_instance_type: m5.xlarge
+ssh_key: ec2
+ami_id: ami-0f7197c592205b389
+my_ip: 136.27.40.26/32
+domain: "sandbox2242.opentlc.com"
+terraform_dir: ../terraform
+
+microshift: true
+microshift-release: 4.16
