@@ -12,4 +12,4 @@ domain: "sandbox2242.opentlc.com"
 terraform_dir: ../terraform
 
 microshift: true
-microshift-release: 4.16
+microshift_release: 4.16
