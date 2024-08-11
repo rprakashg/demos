@@ -42,7 +42,7 @@
 
     - name: creating rhocp-{{ microshift_release }}.toml configuration file
       copy:
-        dest: microshift_source.path
+        dest: "{{ microshift_source.path }}"
         content: |
           id = "rhocp--{{ microshift_release }}"
           name = "Microshift version {{ microshift_release }}"
@@ -61,7 +61,7 @@
 
     - name: create fast-datapath.toml configuration file
       copy:
-        dest: fastdatapath_source.path
+        dest: "{{ fastdatapath_source.path }}"
         content: |
           id = "fast-datapath"
           name = "Fast Datapath for RHEL 9 System"
@@ -75,5 +75,5 @@
     - name: add sources to image builder
       command: "sudo composer-cli sources add {{ item }}"
       loop:
-        - microshift_source.path
-        - fastdatapath_source.path
+        - "{{ microshift_source.path }}"
+        - "{{ fastdatapath_source.path }}"
