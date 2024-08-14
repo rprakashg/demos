@@ -21,6 +21,29 @@
     - httpd
     - cockpit
 
+- name: copy certs to target host
+  block:
+    - name: copy cert
+      copy:
+        src: "{{ cockpit_cert }}"
+        dest: /usr/share/certs
+        owner: root
+        group: root
+        mode: '0755'
+    - name: extract cert file name
+      set_fact:
+        cert: "{{ cockpit_cert | basename }}"
+    - name: copy private key
+      copy:
+        src: "{{ cockpit_cert_private_key }}"
+        dest: /usr/share/certs
+        owner: root
+        group: root
+        mode: '0755'
+    - name: extract private key file name
+      set_fact:
+        private_key: "{{ cockpit_cert_private_key | basename }}"
+        
 - name: Configure Cockpit with TLS using RHEL system roles
   ansible.builtin.include_role:
     name: rhel-system-roles.cockpit
@@ -30,8 +53,8 @@
     cockpit_socket: 'cockpit.socket'
     cockpit_port: 9090
     cockpit_tls: true
-    cockpit_cert: "{{ cockpit_cert }}"
-    cockpit_key: "{{ cockpit_cert_private_key }}"
+    cockpit_cert: "/usr/share/certs/{{ cert }}"
+    cockpit_key: "/usr/share/certs/{{ private_key }}"
     cockpit_manage_firewall: true
 
 - name: setup imagebuilder server
