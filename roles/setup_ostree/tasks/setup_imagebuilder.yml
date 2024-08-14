@@ -21,7 +21,6 @@
     - cockpit
 
 - name: Configure Cockpit with TLS using RHEL system roles
-  become: true
   ansible.builtin.include_role:
     name: rhel-system-roles.cockpit
   vars:
