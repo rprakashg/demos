@@ -54,7 +54,7 @@
     cockpit_port: 9090
     cockpit_tls: true
     cockpit_cert: "/usr/share/certs/{{ cert }}"
-    cockpit_key: "/usr/share/certs/{{ private_key }}"
+    cockpit_private_key: "/usr/share/certs/{{ private_key }}"
     cockpit_manage_firewall: true
 
 - name: setup imagebuilder server
