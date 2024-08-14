@@ -66,6 +66,7 @@ Finally create an ansible playbook and name it setup.yml. See sample snippet bel
 - name: setup ostree playbook
   hosts:
     - imagebuilder
+  become: true  
   tasks:
   - name: include ansible vault secrets with rhuser and rhpassword
     include_vars:

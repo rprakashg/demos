@@ -10,7 +10,7 @@ ami_id: ami-0f7197c592205b389
 my_ip: 136.27.40.26/32
 domain: "sandbox2242.opentlc.com"
 terraform_dir: ./terraform
-cockpit_cert: .certs/cockpitcert.pem
+cockpit_cert: ./certs/cockpitcert.pem
 cockpit_cert_private_key: ./certs/cockpitcert_private_key.pem
 
 microshift: true
