@@ -29,7 +29,7 @@
     - name: copy cert
       copy:
         src: "{{ cockpit_cert }}"
-        dest: "/usr/share/certs/{{ cert }}"
+        dest: "/usr/share/certs/"
         owner: root
         group: root
         mode: '0755'
@@ -39,7 +39,7 @@
     - name: copy private key
       copy:
         src: "{{ cockpit_cert_private_key }}"
-        dest: "/usr/share/certs/{{ private_key }}"
+        dest: "/usr/share/certs/"
         owner: root
         group: root
         mode: '0755'
