@@ -11,6 +11,29 @@
     subscription-manager usage --set="Development/Test"
     subscription-manager attach
 
+- name: install cockpit httpd firewall
+  ansible.builtin.dnf:
+    state: present
+    name: "{{ item }}"
+  loop:    
+    - firewalld
+    - httpd
+    - cockpit
+
+- name: Configure Cockpit with TLS using RHEL system roles
+  become: true
+  ansible.builtin.include_role:
+    name: rhel-system-roles.cockpit
+  vars:
+    cockpit_packages: default
+    cockpit_enabled: true
+    cockpit_socket: 'cockpit.socket'
+    cockpit_port: 9090
+    cockpit_tls: true
+    cockpit_cert: "{{ cockpit_cert }}"
+    cockpit_key: "{{ cockpit_cert_private_key }}"
+    cockpit_manage_firewall: true
+
 - name: setup imagebuilder server
   become: true
   ansible.builtin.import_role:
@@ -22,10 +45,7 @@
       - composer-cli
       - cockpit-composer
       - bash-completion
-      - firewalld
       - genisoimage
-      - httpd
-      - cockpit
       - weldr-client
       - python3
       - pykickstart
@@ -77,3 +97,4 @@
       loop:
         - "{{ microshift_source.path }}"
         - "{{ fastdatapath_source.path }}"
+    
