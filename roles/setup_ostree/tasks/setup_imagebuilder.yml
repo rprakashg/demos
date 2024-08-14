@@ -12,6 +12,7 @@
     subscription-manager attach
 
 - name: install cockpit httpd firewall
+  become: true
   ansible.builtin.dnf:
     state: present
     name: "{{ item }}"
