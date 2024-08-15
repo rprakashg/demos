@@ -46,15 +46,23 @@
   ansible.builtin.include_role:
     name: rhel-system-roles.cockpit
   vars:
-    cockpit_packages: default
+    cockpit_packages: full
     cockpit_enabled: true
     cockpit_socket: 'cockpit.socket'
     cockpit_port: 9090
     cockpit_tls: true
     cockpit_cert: "/usr/share/certs/{{ cert }}"
     cockpit_private_key: "/usr/share/certs/{{ private_key }}"
-    cockpit_manage_firewall: true
+    cockpit_manage_firewall: false
 
+- name: Configure Firewall for web console
+  ansible.builtin.include_role:
+    name: rhel-system-roles.firewall
+  vars:
+    firewall:
+      service: cockpit
+      state: enabled
+      
 - name: setup imagebuilder server
   become: true
   ansible.builtin.import_role:
