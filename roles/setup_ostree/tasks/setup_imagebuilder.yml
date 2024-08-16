@@ -47,13 +47,12 @@
     name: rhel-system-roles.cockpit
   vars:
     cockpit_packages: full
-    cockpit_enabled: true
-    cockpit_socket: 'cockpit.socket'
-    cockpit_port: 9090
-    cockpit_tls: true
-    cockpit_cert: "/usr/share/certs/{{ cert }}"
-    cockpit_private_key: "/usr/share/certs/{{ private_key }}"
-    cockpit_manage_firewall: false
+    cockpit_manage_service: true
+    cockpit_admins:
+    - admin
+    cockpit_tls:
+      certificate: "/usr/share/certs/{{ cert }}"
+      certificate_key: "/usr/share/certs/{{ private_key }}"
 
 - name: make cockpit elb aware
   ansible.builtin.copy:
