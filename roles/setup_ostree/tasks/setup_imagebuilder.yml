@@ -57,7 +57,7 @@
 
 - name: make cockpit elb aware
   ansible.builtin.copy:
-    path: "/etc/cockpit/cockpit.conf"
+    dest: "/etc/cockpit/cockpit.conf"
     content: |
       [WebService]
       Origins = https://"{{ domain | replace('.com', '.tld') }}" wss://{{ domain | replace('.com', '.tld') }} 
