@@ -60,7 +60,7 @@
     dest: "/etc/cockpit/cockpit.conf"
     content: |
       [WebService]
-      Origins = https://"{{ domain | replace('.com', '.tld') }}" wss://{{ domain | replace('.com', '.tld') }} 
+      Origins = https://{{ domain }} wss://{{ domain }} 
       ProtocolHeader = X-Forwarded-Proto
 
 - name: restart cockpit
