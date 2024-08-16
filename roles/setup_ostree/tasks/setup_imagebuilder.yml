@@ -47,25 +47,18 @@
     name: rhel-system-roles.cockpit
   vars:
     cockpit_packages: full
-    cockpit_manage_service: true
-    cockpit_admins:
-    - admin
-    cockpit_tls:
-      certificate: "/usr/share/certs/{{ cert }}"
-      certificate_key: "/usr/share/certs/{{ private_key }}"
-
-- name: make cockpit elb aware
-  ansible.builtin.copy:
-    dest: "/etc/cockpit/cockpit.conf"
-    content: |
-      [WebService]
-      Origins = https://cockpit.{{ domain }} wss://cockpit.{{ domain }} 
-      ProtocolHeader = X-Forwarded-Proto
-      ForwardedForHeader = X-Forwarded-For
-- name: restart cockpit
-  ansible.builtin.systemd:
-    name: cockpit
-    state: restarted
+    cockpit_enabled: true
+    cockpit_started: true
+    cockpit_config:
+      WebService:
+        Origins: https://cockpit.{{ domain }} wss://cockpit.{{ domain }}
+        ProtocolHeader: X-Forwarded-Proto
+        ForwardedForHeader: X-Forwarded-For
+    cockpit_port: 443
+    cockpit_manage_firewall: true
+    cockpit_manage_selinux: true
+    cockpit_cert: "/usr/share/certs/{{ cert }}" 
+    cockpit_private_key: "/usr/share/certs/{{ private_key }}"
 
 - name: Configure Firewall for web console
   ansible.builtin.include_role:
