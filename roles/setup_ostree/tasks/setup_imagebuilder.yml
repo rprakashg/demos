@@ -60,9 +60,9 @@
     dest: "/etc/cockpit/cockpit.conf"
     content: |
       [WebService]
-      Origins = https://{{ domain }} wss://{{ domain }} 
+      Origins = https://cockpit.{{ domain }} wss://cockpit.{{ domain }} 
       ProtocolHeader = X-Forwarded-Proto
-
+      ForwardedForHeader = X-Forwarded-For
 - name: restart cockpit
   ansible.builtin.systemd:
     name: cockpit
@@ -80,17 +80,6 @@
   become: true
   ansible.builtin.import_role:
     name: infra.osbuild.setup_server
-  vars:
-    _setup_server_base_packages:
-      - rsync
-      - osbuild-composer
-      - composer-cli
-      - cockpit-composer
-      - bash-completion
-      - genisoimage
-      - weldr-client
-      - python3
-      - pykickstart
 
 - name: setup imagebuilder with microshift
   become: true
