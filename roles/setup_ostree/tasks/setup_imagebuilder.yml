@@ -55,6 +55,31 @@
     cockpit_private_key: "/usr/share/certs/{{ private_key }}"
     cockpit_manage_firewall: false
 
+- name: make cockpit elb aware
+  ansible.builtin.stat:
+    path: "/etc/cockpit/cockpit.conf"
+  register: filestat
+
+- name: create cockpit.conf file if doesn't exist
+  ansible.builtin.file:
+    path: "/etc/cockpit/cockpit.conf"
+    state: touch 
+  when: not filestat.exists
+
+- name: make cockpit elb aware
+  ansible.builtin.blockinfile:
+    path: "/etc/cockpit/cockpit.conf"
+    block: |
+      [WebService]
+      Origins = https://"{{ domain | replace('.com', '.tld') }}" wss://{{ domain | replace('.com', '.tld') }} 
+      ProtocolHeader = X-Forwarded-Proto
+    insertafter: EOF
+
+- name: restart cockpit
+  ansible.builtin.systemd:
+    name: cockpit
+    state: restarted
+
 - name: Configure Firewall for web console
   ansible.builtin.include_role:
     name: rhel-system-roles.firewall
