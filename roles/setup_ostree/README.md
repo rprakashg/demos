@@ -22,7 +22,7 @@ Table below shows variables you can set when using this role
 | my_ip | 136.27.40.26/32 | My IP CIDR block |
 | domain | sandbox2242.opentlc.com | Base domain |
 | terraform_dir | ./terraform | Directory were terraform scripts to provision infra |
-| cockpit_cert | .certs/cockpitcert.pem | Cockpit cert to use |
+| cockpit_cert | ./certs/cockpitcert.pem | Cockpit cert to use |
 | cockpit_cert_private_key | ./certs/cockpitcert_private_key.pem | Cockpit cert private key |
 | microshift | True | Enable Microshift required if building images with Microshift bits |
 | microshift_release | 4.16 | Microsoft release |
