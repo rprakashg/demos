@@ -54,6 +54,8 @@
         Origins: https://cockpit.{{ domain }} wss://cockpit.{{ domain }}
         ProtocolHeader: X-Forwarded-Proto
         ForwardedForHeader: X-Forwarded-For
+      Log:
+        Fatal: "warnings"
     cockpit_port: 443
     cockpit_manage_firewall: true
     cockpit_manage_selinux: true
