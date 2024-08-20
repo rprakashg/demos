@@ -1,0 +1,59 @@
+---
+- name: install cockpit httpd firewall
+  become: true
+  ansible.builtin.dnf:
+    state: present
+    name: "{{ item }}"
+  loop:    
+  - firewalld
+  - httpd
+  - cockpit
+
+- name: copy certs to target host
+  block:
+    - name: extract cert file name
+      set_fact:
+        cert: "{{ cockpit_cert | basename }}"
+    - name: extract private key file name
+      set_fact:
+        private_key: "{{ cockpit_cert_private_key | basename }}"
+    - name: extract dir name from cockpit cert file 
+      set_fact:
+        cert_dir: "{{ cockpit_cert | dirname }}"
+    - name: copy certs
+      copy:
+        src: "{{ item }}"
+        dest: "/usr/share/certs/"
+        owner: root
+        group: root
+        mode: '0755'
+      with_fileglob:
+      - "{{ cert_dir }}/*.pem"
+
+- name: Configure Cockpit with TLS using RHEL system roles
+  ansible.builtin.include_role:
+    name: rhel-system-roles.cockpit
+  vars:
+    cockpit_packages: full
+    cockpit_enabled: true
+    cockpit_started: true
+    cockpit_config:
+      WebService:
+        Origins: https://cockpit.{{ domain }} wss://cockpit.{{ domain }}
+        ProtocolHeader: X-Forwarded-Proto
+      Log:
+        Fatal: "warnings"
+    cockpit_port: 443
+    cockpit_manage_firewall: true
+    cockpit_manage_selinux: true
+    cockpit_cert: "/usr/share/certs/{{ cert }}" 
+    cockpit_private_key: "/usr/share/certs/{{ private_key }}"
+
+- name: Configure Firewall for cockpit
+  ansible.builtin.include_role:
+    name: rhel-system-roles.firewall
+  vars:
+    firewall:
+      service: cockpit
+      state: enabled
+      

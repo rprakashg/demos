@@ -1,7 +1,16 @@
 ---
-- name: provision required infrastructure for building ostree images 
-  ansible.builtin.import_tasks: provision_infra.yml
-  when: provision_infra | default(true)
+- name: check if system is registered with subscription-manager
+  ansible.builtin.shell: "subscription-manager status"
+  register: status_result
+  ignore_errors: yes
+
+- name: register system if not already registered
+  ansible.builtin.import_tasks: register_system.yml
+  when: "'Overall Statis: Unknown' in status_result.stdout or 'not yet registered' in status_result.stdout"
+
+- name: setup cockpit
+  ansible.builtin.import_tasks: setup_cockpit.yml
+  when: cockpit | default(true)
 
 - name: setup imagebuilder
   ansible.builtin.import_tasks: setup_imagebuilder.yml
