@@ -6,7 +6,7 @@
 
 - name: register system if not already registered
   ansible.builtin.import_tasks: register_system.yml
-  when: "'Overall Statis: Unknown' in status_result.stdout or 'not yet registered' in status_result.stdout"
+  when: status_result.rc != 0
 
 - name: setup cockpit
   ansible.builtin.import_tasks: setup_cockpit.yml

@@ -1,7 +1,7 @@
 ---
 ### Defaults for configuring local environment
 cockpit: false
-domain: "sandbox1364.opentlc.com"
+domain: "sandbox1037.opentlc.com"
 terraform_dir: ./terraform
 cockpit_cert: ./certs/cockpitcert.pem
 cockpit_cert_private_key: ./certs/cockpitcert_private_key.pem
