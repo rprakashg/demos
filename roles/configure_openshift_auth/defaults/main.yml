@@ -1,0 +1,9 @@
+---
+# defaults for this role
+idp: []
+
+cluster_admin_rolebinding_name: "cluster_admin_crb"
+cluster_admin_claim: "cluster-admins"
+
+# delete the default kubeadmin user
+delete_default_kubeadmin_user: false

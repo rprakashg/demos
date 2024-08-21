@@ -1,0 +1,8 @@
+---
+- name: load vars from ansible vault
+  include_vars:
+    file: "./vars/secrets.yml"
+    
+- name: configure OIDC auth
+  ansible.builtin.import_tasks: configure_oidc_auth.yml
+  when: idp.type == "OpenID"

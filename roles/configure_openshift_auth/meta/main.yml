@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  role_name: "configure_openshift_auth"
+  standalone: false
+  company: ""
+  description: >
+    Configure authentication in Openshift
+  author: rprakashg
+  license: "GPL-3.0-or-later"
+  min_ansible_version: "2.12"
+  platforms: []
+  galaxy_tags:
+    - openshift
+    - ansible
+    - authentication
+    - automation
+    - oidc
+dependencies: []

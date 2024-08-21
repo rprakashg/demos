@@ -1,0 +1,71 @@
+---
+- name: generate a secret name to store client secret from identity provider
+  ansible.builtin.set_fact:
+    secret_name: "{{ idp.name }}-clientsecret" 
+  
+- name: store the client secret in kubernetes secret
+  kubernetes.core.k8s:
+    api_key: "{{ api_token }}"
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: "{{ secret_name }}"
+        namespace: openshift-config
+      type: Opaque
+      data:
+        clientSecret: "{{ client_secret | base64_encode }}"
+
+- name: get identity providers
+  kubernetes.core.k8s_info:
+    api_key: "{{ api_token }}"
+    kind: OAuth
+    api_version: config.openshift.io/v1
+    wait: yes
+    wait_sleep: 10
+    wait_timeout: 360
+  register: get_oauth_resource
+
+- name: Register the identity provider if not already registered
+  block:
+    - name: configure oidc auth
+      kubernetes.core.k8s:
+        api_key: "{{ api_token }}"
+        state: present
+        apply: true
+        resource_definition: "{{ lookup('template', 'templates/oidc.yml.j2') | from_yaml }}"
+    
+    - name: assign cluster admin to specified group claim
+      kubernetes.core.k8s:
+        api_key: "{{ api_token }}"
+        state: present
+        apply: true
+        definition:
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: ClusterRoleBinding
+          metadata:
+            name: "{{ cluster_admin_rolebinding_name }}"
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: ClusterRole
+            name: cluster-admin
+          subjects:
+          - apiGroup: rbac.authorization.k8s.io
+            kind: Group
+            name: "{{ cluster_admin_claim }}"
+
+    - name: delete default kubeadmin user
+      kubernetes.core.k8s:
+        api_key: "{{ api_token }}"
+        state: absent
+        apply: false
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: kubeadmin 
+            namespace: kube-system
+      when: delete_default_kubeadmin_user | default(true)
+
+  when: "{{ get_oauth_resource.api_found and get_oauth_resource.resources[0].spec.identityProviders | selectattr('name', 'equalto', idp.name) | list | length == 0 }}"
