@@ -1,13 +1,11 @@
 ---
 - name: setup imagebuilder server
-  hosts: imagebuilder
-  become: true
+  delegate_to: imagebuilder
   ansible.builtin.import_role:
     name: infra.osbuild.setup_server
 
 - name: setup imagebuilder with microshift
-  hosts: imagebuilder
-  become: true
+  delegate_to: imagebuilder
   when: microshift | default(true)
   block:
     - name: "creating rhocp-{{ microshift_release }}.toml file"

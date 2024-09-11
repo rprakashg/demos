@@ -1,7 +1,6 @@
 ---
 - name: install cockpit httpd firewall
-  hosts: imagebuilder
-  become: true
+  delegate_to: imagebuilder
   ansible.builtin.dnf:
     state: present
     name: "{{ item }}"
@@ -11,8 +10,7 @@
   - cockpit
 
 - name: Configure Cockpit with TLS using RHEL system roles
-  hosts: imagebuilder
-  become: true
+  delegate_to: imagebuilder
   ansible.builtin.include_role:
     name: rhel-system-roles.cockpit
   vars:
@@ -27,8 +25,7 @@
     cockpit_manage_selinux: true
 
 - name: Configure Firewall for cockpit
-  hosts: imagebuilder
-  become: true
+  delegate_to: imagebuilder
   ansible.builtin.include_role:
     name: rhel-system-roles.firewall
   vars:
