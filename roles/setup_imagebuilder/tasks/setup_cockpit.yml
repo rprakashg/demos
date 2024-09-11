@@ -10,7 +10,7 @@
 
 - name: Configure Cockpit with TLS using RHEL system roles
   ansible.builtin.include_role:
-    name: rhel-system-roles.cockpit
+    name: fedora.linux_system_roles.cockpit
   vars:
     cockpit_packages: full
     cockpit_enabled: true
@@ -24,7 +24,7 @@
 
 - name: Configure Firewall for cockpit
   ansible.builtin.include_role:
-    name: rhel-system-roles.firewall
+    name: fedora.linux_system_roles.firewall
   vars:
     firewall:
       service: cockpit
