@@ -6,12 +6,7 @@
       state: directory
       suffix: terraform
     register: tfdir
-
-  - name: check if directory exists
-    ansible.builtin.stat:
-      path: "{{ tfdir.path }}"
-    register: dir_stat
-
+  
   - name: debug tfdir path
     ansible.builtin.debug:
       var: tfdir.path
@@ -172,26 +167,26 @@
               to_port   = 80
               protocol  = "tcp"
               description = "HTTP Traffic from any source"
-              cidr_blocks = ["0.0.0.0/0"]
+              cidr_blocks = "0.0.0.0/0"
             },
             {
               from_port = 9090
               to_port   = 9090
               protocol  = "tcp"
               description = "Cockpit Traffic from any source"
-              cidr_blocks = ["0.0.0.0/0"]
+              cidr_blocks = "0.0.0.0/0"
             },
             {
               from_port = -1
               to_port = -1
               protocol = "icmp"
-              cidr_blocks = ["0.0.0.0/0"]
+              cidr_blocks = "0.0.0.0/0"
             },
             {
               from_port = 0
               to_port = 0
               protocol = "-1"
-              cidr_blocks = ["0.0.0.0/0"]
+              cidr_blocks = "0.0.0.0/0"
             },
           ]
 
@@ -202,7 +197,7 @@
               to_port   = 0
               protocol  = "-1"
               description = "All outbound traffic"
-              cidr_blocks = ["0.0.0.0/0"]
+              cidr_blocks = "0.0.0.0/0"
             },
           ]
         }
@@ -323,7 +318,6 @@
     ansible.builtin.template:
       src: input.tfvars.j2
       dest: "{{ tfdir.path }}/input.tfvars"
-    when: dir_stat.stat.exists
 
 - name: run tf 
   block:
@@ -331,14 +325,13 @@
     ansible.builtin.command:
       cmd: terraform init
       chdir: "{{ tfdir.path }}"
-    when: dir_stat.stat.exists  
     register: tf_init_result
     ignore_errors: yes
   
   - name: debug init result
     ansible.builtin.debug:
       var: tf_init_result.stdout
-  
+    
   - name: plan
     ansible.builtin.command:
       cmd: terraform plan -var-file=input.tfvars
@@ -350,7 +343,8 @@
   - name: debug plan result
     ansible.builtin.debug:
       var: tf_plan_result.stdout
-  
+    when: tf_init_result.rc == 0
+    
   - name: apply
     ansible.builtin.command:
       cmd: terraform apply -auto-approve -var-file=input.tfvars
@@ -362,6 +356,7 @@
   - name: debug apply result
     ansible.builtin.debug:
       var: tf_apply_result.stdout
+    when: tf_plan_result.rc == 0
 
   - name: fail if errors provisioning
     ansible.builtin.fail:
