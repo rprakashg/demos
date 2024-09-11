@@ -322,7 +322,7 @@
     ansible.builtin.command:
       cmd: terraform plan -var-file=tfvars
       chdir: "{{ tfdir.path }}"
-    when: tf_init_result == 0
+    when: tf_init_result.rc == 0
     register: tf_plan_result
     ignore_errors: yes
   
