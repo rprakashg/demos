@@ -1,20 +1,25 @@
 ---
 - name: create infrastructure resources
   ansible.builtin.import_tasks: create_infra.yml
+  delegate_to: localhost
   when: create_infra | default(true)
 
 - name: check if system is registered with subscription-manager
   ansible.builtin.shell: "subscription-manager status"
+  delegate_to: imagebuilder
   register: status_result
   ignore_errors: yes
 
 - name: register system if not already registered
+  delegate_to: imagebuilder
   ansible.builtin.import_tasks: register_system.yml
   when: status_result.rc != 0
 
 - name: setup cockpit
+  delegate_to: imagebuilder
   ansible.builtin.import_tasks: setup_cockpit.yml
   when: cockpit | default(true)
 
 - name: setup imagebuilder
+  delegate_to: imagebuilder
   ansible.builtin.import_tasks: setup_imagebuilder.yml

@@ -3,7 +3,6 @@
   include_vars:
     file: "./vars/secrets.yml"
 - name: register the system
-  delegate_to: imagebuilder
   shell: |
     subscription-manager register --username={{ rhuser }} --password={{ rhpassword }} --force
     subscription-manager role --set="Red Hat Enterprise Linux Server"
