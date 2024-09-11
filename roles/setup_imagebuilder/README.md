@@ -18,6 +18,7 @@ Table below shows variables you can set when using this role
 | instance_type | m5.xlarge | EC2 instance type to use |
 | ssh_key | ec2 | SSH key to use for EC2 |
 | ami | ami-0f7197c592205b389 | AMI ID to use |
+| my_ip | 136.27.40.26/32 | Your default IP to allow ssh traffic |
 | microshift | True | Enable Microshift required if building images with Microshift bits |
 | microshift_release | 4.16 | Microsoft release |
 

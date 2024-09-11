@@ -15,7 +15,7 @@
   - name: debug tfdir path
     ansible.builtin.debug:
       var: tfdir.path
-      
+
   - name: create tf script
     ansible.builtin.copy:
       dest: "{{ tfdir.path }}/main.tf"
@@ -28,8 +28,8 @@
         data "aws_caller_identity" "current" {}
 
         resource "aws_key_pair" "sshkeypair" {
-          key_name   = var.sshKey
-          public_key = file("~/.ssh/${var.sshKey}.pub")
+          key_name   = var.ssh_key
+          public_key = file("~/.ssh/${var.ssh_key}.pub")
         }
 
         locals {
@@ -81,17 +81,22 @@
           type = string
         }
 
+        variable "my_ip" {
+          description = "ISP public IP"
+          type = string
+        }
+
         module "ec2" {
           source  = "terraform-aws-modules/ec2-instance/aws"
           version = "2.8.0"
 
-          name                          = var.instanceName
+          name                          = var.instance_name
           instance_count                = 1
           
-          instance_type                 = var.instanceType
+          instance_type                 = var.instance_type
           ami                           = var.ami
           subnet_id                     = tolist(module.vpc.public_subnets)[0]
-          key_name                      = var.sshKey
+          key_name                      = var.ssh_key
           vpc_security_group_ids        = [module.public_subnet_sg.security_group_id]
           associate_public_ip_address   = true
           ipv6_addresses = null
@@ -160,7 +165,7 @@
               to_port   = 22
               protocol  = "tcp"
               description = "SSH Traffic from this machine"
-              cidr_blocks = var.myip
+              cidr_blocks = var.my_ip
             },
             {
               from_port = 80
