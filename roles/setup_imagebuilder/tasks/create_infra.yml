@@ -172,25 +172,37 @@
               to_port   = 80
               protocol  = "tcp"
               description = "HTTP Traffic from any source"
-              cidr_blocks = "0.0.0.0/0"
+              cidr_blocks = ["0.0.0.0/0"]
             },
             {
               from_port = 9090
               to_port   = 9090
               protocol  = "tcp"
-              description = "HTTPS Traffic from any source"
-              cidr_blocks = "0.0.0.0/0"
+              description = "Cockpit Traffic from any source"
+              cidr_blocks = ["0.0.0.0/0"]
+            },
+            {
+              from_port = -1
+              to_port = -1
+              protocol = "icmp"
+              cidr_blocks = ["0.0.0.0/0"]
+            },
+            {
+              from_port = 0
+              to_port = 0
+              protocol = "-1"
+              cidr_blocks = ["0.0.0.0/0"]
             },
           ]
 
           #allow all outbound https traffic to internet
           egress_with_cidr_blocks = [
             {
-              from_port = 443
-              to_port   = 443
-              protocol  = "tcp"
-              description = "HTTPS Traffic to any IP"
-              cidr_blocks = "0.0.0.0/0"
+              from_port = 0
+              to_port   = 0
+              protocol  = "-1"
+              description = "All outbound traffic"
+              cidr_blocks = ["0.0.0.0/0"]
             },
           ]
         }
