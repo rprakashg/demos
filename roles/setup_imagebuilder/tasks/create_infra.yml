@@ -370,7 +370,6 @@
     ansible.builtin.copy:
       dest: ./inventory
       content: |
-        ---
         all:
           hosts:
             imagebuilder:
