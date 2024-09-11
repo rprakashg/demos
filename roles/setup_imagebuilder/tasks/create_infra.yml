@@ -1,6 +1,5 @@
 ---
 - name: generate tf scripts
-  gather_facts: no
   block:
   - name: create temp directory to store terraform scripts
     ansible.builtin.tempfile:
