@@ -377,3 +377,13 @@
               ansible_host: "{{ imagebuilder_dns }}"
               ansible_port: 22
               ansible_user: "{{ admin_user }}"
+
+  - name: read inventory file
+    ansible.builtin.slurp:
+      src: ./inventory
+    register: inventory_file
+  
+  - name: parse inventory file
+    set_fact:
+      inventory_content: "{{ inventory_file.content | b64decode | from_yaml }}"
+      hosts: "{{ inventory_content.all.hosts | dict2items | map(attribute='key') | list }}"
