@@ -1,7 +1,6 @@
 ---
 - name: create infrastructure resources
   ansible.builtin.import_tasks: create_infra.yml
-  delegate_to: localhost
   when: create_infra | default(true)
 
 - name: check if system is registered with subscription-manager
