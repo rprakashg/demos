@@ -12,6 +12,10 @@
       path: "{{ tfdir.path }}"
     register: dir_stat
 
+  - name: debug tfdir path
+    ansible.builtin.debug:
+      var: tfdir.path
+      
   - name: create tf script
     ansible.builtin.copy:
       dest: "{{ tfdir.path }}/main.tf"
@@ -300,8 +304,8 @@
 
   - name: generate tfvars
     ansible.builtin.template:
-      src: tfvars.j2
-      dest: "{{ tfdir.path }}/tfvars"
+      src: input.tfvars.j2
+      dest: "{{ tfdir.path }}/input.tfvars"
     when: dir_stat.stat.exists
 
 - name: run tf 
@@ -320,7 +324,7 @@
   
   - name: plan
     ansible.builtin.command:
-      cmd: terraform plan -var-file=tfvars
+      cmd: terraform plan -var-file=input.tfvars
       chdir: "{{ tfdir.path }}"
     when: tf_init_result.rc == 0
     register: tf_plan_result
@@ -332,7 +336,7 @@
   
   - name: apply
     ansible.builtin.command:
-      cmd: terraform apply -auto-approve -var-file=tfvars
+      cmd: terraform apply -auto-approve -var-file=input.tfvars
       chdir: "{{ tfdir.path }}"
     when: tf_plan_result.rc == 0
     register: tf_apply_result
