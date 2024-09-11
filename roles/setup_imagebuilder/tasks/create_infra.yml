@@ -14,7 +14,7 @@
 
   - name: find j2 files
     ansible.builtin.find:
-      paths: "../templates"
+      paths: "~/.ansible/collections/ansible_collections/rprakashg/demos/roles/setup_imagebuilder/templates"
       patterns: "*.j2"
       recurse: no
     register: found_templates
@@ -26,7 +26,7 @@
     loop: "{{ found_templates.files }}"     
     loop_control:
       label: "{{ item.path }}" 
-    when: dir_stat.exists
+    when: dir_stat.stat.exists
 
 - name: run tf 
   block:
@@ -34,7 +34,7 @@
     ansible.builtin.command:
       cmd: terraform init
       chdir: "{{ tfdir.path }}"
-    when: dir_stat.exists  
+    when: dir_stat.stat.exists  
     register: tf_init_result
     ignore_errors: yes
   
