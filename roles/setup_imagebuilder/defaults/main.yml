@@ -8,6 +8,8 @@ instance_type: "m5.2xlarge"
 ssh_key: "ec2"
 ami: "ami-0f7197c592205b389"
 my_ip: "136.27.40.26/32"
+image_registry: "ostree-image-registry"
+iso_storage_bucket: "rhdeimages"
 
 cockpit: false
 

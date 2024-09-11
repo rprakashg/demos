@@ -1,52 +1,84 @@
 ---
 - name: setup imagebuilder server
-  ansible.builtin.import_role:
-    name: infra.osbuild.setup_server
+  block:
+  - name: install required packages
+    ansible.builtin.dnf:
+      state: present
+      name:
+      - osbuild-composer
+      - composer-cli
+      - cockpit-composer
+      - bash-completion
+      - firewalld
+      - podman
+
+  - name: reboot the server and wait for it to be ready
+
+  - name: configure firewall to allow access to web console
+    ansible.posix.firewalld:
+      permanent: true
+      immediate: true
+      service: "{{ item }}"
+      state: enabled
+    loop:
+      - cockpit
+      - http
+  
+  - name: enable cockpit/composer/firewalld/podman
+    ansible.builtin.systemd:
+      state: started
+      enabled: true
+      name: "{{ item }}"
+    loop:
+      - osbuild-composer.socket
+      - cockpit.socket
+      - podman.socket
+      - firewalld
 
 - name: setup imagebuilder with microshift
   when: microshift | default(true)
   block:
-    - name: "creating rhocp-{{ microshift_release }}.toml file"
-      ansible.builtin.tempfile:
-        state: file
-        suffix: toml
-      register: microshift_source
+  - name: "creating rhocp-{{ microshift_release }}.toml file"
+    ansible.builtin.tempfile:
+      state: file
+      suffix: toml
+    register: microshift_source
 
-    - name: creating rhocp-{{ microshift_release }}.toml configuration file
-      copy:
-        dest: "{{ microshift_source.path }}"
-        content: |
-          id = "rhocp-{{ microshift_release }}"
-          name = "Microshift version {{ microshift_release }}"
-          type = "yum-baseurl"
-          url = "https://cdn.redhat.com/content/dist/layered/rhel9/{{ ansible_architecture }}/rhocp/{{ microshift_release }}/os"
-          check_gpg = true
-          check_ssl = true
-          system = false
-          rhsm = true
-    
-    - name: "creating fastdatapath.toml file"
-      ansible.builtin.tempfile:
-        state: file
-        suffix: toml
-      register: fastdatapath_source
+  - name: creating rhocp-{{ microshift_release }}.toml configuration file
+    copy:
+      dest: "{{ microshift_source.path }}"
+      content: |
+        id = "rhocp-{{ microshift_release }}"
+        name = "Microshift version {{ microshift_release }}"
+        type = "yum-baseurl"
+        url = "https://cdn.redhat.com/content/dist/layered/rhel9/{{ ansible_architecture }}/rhocp/{{ microshift_release }}/os"
+        check_gpg = true
+        check_ssl = true
+        system = false
+        rhsm = true
+  
+  - name: "creating fastdatapath.toml file"
+    ansible.builtin.tempfile:
+      state: file
+      suffix: toml
+    register: fastdatapath_source
 
-    - name: create fast-datapath.toml configuration file
-      copy:
-        dest: "{{ fastdatapath_source.path }}"
-        content: |
-          id = "fast-datapath"
-          name = "Fast Datapath for RHEL 9 System"
-          type = "yum-baseurl"
-          url = "https://cdn.redhat.com/content/dist/layered/rhel9/{{ ansible_architecture }}/fast-datapath/os"
-          check_gpg = true
-          check_ssl = true
-          system = false
-          rhsm = true
+  - name: create fast-datapath.toml configuration file
+    copy:
+      dest: "{{ fastdatapath_source.path }}"
+      content: |
+        id = "fast-datapath"
+        name = "Fast Datapath for RHEL 9 System"
+        type = "yum-baseurl"
+        url = "https://cdn.redhat.com/content/dist/layered/rhel9/{{ ansible_architecture }}/fast-datapath/os"
+        check_gpg = true
+        check_ssl = true
+        system = false
+        rhsm = true
 
-    - name: add sources to image builder
-      command: "sudo composer-cli sources add {{ item }}"
-      loop:
-        - "{{ microshift_source.path }}"
-        - "{{ fastdatapath_source.path }}"
-    
+  - name: add sources to image builder
+    command: "sudo composer-cli sources add {{ item }}"
+    loop:
+      - "{{ microshift_source.path }}"
+      - "{{ fastdatapath_source.path }}"
+  

@@ -19,6 +19,11 @@
           region = var.region
         }
 
+        provider "aws" {
+          alias = "us-east-1"
+          region = "us-east-1"
+        }
+
         data "aws_availability_zones" "available" {}
         data "aws_caller_identity" "current" {}
 
@@ -79,6 +84,16 @@
         variable "my_ip" {
           description = "ISP public IP"
           type = string
+        }
+
+        variable "image_registry" {
+          description = "Image registry name for ostree images"
+          type = string
+        }
+
+        variable "iso_storage_bucket" {
+          description = "Storage bucket for downloadable ISO installers"
+          type        = string
         }
 
         module "ec2" {
@@ -314,6 +329,53 @@
             tags = local.tags
         }
 
+        module "deviceimages" {
+          source  = "terraform-aws-modules/s3-bucket/aws"
+          version = "~> 3.0"
+
+          bucket     = var.iso_storage_bucket
+          acl        = "public-read"
+
+          # For example only
+          force_destroy = true
+
+          control_object_ownership = true
+          object_ownership         = "ObjectWriter"
+
+          attach_elb_log_delivery_policy = true
+          attach_lb_log_delivery_policy  = true
+
+          attach_deny_insecure_transport_policy = true
+          attach_require_latest_tls_policy      = true
+          
+          block_public_acls = false
+
+          tags = local.tags
+        }
+
+        module "registry" {
+          source  = "terraform-aws-modules/ecr/aws"
+          version = "2.3.0"
+
+          providers = {
+            aws = aws.us-east-1
+          }
+
+          repository_name     = var.image_registry
+          repository_type     = "public"
+          
+          repository_read_write_access_arns = [data.aws_caller_identity.current.arn]
+
+          public_repository_catalog_data = {
+              description       = "Container registry for ostree images"
+              about_text        = file("${path.module}/files/ABOUT.md")
+              usage_text        = file("${path.module}/files/USAGE.md")
+              operating_systems = ["Linux", "RHEL", "RHEL For Edge"]
+              architectures     = ["x86-64"]
+          }
+          tags = local.tags
+        }
+
   - name: generate tfvars
     ansible.builtin.template:
       src: input.tfvars.j2
@@ -373,24 +435,9 @@
     set_fact:
       imagebuilder_dns: "{{ tf_output_imagebuilder_dns.stdout }}"
 
-  - name: update inventory file
-    ansible.builtin.copy:
-      dest: ./inventory
-      content: |
-        ---
-        all:
-          hosts:
-            imagebuilder:
-              ansible_host: "{{ imagebuilder_dns }}"
-              ansible_port: 22
-              ansible_user: "ec2-user"
+  - name: add imagebuilder host
+    ansible.builtin.add_host:
+      ansible_host: "{{ imagebuilder_dns }}"
+      ansible_port: 22
+      ansible_user: "ec2-user"
 
-  - name: read inventory file
-    ansible.builtin.slurp:
-      src: ./inventory
-    register: inventory_file
-  
-  - name: parse inventory file
-    set_fact:
-      inventory_content: "{{ inventory_file.content | from_yaml }}"
-      hosts: "{{ inventory_content.all.hosts | dict2items | map(attribute='key') | list }}"
