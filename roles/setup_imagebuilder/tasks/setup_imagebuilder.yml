@@ -16,7 +16,7 @@
       copy:
         dest: "{{ microshift_source.path }}"
         content: |
-          id = "rhocp--{{ microshift_release }}"
+          id = "rhocp-{{ microshift_release }}"
           name = "Microshift version {{ microshift_release }}"
           type = "yum-baseurl"
           url = "https://cdn.redhat.com/content/dist/layered/rhel9/{{ ansible_architecture }}/rhocp/{{ microshift_release }}/os"
