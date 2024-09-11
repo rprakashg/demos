@@ -1,0 +1,14 @@
+---
+### Defaults for configuring local environment
+create_infra: false
+region: "us-west-2"
+stack: "imagebuilder-stack"
+instance_name: "imagebuilder"
+instance_type: "m5.xlarge"
+ssh_key: "ec2"
+ami: "ami-0f7197c592205b389"
+
+cockpit: false
+
+microshift: true
+microshift_release: 4.16

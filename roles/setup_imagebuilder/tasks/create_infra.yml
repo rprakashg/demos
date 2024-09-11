@@ -1,0 +1,87 @@
+---
+- name: generate tf scripts
+  hosts: localhost
+  gather_facts: no
+  block:
+  - name: create temp directory to store terraform scripts
+    ansible.builtin.tempfile:
+      state: directory
+      suffix: terraform
+    register: tfdir
+
+  - name: check if directory exists
+    ansible.builtin.stat:
+      path: "{{ tfdir.path }}"
+    register: dir_stat
+
+  - name: generate
+    ansible.builtin.template:
+      src: "{{ item }}"
+      dest: "{{ tfdir.path }}/{{ item.path | basename | regex_replace('\\.j2$', '') }}"
+    loop: "{{ ../templates }}"      
+    when: dir_stat.exists
+
+- name: run tf 
+  block:
+  - name: init
+    ansible.builtin.command:
+      cmd: terraform init
+      chdir: "{{ tfdir.path }}"
+    when: dir_stat.exists  
+    register: tf_init_result
+    ignore_errors: yes
+  
+  - name: debug init result
+    ansible.builtin.debug:
+      var: tf_init_result.stdout
+  
+  - name: plan
+    ansible.builtin.command:
+      cmd: terraform plan
+      chdir: "{{ tfdir.path }}"
+    when: tf_init_result == 0
+    register: tf_plan_result
+    ignore_errors: yes
+  
+  - name: debug plan result
+    ansible.builtin.debug:
+      var: tf_plan_result.stdout
+  
+  - name: apply
+    ansible.builtin.command:
+      cmd: terraform apply -auto-approve
+      chdir: "{{ tfdir.path }}"
+    when: tf_plan_result.rc == 0
+    register: tf_apply_result
+    ignore_errors: yes
+  
+  - name: debug apply result
+    ansible.builtin.debug:
+      var: tf_apply_result.stdout
+
+  - name: fail if errors provisioning
+    ansible.builtin.fail:
+      msg: "Failed to create infrastructure: \n {{ tf_apply_result.stderr }}"
+    when: tf_apply_result.rc != 0
+  
+  - name: fetch public dns from output
+    ansible.builtin.command:
+      cmd: terraform output -raw imagebuilder_dns
+      chdir: "{{ tfdir.path }}"
+    register: tf_output_imagebuilder_dns
+  
+  - name: set fact
+    set_fact:
+      imagebuilder_dns: "{{ tf_output_imagebuilder_dns.stdout }}"
+
+  - name: update inventory file
+    ansible.builtin.copy:
+      dest: ./inventory
+      content: |
+        ---
+        all:
+          hosts:
+            imagebuilder:
+              ansible_host: "{{ imagebuilder_dns }}"
+              ansible_port: 22
+              ansible_user: "{{ admin_user }}"

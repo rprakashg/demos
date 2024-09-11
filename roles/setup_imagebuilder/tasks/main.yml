@@ -1,4 +1,8 @@
 ---
+- name: create infrastructure resources
+  ansible.builtin.import_tasks: create_infra.yml
+  when: create_infra | default(true)
+
 - name: check if system is registered with subscription-manager
   ansible.builtin.shell: "subscription-manager status"
   register: status_result

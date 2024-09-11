@@ -1,10 +1,12 @@
 ---
 - name: setup imagebuilder server
+  hosts: imagebuilder
   become: true
   ansible.builtin.import_role:
     name: infra.osbuild.setup_server
 
 - name: setup imagebuilder with microshift
+  hosts: imagebuilder
   become: true
   when: microshift | default(true)
   block:

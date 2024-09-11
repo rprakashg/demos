@@ -1,6 +1,5 @@
-# setup_ostree
-Setup OSTree for building and updating OSTree based RHEL for edge images.
-
+# setup_imagebuilder
+Setup imagebuilder  for building and updating RHEL system images
 Before you can use this role install the collection as shown below
 
 ```sh
@@ -12,23 +11,18 @@ Table below shows variables you can set when using this role
 
 | Name        | Default | Purpose | 
 |------       | ------- | ------- | 
-| provision_infra | False | role will use terraform to provision infra. When this is set to True must terraform_dir must be set to specify path to terraform scripts |
-| aws_region | us-west-2 | Only used when provisioning infra with terraform |
-| stack | ostree-stack | Stack name |
+| create_infra | False | role will use terraform to provision infra in AWS |
+| region | us-west-2 | Only used when provisioning infra with terraform |
+| stack | imagebuilder-stack | Stack name |
 | instance_name | imagebuilder | Name of EC2 instance |
-| ec2_instance_type | m5.xlarge | EC2 instance type to use |
+| instance_type | m5.xlarge | EC2 instance type to use |
 | ssh_key | ec2 | SSH key to use for EC2 |
-| ami_id | ami-0f7197c592205b389 | AMI ID to use |
-| my_ip | 136.27.40.26/32 | My IP CIDR block |
-| domain | sandbox2242.opentlc.com | Base domain |
-| terraform_dir | ./terraform | Directory were terraform scripts to provision infra |
-| cockpit_cert | ./certs/cockpitcert.pem | Cockpit cert to use |
-| cockpit_cert_private_key | ./certs/cockpitcert_private_key.pem | Cockpit cert private key |
+| ami | ami-0f7197c592205b389 | AMI ID to use |
 | microshift | True | Enable Microshift required if building images with Microshift bits |
 | microshift_release | 4.16 | Microsoft release |
 
 ## Create an inventory file
-Create an inventory file for ansible and include fully qualified DNS name for imagebuilder host. Example below since Imagebuilder host is provisioned on private subnet in VPC, internal DNS is being used.
+This step is required if you provisioned imagebuilder infrastructure ahead of time through some external process. Create an inventory file for ansible and include fully qualified DNS name for imagebuilder host. Example below since Imagebuilder host is provisioned on private subnet in VPC, internal DNS is being used.
 
 ```yaml
 ---
@@ -37,7 +31,7 @@ all:
     imagebuilder:
       ansible_host: ip-10-0-0-10.us-west-2.compute.internal
       ansible_port: 22
-      ansible_user: ec2-user
+      ansible_user: admin
 ```
 
 ## Create ansible vault
@@ -52,6 +46,8 @@ and store red hat user name and password
 ```
 rhuser: <fill>
 rhpassword: <fill>
+admin_user: <fill>
+admin_password: <fill>
 ```
 Store vault password in an environment variable as shown below
 
@@ -71,9 +67,9 @@ Finally create an ansible playbook and name it setup.yml. See sample snippet bel
   - name: include ansible vault secrets with rhuser and rhpassword
     include_vars:
       file: "./vars/secrets.yml"
-  - name: setup ostree
+  - name: setup imagebuilder
     ansible.builtin.include_role:
-      name: rprakashg.demos.setup_ostree
+      name: rprakashg.demos.setup_imagebuilder
 ```
 
 Run the playbook
