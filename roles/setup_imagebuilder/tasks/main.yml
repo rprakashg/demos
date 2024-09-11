@@ -17,12 +17,6 @@
   ansible.builtin.import_tasks: register_system.yml
   when: status_result.rc != 0
 
-- name: setup cockpit
-  delegate_to: imagebuilder
-  become: true
-  ansible.builtin.import_tasks: setup_cockpit.yml
-  when: cockpit | default(true)
-
 - name: setup imagebuilder
   delegate_to: imagebuilder
   become: true
