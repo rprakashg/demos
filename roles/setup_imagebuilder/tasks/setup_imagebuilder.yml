@@ -14,16 +14,6 @@
       - firewalld
       - podman
 
-  - name: configure firewall to allow access to web console
-    ansible.posix.firewalld:
-      permanent: true
-      immediate: true
-      service: "{{ item }}"
-      state: enabled
-    loop:
-      - cockpit
-      - http
-  
   - name: enable cockpit/composer/firewalld/podman
     ansible.builtin.systemd:
       state: started
@@ -34,6 +24,16 @@
       - cockpit.socket
       - podman.socket
       - firewalld
+      
+  - name: configure firewall to allow access to web console
+    ansible.posix.firewalld:
+      permanent: true
+      immediate: true
+      service: "{{ item }}"
+      state: enabled
+    loop:
+      - cockpit
+      - http
 
 - name: setup imagebuilder with microshift
   when: microshift | default(true)
