@@ -15,7 +15,7 @@
     block:
     - name: create about content
       ansible.builtin.copy:
-        dest: "{{ tfdir.path }}/files/ABOUT.md"
+        dest: "{{ tfdir.path }}/ABOUT.md"
         content: |
           # About This Image
 
@@ -23,7 +23,7 @@
 
     - name: create usage content
       ansible.builtin.copy:
-        dest: "{{ tfdir.path }}/files/ABOUT.md"
+        dest: "{{ tfdir.path }}/USAGE.md"
         content: |
           # Usage
 
@@ -386,8 +386,8 @@
 
           public_repository_catalog_data = {
               description       = "Container registry for ostree images"
-              about_text        = file("${path.module}/files/ABOUT.md")
-              usage_text        = file("${path.module}/files/USAGE.md")
+              about_text        = file("${path.module}/ABOUT.md")
+              usage_text        = file("${path.module}/USAGE.md")
               operating_systems = ["Linux", "RHEL", "RHEL For Edge"]
               architectures     = ["x86-64"]
           }
