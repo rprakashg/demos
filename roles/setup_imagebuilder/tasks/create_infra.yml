@@ -10,6 +10,24 @@
   - name: debug tfdir path
     ansible.builtin.debug:
       var: tfdir.path
+  
+  - name: create markdown files for container registry
+    block:
+    - name: create about content
+      ansible.builtin.copy:
+        dest: "{{ tfdir.path }}/files/ABOUT.md"
+        content: |
+          # About This Image
+
+          This image is based used for serving ostree content
+
+    - name: create usage content
+      ansible.builtin.copy:
+        dest: "{{ tfdir.path }}/files/ABOUT.md"
+        content: |
+          # Usage
+
+          Include instructions here on how to use the image
 
   - name: create tf script
     ansible.builtin.copy:
