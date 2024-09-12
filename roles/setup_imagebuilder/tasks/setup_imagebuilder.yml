@@ -95,4 +95,4 @@
   - name: Pinging the imagebuilder
     ansible.builtin.ping:
   - debug:
-      msg: "Finishing rebooting imagebuilder"
+      msg: "Finished rebooting imagebuilder"
