@@ -453,6 +453,18 @@
     set_fact:
       imagebuilder_dns: "{{ tf_output_imagebuilder_dns.stdout }}"
 
+  - name: update inventory file
+    ansible.builtin.copy:
+      dest: ./inventory
+      content: |
+        ---
+        all:
+          hosts:
+            imagebuilder:
+              ansible_host: "{{ imagebuilder_dns }}"
+              ansible_port: 22
+              ansible_user: "{{ admin_user }}"
+              
   - name: add imagebuilder host
     ansible.builtin.add_host:
       hostname: "{{ instance_name }}"
