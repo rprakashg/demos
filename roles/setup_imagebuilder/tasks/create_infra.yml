@@ -412,11 +412,11 @@
 
         # create folder structures
         resource "aws_s3_object" "ostree" {
-          bucket  = module.s3.bucket
+          bucket  = module.s3.s3_bucket_id
           key     = "ostree/"
         }
         resource "aws_s3_object" "iso" {
-          bucket  = module.s3.bucket
+          bucket  = module.s3.s3_bucket_id
           key     = "iso/"
         }
 
