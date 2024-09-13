@@ -11,35 +11,12 @@
     ansible.builtin.debug:
       var: tfdir.path
   
-  - name: create markdown files for container registry
-    block:
-    - name: create about content
-      ansible.builtin.copy:
-        dest: "{{ tfdir.path }}/ABOUT.md"
-        content: |
-          # About This Image
-
-          This image is based used for serving ostree content
-
-    - name: create usage content
-      ansible.builtin.copy:
-        dest: "{{ tfdir.path }}/USAGE.md"
-        content: |
-          # Usage
-
-          Include instructions here on how to use the image
-
   - name: create tf script
     ansible.builtin.copy:
       dest: "{{ tfdir.path }}/main.tf"
       content: | 
         provider "aws" {
           region = var.region
-        }
-
-        provider "aws" {
-          alias = "us-east-1"
-          region = "us-east-1"
         }
 
         data "aws_availability_zones" "available" {}
@@ -59,6 +36,7 @@
             }
         }
 
+        # variables
         variable "region" {
           description = "AWS region"
           type        = string
@@ -104,16 +82,12 @@
           type = string
         }
 
-        variable "image_registry" {
-          description = "Image registry name for ostree images"
-          type = string
-        }
-
-        variable "iso_storage_bucket" {
-          description = "Storage bucket for downloadable ISO installers"
+        variable "bucket_name" {
+          description = "S3 Storage bucket for storing ostree content and downloadable ISO installers"
           type        = string
         }
 
+        # Imagebuilder server
         module "ec2" {
           source  = "terraform-aws-modules/ec2-instance/aws"
           version = "2.8.0"
@@ -151,7 +125,8 @@
           user_data = <<-EOF
             #!/bin/bash
             sudo yum -y update
-            sudo dnf -y install rhel-system-roles ansible-core yum-utils
+            sudo dnf -y install rhel-system-roles ansible-core yum-utils python3-pip
+            sudo pip3 install awscli
             sudo useradd -m ${var.admin_user}
             sudo usermod -aG wheel ${var.admin_user}
             sudo sed -i -e 's/^# %wheel/%wheel/' -e 's/^%wheel/# %wheel/' /etc/sudoers
@@ -168,6 +143,57 @@
           EOF 
         }
 
+        # Create an IAM Role for EC2 to access S3
+        resource "aws_iam_role" "imagebuilder_access_role" {
+          name = "imagebuilder_access_role"
+
+          assume_role_policy = jsonencode({
+            Version = "2012-10-17"
+            Statement = [
+              {
+                Action = "sts:AssumeRole"
+                Effect = "Allow"
+                Principal = {
+                  Service = "ec2.amazonaws.com"
+                }
+              }
+            ]
+          })
+        }
+
+        # Attach S3 access policy to the IAM Role
+        resource "aws_iam_policy" "imagebuilder_access_policy" {
+          name        = "S3AccessPolicy"
+          description = "Policy for EC2 to access S3 bucket ${var.bucket_name}"
+
+          policy = jsonencode({
+            Version = "2012-10-17"
+            Statement = [
+              {
+                Effect   = "Allow"
+                Action   = "s3:*"
+                Resource = [
+                  "arn:aws:s3:::${var.bucket_name}",
+                  "arn:aws:s3:::${var.bucket_name}/*"
+                ]
+              }
+            ]
+          })
+        }
+
+        # Attach the IAM policy to the IAM Role
+        resource "aws_iam_role_policy_attachment" "imagebuilder_access_policy_attachment" {
+          role       = aws_iam_role.imagebuilder_access_role.name
+          policy_arn = aws_iam_policy.imagebuilder_access_policy.arn
+        }
+
+        # Create an IAM instance profile for the EC2 instance
+        resource "aws_iam_instance_profile" "imagebuilder_instance_profile" {
+          name = "imagebuilder_instance_profile"
+          role = aws_iam_role.imagebuilder_access_role.name
+        }
+
+        # output variables
         output "imagebuilder_ip" {
           description = "Public IP address of the EC2 instance"
           value = module.ec2.public_ip[0]
@@ -178,6 +204,7 @@
           value = module.ec2.public_dns[0]
         }
 
+        # Security Groups
         module "public_subnet_sg" {
           source  = "terraform-aws-modules/security-group/aws"
           version = "~> 5.0"
@@ -317,6 +344,7 @@
           }
         }
 
+        # VPC
         module "vpc" {
             source  = "terraform-aws-modules/vpc/aws"
             version = "5.8.1"
@@ -347,51 +375,49 @@
             tags = local.tags
         }
 
-        module "deviceimages" {
+        # S3 bucket
+        module "s3" {
           source  = "terraform-aws-modules/s3-bucket/aws"
           version = "~> 3.0"
 
-          bucket     = var.iso_storage_bucket
+          bucket     = var.bucket_name
           acl        = "public-read"
 
           # For example only
           force_destroy = true
 
-          control_object_ownership = true
-          object_ownership         = "ObjectWriter"
+          control_object_ownership  = true
+          object_ownership          = "ObjectWriter"
+          block_public_acls         = false
 
-          attach_elb_log_delivery_policy = true
-          attach_lb_log_delivery_policy  = true
-
-          attach_deny_insecure_transport_policy = true
-          attach_require_latest_tls_policy      = true
-          
-          block_public_acls = false
+          policy = <<EOF
+          {
+            "Version": "2012-10-27",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": "s3:GetObject",
+                "Resource": [
+                  "arn:aws:s3:::${var.bucket_name}",
+                  "arn:aws:s3:::${var.bucket_name}/*"
+                ]
+              }
+            ]
+          }
+          EOF
 
           tags = local.tags
         }
 
-        module "registry" {
-          source  = "terraform-aws-modules/ecr/aws"
-          version = "2.3.0"
-
-          providers = {
-            aws = aws.us-east-1
-          }
-
-          repository_name     = var.image_registry
-          repository_type     = "public"
-          
-          repository_read_write_access_arns = [data.aws_caller_identity.current.arn]
-
-          public_repository_catalog_data = {
-              description       = "Container registry for ostree images"
-              about_text        = file("${path.module}/ABOUT.md")
-              usage_text        = file("${path.module}/USAGE.md")
-              operating_systems = ["Linux", "RHEL", "RHEL For Edge"]
-              architectures     = ["x86-64"]
-          }
-          tags = local.tags
+        # create folder structures
+        resource "aws_s3_object" "ostree" {
+          bucket  = module.s3.bucket
+          key     = "ostree/"
+        }
+        resource "aws_s3_object" "iso" {
+          bucket  = module.s3.bucket
+          key     = "iso/"
         }
 
   - name: generate tfvars

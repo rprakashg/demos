@@ -3,18 +3,22 @@
   ansible.builtin.import_tasks: create_infra.yml
   when: create_infra | default(true)
 
-- name: check if system is registered with subscription-manager
-  ansible.builtin.shell: "subscription-manager status"
-  delegate_to: imagebuilder
-  become: true
-  register: status_result
-  ignore_errors: yes
+- name: check if system is registered 
+  ansible.builtin.stat:
+    path: /etc/insights-client/.registered
+  register: registered
+
+- name: restart rhcd
+  when: not registered.stat.exists
+  ansible.builtin.service:
+    name: rhcd
+    state: restarted
 
 - name: register system if not already registered
+  when: not registered.stat.exists
   delegate_to: imagebuilder
   become: true
   ansible.builtin.import_tasks: register_system.yml
-  when: status_result.rc != 0
 
 - name: setup imagebuilder
   delegate_to: imagebuilder

@@ -1,0 +1,19 @@
+---
+### Defaults 
+input_blueprint: ""
+
+#bootc related
+input_dockerfile: ""
+
+output_image_type: "iso"
+
+image_types:
+- iso
+- ami
+- vmdk
+
+retries: 10
+delay: 10
+
+current_rev: ""
+s3_bucket: "deviceedge-repos"

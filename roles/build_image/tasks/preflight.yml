@@ -1,0 +1,50 @@
+---
+- name: check valid output image type passed
+  assert:
+    that:
+      - output_image_type in image_types
+    fail_msg: "Invalid choice: {{ output_image_type }}. Allowed values are: {{ image_types }}"
+
+- name: check input blueprint is passed
+  assert:
+    that:
+    - input_blueprint != ""
+    fail_msg: "Input blueprint must be specified to build image"
+
+- name: read the contents of input blueprint
+  ansible.builtin.slurp:
+    src: "{{ input_blueprint }}"
+  register: blueprint_data
+
+- name: get blueprint name
+  ansible.builtin.shell: "echo '{{ blueprint_data | b64decode }}' | python -c 'import sys, toml; print(toml.loads(sys.stdin.read())[\"name\"])'"
+  register: get_blueprint_name_result
+
+- name: get blueprint version
+  ansible.builtin.shell: "echo '{{ blueprint_data | b64decode }}' | python -c 'import sys, toml; print(toml.loads(sys.stdin.read())[\"version\"])'"
+  register: get_blueprint_version_result
+
+- name: set blueprint name and version
+  set_fact:
+    blueprint_name: "{{ get_blueprint_name_result.stdout }}"
+    blueprint_version: "{{ get_blueprint_version_result.stdout }}"
+
+- name: initialize ostree repo
+  block:
+    - name: create directory
+      ansible.builtin.file:
+        path: "/home/ostree/{{ blueprint_name }}"
+        state: directory
+        mode: "0755"
+        
+    - name: initialize repository
+      ansible.builtin.command:
+        chdir: "/home/ostree/{{ blueprint_name }}"
+        cmd: "ostree --repo=repo init --mode=archive"
+      args:
+        creates: "/home/ostree/{{ blueprint_name }}/repo"
+
+    - name: configure ostree remote
+      ansible.builtin.command:
+        cmd: "ostree remote add --repo=repo {{ blueprint_name }}-remote s3://{{ s3_bucket }}/ostree/{{ blueprint_name }}/repo"
+        chdir: "/home/ostree/{{ blueprint_name }}"
