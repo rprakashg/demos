@@ -3,12 +3,14 @@
   ansible.builtin.import_tasks: create_infra.yml
   when: create_infra | default(true)
 
-- name: check if system is registered 
+- name: check if system is registered
+  delegate_to: imagebuilder
   ansible.builtin.stat:
     path: /etc/insights-client/.registered
   register: registered
 
 - name: restart rhcd
+  delegate_to: imagebuilder
   when: not registered.stat.exists
   ansible.builtin.service:
     name: rhcd
