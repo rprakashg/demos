@@ -1,0 +1,5 @@
+# Internal variables
+_grant_type: "refresh_token"
+_client_id: "rhsm-api"
+_token_endpoint: "https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token"
+_download_pull_secret_url: "https://api.openshift.com/api/accounts_mgmt/v1/access_token"  

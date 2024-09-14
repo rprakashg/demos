@@ -14,3 +14,4 @@ bucket_name: "deviceedge-ostree-repos"
 cockpit: false
 microshift: true
 microshift_release: 4.16
+    
