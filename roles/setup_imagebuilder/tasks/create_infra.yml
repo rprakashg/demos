@@ -125,8 +125,8 @@
           user_data = <<-EOF
             #!/bin/bash
             sudo yum -y update
-            sudo dnf -y install rhel-system-roles ansible-core yum-utils python3-pip
-            sudo pip3 install awscli
+            sudo dnf -y install rhel-system-roles ansible-core yum-utils
+
             sudo useradd -m ${var.admin_user}
             sudo usermod -aG wheel ${var.admin_user}
             sudo sed -i -e 's/^# %wheel/%wheel/' -e 's/^%wheel/# %wheel/' /etc/sudoers

@@ -13,6 +13,11 @@
       - bash-completion
       - firewalld
       - podman
+      - python3-pip
+
+  - name: install aws cli
+    ansible.builtin.command:
+      cmd: pip3 install awscli
 
   - name: enable cockpit/composer/firewalld/podman
     ansible.builtin.systemd:
