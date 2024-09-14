@@ -16,4 +16,4 @@ retries: 10
 delay: 10
 
 current_rev: ""
-s3_bucket: "deviceedge-repos"
+s3_bucket: "deviceedge-ostree-repos"

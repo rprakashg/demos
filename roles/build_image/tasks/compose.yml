@@ -41,7 +41,7 @@
       dest: "{{ artifact_dir }}"
     remote_src: true
 
-- name: extract commit
+- name: extract commit from artifact and commit to main ostree repo
   block:
     - name: get checksum and rev
       ansible.builtin.command:
@@ -72,9 +72,7 @@
         chdir: "/home/ostree/{{ blueprint_name }}"
       changed_when: true 
 
-- name: print ostree info
-  ansible.builtin.debug:
-    msg: "" 
-
-
+- name: s3 sync
+  ansible.builtin.command:
+    cmd: "aws s3 sync /home/ostree/{{ blueprint_name }} s3://{{ s3_bucket }}/ostree/{{ blueprint_name }}"
   

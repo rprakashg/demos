@@ -7,12 +7,26 @@
       name: "{{ packages }}"
     vars:
       packages:
+      - osbuild
       - osbuild-composer
+      - git
       - composer-cli
+      - ostree
+      - rpm-ostree
       - cockpit-composer
       - bash-completion
-      - firewalld
       - podman
+      - runc
+      - genisoimage
+      - createrepo
+      - yum-utils
+      - selinux-policy-devel
+      - jq
+      - wget
+      - lorax
+      - rpm-build
+      - containernetworking-plugins
+      - firewalld
       - python3-pip
 
   - name: install aws cli
@@ -38,7 +52,6 @@
       state: enabled
     loop:
       - cockpit
-      - http
 
 - name: setup imagebuilder with microshift
   when: microshift | default(true)
@@ -86,7 +99,27 @@
     loop:
       - "{{ microshift_source.path }}"
       - "{{ fastdatapath_source.path }}"
-  
+
+- name: add pull-secret to image builder
+  block:
+  - name: include secrets
+    include_vars:
+      file: "./vars/secrets.yml"
+  - name: create /etc/osbuild-worker directory
+    ansible.builtin.file:
+      path: /etc/osbuild-worker
+      state: directory
+  - name: create the pull-secret.json file
+    ansible.builtin.copy:
+      content: "{{ pull_secret }}"
+      dest: /etc/osbuild-worker/pull-secret.json
+  - name: create osbuild worker toml
+    ansible.builtin.copy:
+      content: |
+        [containers]
+        auth_file_path = "/etc/osbuild-worker/pull-secret.json"
+      dest: /etc/osbuild-worker/osbuild-worker.toml
+      
 - name: reboot imagebuilder
   block:
   - name: rebooting server
