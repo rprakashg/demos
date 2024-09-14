@@ -46,5 +46,5 @@
 
     - name: configure ostree remote
       ansible.builtin.command:
-        cmd: "ostree remote add --repo=repo {{ blueprint_name }}-remote s3://{{ s3_bucket }}/ostree/{{ blueprint_name }}/repo"
+        cmd: "ostree remote add --repo=repo origin s3://{{ s3_bucket }}/ostree/{{ blueprint_name }}/repo"
         chdir: "/home/ostree/{{ blueprint_name }}"
