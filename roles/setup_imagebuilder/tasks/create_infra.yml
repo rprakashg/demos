@@ -104,6 +104,8 @@
           ipv6_addresses = null
           private_ips = ["10.0.3.141"]
 
+          iam_instance_profile = aws_iam_instance_profile.imagebuilder_instance_profile.name
+
           root_block_device = [
             {
               volume_type = "gp2"
@@ -163,7 +165,7 @@
 
         # Attach S3 access policy to the IAM Role
         resource "aws_iam_policy" "imagebuilder_access_policy" {
-          name        = "S3AccessPolicy"
+          name        = "imagebuilder_access_policy"
           description = "Policy for EC2 to access S3 bucket ${var.bucket_name}"
 
           policy = jsonencode({
