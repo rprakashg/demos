@@ -11,6 +11,12 @@
     - blueprint != ""
     fail_msg: "blueprint must be specified to build image"
 
+- name: create blueprints directory on imagebuilder server if it doesn't exist
+  ansible.builtin.file:
+    path: "{{ blueprints_dir }}"
+    state: directory
+    mode: '0755'
+    
 - name: copy blueprint to imagebuilder
   ansible.builtin.copy:
     src: "{{ blueprint }}"
