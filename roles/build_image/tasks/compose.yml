@@ -45,7 +45,7 @@
   block:
     - name: get checksum and rev
       ansible.builtin.command:
-        cmd: "ostree --repo=repo rev-parse {{ current_rev }}"
+        cmd: "ostree --repo=repo rev-parse {{ blueprint_ref }}"
         chdir: "{{ artifact_dir }}"
       register: get_checksum_result
       changed_when: false
@@ -53,10 +53,12 @@
     - name: debug current rev
       ansible.builtin.debug:
         var: current_rev
+      set_fact:
+        checksum: "{{ get_checksum_result.stdout }}"
 
     - name: extract commit from artifact
       ansible.builtin.command:
-        cmd: "ostree --repo=repo pull-local {{ artifact_dir }}/repo {{ get_checksum_result.stdout }}"
+        cmd: "ostree --repo=repo pull-local {{ artifact_dir }}/repo {{ checksum }}"
         chdir: "/home/ostree/{{ blueprint_name }}"
       changed_when: true
 
