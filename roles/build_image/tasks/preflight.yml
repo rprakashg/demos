@@ -14,11 +14,11 @@
 - name: copy blueprint to imagebuilder
   ansible.builtin.copy:
     src: "{{ blueprint }}"
-    dest: "{{ blueprint_dir}}/{{ blueprint | basename }}"
+    dest: "{{ blueprints_dir }}/{{ blueprint | basename }}"
 
 - name: set builder blueprint
   set_fact:
-    builder_blueprint: "{{ blueprint_dir}}/{{ blueprint | basename }}"
+    builder_blueprint: "{{ blueprints_dir }}/{{ blueprint | basename }}"
 
 - name: push the builder blueprint to imagebuilder
   ansible.builtin.shell: composer-cli blueprints push "{{ builder_blueprint }}"
