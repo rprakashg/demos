@@ -39,7 +39,7 @@
     ansible.builtin.unarchive:
       src: "{{ artifact_dir }}/{{ blueprint_name }}_{{ blueprint_version }}.tar"
       dest: "{{ artifact_dir }}"
-    remote_src: true
+      remote_src: true
 
 - name: extract commit from artifact and commit to main ostree repo
   block:
