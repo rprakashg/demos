@@ -51,8 +51,6 @@
       changed_when: false
     
     - name: debug current rev
-      ansible.builtin.debug:
-        var: current_rev
       set_fact:
         checksum: "{{ get_checksum_result.stdout }}"
 
