@@ -8,12 +8,12 @@
 - name: check input blueprint is passed
   assert:
     that:
-    - input_blueprint != ""
-    fail_msg: "Input blueprint must be specified to build image"
+    - blueprint != ""
+    fail_msg: "blueprint must be specified to build image"
 
 - name: read the contents of input blueprint
   ansible.builtin.slurp:
-    src: "{{ input_blueprint }}"
+    src: "{{ blueprint }}"
   register: blueprint_data
 
 - name: get blueprint name

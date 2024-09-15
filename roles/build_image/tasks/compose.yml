@@ -69,7 +69,7 @@
           - " --repo=repo"
           - " commit -b {{ current_rev }}"
           - " -s 'Release {{ blueprint_version }}' "
-          - " --add-metadata-string=blueprint={{ blueprint_name }}
+          - " --add-metadata-string=blueprint={{ blueprint_name }}"
           - " --add-metadata-string=version={{ blueprint_version }}"
         chdir: "/home/ostree/{{ blueprint_name }}"
       changed_when: true 

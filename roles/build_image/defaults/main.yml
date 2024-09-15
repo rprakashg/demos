@@ -1,9 +1,9 @@
 ---
 ### Defaults 
-input_blueprint: ""
+blueprint: ""
 
 #bootc related
-input_dockerfile: ""
+dockerfile: ""
 
 output_image_type: "iso"
 
