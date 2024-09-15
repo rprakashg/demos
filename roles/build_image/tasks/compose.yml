@@ -26,7 +26,7 @@
 
   - name: set artifact dir
     set_fact:
-      artifact_dir: tempdir_result.path
+      artifact_dir: "{{ tempdir_result.path }}"
 
   - name: download artifact
     ansible.builtin.shell: |
