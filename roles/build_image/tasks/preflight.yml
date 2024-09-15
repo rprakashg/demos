@@ -11,9 +11,21 @@
     - blueprint != ""
     fail_msg: "blueprint must be specified to build image"
 
+- name: copy blueprint to imagebuilder
+  ansible.builtin.copy:
+    src: "{{ blueprint }}"
+    dest: "{{ blueprint_dir}}/{{ blueprint | basename }}"
+
+- name: set builder blueprint
+  set_fact:
+    builder_blueprint: "{{ blueprint_dir}}/{{ blueprint | basename }}"
+
+- name: push the builder blueprint to imagebuilder
+  ansible.builtin.shell: composer-cli blueprints push "{{ builder_blueprint }}"
+  
 - name: read the contents of input blueprint
   ansible.builtin.slurp:
-    src: "{{ blueprint }}"
+    src: "{{ builder_blueprint }}"
   register: blueprint_data
 
 - name: get blueprint name

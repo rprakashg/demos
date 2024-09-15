@@ -1,7 +1,4 @@
----  
-- name: push the blueprint to imagebuilder
-  ansible.builtin.shell: composer-cli blueprints push "{{ input_blueprint }}"
-
+---
 - name: start compose
   ansible.builtin.shell: |
     composer-cli --json compose start {{ blueprint_name }} edge-commit | jq -r ".[].body.build_id"
