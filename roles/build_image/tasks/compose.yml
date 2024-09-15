@@ -11,7 +11,7 @@
 - name: wait for compose to finish
   ansible.builtin.shell: |
     composer-cli --json compose info {{ job_id }} | jq -r ".[].body.queue_status"
-  until: check_status_result.stdout in ["RUNNING", "WAITING"]
+  until: check_status_result.stdout not in ["RUNNING", "WAITING"]
   retries: "{{ retries }}"
   delay: "{{ delay }}"
   register: check_status_result
