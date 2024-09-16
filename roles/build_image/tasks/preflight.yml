@@ -46,7 +46,13 @@
     blueprint_name: "{{ get_blueprint_name_result.stdout }}"
     blueprint_version: "{{ get_blueprint_version_result.stdout }}"
 
+- name: check if repo is already initialized
+  ansible.builtin.stat:
+    path: "/home/ostree/{{ blueprint_name }}"
+  register: dir_stat
+
 - name: initialize ostree repo
+  when: not dir_stat.stat.exists
   block:
     - name: create directory
       ansible.builtin.file:
