@@ -182,6 +182,8 @@
                 Resource = [
                   "arn:aws:s3:::${var.bucket_name}",
                   "arn:aws:s3:::${var.bucket_name}/*"
+                  "arn:aws:s3:::${var.ami_bucket_name}",
+                  "arn:aws:s3:::${var.ami_bucket_name}/*"
                 ]
               }
             ]
