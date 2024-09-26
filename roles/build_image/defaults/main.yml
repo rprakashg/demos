@@ -5,13 +5,6 @@ blueprint: ""
 #bootc related
 dockerfile: ""
 
-output_image_type: "iso"
-
-image_types:
-- iso
-- ami
-- vmdk
-
 retries: 100
 delay: 60
 

@@ -1,10 +1,4 @@
 ---
-- name: check valid output image type passed
-  assert:
-    that:
-      - output_image_type in image_types
-    fail_msg: "Invalid choice: {{ output_image_type }}. Allowed values are: {{ image_types }}"
-
 - name: check input blueprint is passed
   assert:
     that:
@@ -48,26 +42,35 @@
 
 - name: check if repo is already initialized
   ansible.builtin.stat:
-    path: "/home/ostree/{{ blueprint_name }}"
-  register: dir_stat
-
-- name: initialize ostree repo
-  when: not dir_stat.stat.exists
+    path: "/home/ostree/{{ blueprint_name }}/repo-dev"
+  register: dev_dir_stat
+- name: check if repo is already initialized
+  ansible.builtin.stat:
+    path: "/home/ostree/{{ blueprint_name }}/repo-prod"
+  register: prod_dir_stat
+- name: initialize ostree repos
+  when: not prod_dir_stat.stat.exists and not dev_dir_stat.stat.exists
   block:
     - name: create directory
       ansible.builtin.file:
         path: "/home/ostree/{{ blueprint_name }}"
         state: directory
         mode: "0755"
-        
-    - name: initialize repository
+    - name: initialize dev repository
       ansible.builtin.command:
         chdir: "/home/ostree/{{ blueprint_name }}"
-        cmd: "ostree --repo=repo init --mode=archive"
+        cmd: "ostree --repo=repo-dev init --mode=archive"
       args:
-        creates: "/home/ostree/{{ blueprint_name }}/repo"
+        creates: "/home/ostree/{{ blueprint_name }}/repo-dev"
+    
+    - name: initialize prod repository
+      ansible.builtin.command:
+        chdir: "/home/ostree/{{ blueprint_name }}"
+        cmd: "ostree --repo=repo-dev init --mode=archive"
+      args:
+        creates: "/home/ostree/{{ blueprint_name }}/repo-prod"
 
     - name: configure ostree remote
       ansible.builtin.command:
-        cmd: "ostree remote add --repo=repo origin s3://{{ s3_bucket }}/ostree/{{ blueprint_name }}/repo"
+        cmd: "ostree remote add --repo=repo origin https://{{ s3_bucket }}.s3.amazonaws.com/ostree/{{ blueprint_name }}/repo"
         chdir: "/home/ostree/{{ blueprint_name }}"

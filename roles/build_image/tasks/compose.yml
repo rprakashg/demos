@@ -1,7 +1,7 @@
 ---
 - name: start compose
   ansible.builtin.shell: |
-    composer-cli --json compose start {{ blueprint_name }} edge-commit | jq -r ".[].body.build_id"
+    composer-cli --json compose start-ostree {{ blueprint_name }} edge-commit | jq -r ".[].body.build_id"
   register: start_compose_result
 
 - name: set job id
@@ -42,18 +42,18 @@
   block:
     - name: get checksum and rev
       ansible.builtin.command:
-        cmd: "ostree --repo=repo rev-parse {{ blueprint_ref }}"
+        cmd: "ostree --repo=repo rev-parse {{ blueprint_rev }}"
         chdir: "{{ artifact_dir }}"
       register: get_checksum_result
       changed_when: false
     
-    - name: debug current rev
+    - name: set checksum in fact
       set_fact:
         checksum: "{{ get_checksum_result.stdout }}"
 
     - name: extract commit from artifact
       ansible.builtin.command:
-        cmd: "ostree --repo=repo pull-local {{ artifact_dir }}/repo {{ checksum }}"
+        cmd: "ostree --repo=repo-dev pull-local {{ artifact_dir }}/repo {{ checksum }}"
         chdir: "/home/ostree/{{ blueprint_name }}"
       changed_when: true
 
@@ -61,8 +61,8 @@
       ansible.builtin.command:
         argv:
           - ostree
-          - " --repo=repo"
-          - " commit -b {{ current_rev }}"
+          - " --repo=repo-dev"
+          - " commit -b {{ blueprint_rev }}"
           - " -s 'Release {{ blueprint_version }}' "
           - " --add-metadata-string=blueprint={{ blueprint_name }}"
           - " --add-metadata-string=version={{ blueprint_version }}"

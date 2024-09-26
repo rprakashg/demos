@@ -8,9 +8,3 @@
   delegate_to: imagebuilder
   become: true
   ansible.builtin.import_tasks: compose.yml
-
-- name: create iso installer
-  delegate_to: imagebuilder
-  become: true
-  ansible.builtin.import_tasks: create_iso_installer.yml
-  when: output_image_type | default("iso")
