@@ -40,37 +40,37 @@
     blueprint_name: "{{ get_blueprint_name_result.stdout }}"
     blueprint_version: "{{ get_blueprint_version_result.stdout }}"
 
-- name: check if repo is already initialized
+- name: check if dev repo is already initialized
   ansible.builtin.stat:
     path: "/home/ostree/{{ blueprint_name }}/repo-dev"
   register: dev_dir_stat
-- name: check if repo is already initialized
+
+- name: check if prod repo is already initialized
   ansible.builtin.stat:
     path: "/home/ostree/{{ blueprint_name }}/repo-prod"
   register: prod_dir_stat
+
 - name: initialize ostree repos
-  when: not prod_dir_stat.stat.exists and not dev_dir_stat.stat.exists
+  when: 
+  - not prod_dir_stat.stat.exists
+  - not dev_dir_stat.stat.exists
   block:
     - name: create directory
       ansible.builtin.file:
         path: "/home/ostree/{{ blueprint_name }}"
         state: directory
         mode: "0755"
+
     - name: initialize dev repository
       ansible.builtin.command:
         chdir: "/home/ostree/{{ blueprint_name }}"
         cmd: "ostree --repo=repo-dev init --mode=archive"
       args:
-        creates: "/home/ostree/{{ blueprint_name }}/repo-dev"
+        creates: "/home/ostree/{{ blueprint_name }}"
     
     - name: initialize prod repository
       ansible.builtin.command:
         chdir: "/home/ostree/{{ blueprint_name }}"
-        cmd: "ostree --repo=repo-dev init --mode=archive"
+        cmd: "ostree --repo=repo-prod init --mode=archive"
       args:
-        creates: "/home/ostree/{{ blueprint_name }}/repo-prod"
-
-    - name: configure ostree remote
-      ansible.builtin.command:
-        cmd: "ostree remote add --repo=repo origin https://{{ s3_bucket }}.s3.amazonaws.com/ostree/{{ blueprint_name }}/repo"
-        chdir: "/home/ostree/{{ blueprint_name }}"
+        creates: "/home/ostree/{{ blueprint_name }}"

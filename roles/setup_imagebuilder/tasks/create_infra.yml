@@ -10,7 +10,7 @@
   - name: debug tfdir path
     ansible.builtin.debug:
       var: tfdir.path
-  
+
   - name: create tf script
     ansible.builtin.copy:
       dest: "{{ tfdir.path }}/main.tf"
@@ -18,7 +18,7 @@
         provider "aws" {
           region = var.region
         }
-
+        
         data "aws_availability_zones" "available" {}
         data "aws_caller_identity" "current" {}
 
@@ -30,7 +30,8 @@
         locals {
             azs                     = slice(data.aws_availability_zones.available.names, 0, 1)
             vpc_cidr                = "10.0.0.0/16" 
-                        
+            account_id              = data.aws_caller_identity.current.account_id
+
             tags = {
                 stack: var.stack
             }
@@ -89,6 +90,11 @@
 
         variable "ami_bucket_name" {
           description = "S3 bucket to store edge AMI images"
+          type = string
+        }
+
+        variable "image_registry" {
+          description = "Image registry name for ostree images"
           type = string
         }
 
@@ -168,7 +174,7 @@
           })
         }
 
-        # Attach S3 access policy to the IAM Role
+        # imagebuilder host permissions to access AWS resources and services 
         resource "aws_iam_policy" "imagebuilder_access_policy" {
           name        = "imagebuilder_access_policy"
           description = "Policy for EC2 to access S3 bucket ${var.bucket_name}"
@@ -181,10 +187,55 @@
                 Action   = "s3:*"
                 Resource = [
                   "arn:aws:s3:::${var.bucket_name}",
-                  "arn:aws:s3:::${var.bucket_name}/*"
+                  "arn:aws:s3:::${var.bucket_name}/*",
                   "arn:aws:s3:::${var.ami_bucket_name}",
                   "arn:aws:s3:::${var.ami_bucket_name}/*"
                 ]
+              },
+              {
+                Effect  = "Allow",
+                Action  = [
+                  "ecr:GetAuthorizationToken"
+                ],
+                Resource = "*"
+              },
+              {
+                Effect  = "Allow",
+                Action  = [
+                  "ecr:BatchCheckLayerAvailability",
+                  "ecr:InitiateLayerUpload",
+                  "ecr:UploadLayerPart",
+                  "ecr:CompleteLayerUpload",
+                  "ecr:PutImage"
+                ],
+                Resource: "ars:aws:ecr:${var.region}:${locals.account_id}:repository/${var.image_registry}"
+              },
+              {
+                Effect = "Allow",
+                Action = [
+                  "ecs:RunTask",
+                  "ecs:StopTask",
+                  "ecs:RegisterTaskDefinition",
+                  "ecs:DescribeTasks",
+                  "ecs:DescribeTaskDefinition",
+                  "ecs:ListTasks",
+                  "ecs:ListClusters",
+                  "ecs:DescribeClusters",
+                  "ecs:UpdateService",
+                  "ecs:CreateService",
+                  "ecs:DeleteService"
+                ],
+                Resource = "*"
+              },
+              {
+                Effect  = "Allow",
+                Action  = [
+                  "iam:PassRole"
+                ],
+                Resource  = [
+                  aws_iam_role.ecs_task_execution_role.arn,
+                  aws_iam_role.ecs_task_role.arn
+                ] 
               }
             ]
           })
@@ -200,6 +251,102 @@
         resource "aws_iam_instance_profile" "imagebuilder_instance_profile" {
           name = "imagebuilder_instance_profile"
           role = aws_iam_role.imagebuilder_access_role.name
+        }
+
+        # ECS Task execution IAM role
+        resource "aws_iam_role" "ecs_task_execution_role" {
+          name = "ecs-task-execution-role"
+
+          assume_role_policy = jsonencode({
+            Version = "2012-10-17"
+            Statement = [
+              {
+                Effect = "Allow"
+                Principal = {
+                  Service = "ecs-tasks.amazonaws.com"
+                }
+                Action = "sts:AssumeRole"
+              }
+            ]
+          })
+        }
+
+        # Permissions assigned to ECS task execution
+        resource "aws_iam_policy" "ecs_task_execution_policy" {
+          name   = "ecs-task-execution-policy"
+          policy = jsonencode({
+            Version = "2012-10-17",
+            Statement = [
+              {
+                Effect = "Allow",
+                Action = [
+                  "ecr:GetDownloadUrlForLayer",
+                  "ecr:BatchGetImage",
+                  "ecr:BatchCheckLayerAvailability",
+                  "ecr:GetAuthorizationToken"
+                ],
+                Resource = "*"
+              },
+              {
+                Effect = "Allow",
+                Action = [
+                  "logs:CreateLogStream",
+                  "logs:PutLogEvents"
+                ],
+                Resource = "arn:aws:logs:${var.region}:${locals.account_id}:log-group:/ecs/*"
+              }
+            ]
+          })
+        }
+
+        # Attach ECS task execution policy to ECS task execution role
+        resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy_attach" {
+          role       = aws_iam_role.ecs_task_execution_role.name
+          policy_arn = aws_iam_policy.ecs_task_execution_policy.arn
+        }
+
+        # ECS Task role
+        resource "aws_iam_role" "ecs_task_role" {
+          name = "ecs-task-role"
+
+          assume_role_policy = jsonencode({
+            Version = "2012-10-17"
+            Statement = [
+              {
+                Effect = "Allow"
+                Principal = {
+                  Service = "ecs-tasks.amazonaws.com"
+                }
+                Action = "sts:AssumeRole"
+              }
+            ]
+          })
+        }
+        
+        # ECS Task role permission
+        resource "aws_iam_policy" "ecs_task_policy" {
+          name   = "ecs-task-policy"
+          policy = jsonencode({
+            Version = "2012-10-17",
+            Statement = [
+              {
+                Effect = "Allow",
+                Action = [
+                  "s3:GetObject",
+                  "s3:PutObject"
+                ],
+                Resource = [
+                  "arn:aws:s3:::${var.bucket_name}/*",
+                  "arn:aws:s3:::${var.ami_bucket_name}/*"
+                ]
+              }
+            ]
+          })
+        }
+
+        resource "aws_iam_role_policy_attachment" "ecs_task_policy_attach" {
+          role       = aws_iam_role.ecs_task_role.name
+          policy_arn = aws_iam_policy.ecs_task_policy.arn
         }
 
         # output variables
@@ -384,7 +531,7 @@
             tags = local.tags
         }
 
-        # S3 bucket
+        # S3 bucket to store edge iso installers
         module "s3" {
           source  = "terraform-aws-modules/s3-bucket/aws"
           version = "4.1.2"
@@ -427,16 +574,7 @@
           tags = local.tags
         }
 
-        # create folder structures
-        resource "aws_s3_object" "ostree" {
-          bucket  = module.s3.s3_bucket_id
-          key     = "ostree/"
-        }
-        resource "aws_s3_object" "iso" {
-          bucket  = module.s3.s3_bucket_id
-          key     = "iso/"
-        }
-
+        # S3 bucket to store edge ami images
         module "amis" {
           source  = "terraform-aws-modules/s3-bucket/aws"
           version = "4.1.2"
@@ -453,6 +591,39 @@
           versioning = {
             enabled = true
           }
+          tags = local.tags
+        }
+
+        # Elastic Container Registry to store ostree repo images
+        module "ecr" {
+          source  = "terraform-aws-modules/ecr/aws"
+          version = "2.3.0"
+          
+          repository_name     = var.image_registry
+
+          repository_read_write_access_arns = [data.aws_caller_identity.current.arn]
+          
+          create_lifecycle_policy           = true
+          repository_lifecycle_policy       = jsonencode({
+            rules = [
+              {
+                rulePriority = 1,
+                description  = "Keep last 30 images",
+                selection    = {
+                  tagStatus = "tagged",
+                  tagPrefixList = ["v"],
+                  countType     = "imageCountMoreThan",
+                  countNumber   = 30
+                },
+                action = {
+                  type = "expire"
+                }
+              }
+            ]
+          })
+
+          repository_force_delete = true
+
           tags = local.tags
         }
 
