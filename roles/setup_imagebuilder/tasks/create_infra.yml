@@ -691,31 +691,33 @@
                 target_group_key  = "ex_ecs_default"
               }
             }
+          }
 
-            target_groups = {
-              ex_ecs_default = {
-                backend_protocol                  = "HTTP"
-                backend_port                      = "8080"
-                target_type                       = "ip"
-                deregistration_delay              = 5
-                load_balancing_cross_zone_enabled = true
+          target_groups = {
+            ex_ecs_default = {
+              backend_protocol                  = "HTTP"
+              backend_port                      = "8080"
+              target_type                       = "ip"
+              deregistration_delay              = 5
+              load_balancing_cross_zone_enabled = true
 
-                health_check = {
-                  enabled               = true
-                  healthy_threshold     = 5
-                  interval              = 30
-                  matcher               = "200"
-                  path                  = "/"
-                  port                  = "traffic-port"
-                  protocol              = "HTTP"
-                  timeout               = 5
-                  unhealthy_threshold   = 2
-                }
-
-                create_attachment = false
+              health_check = {
+                enabled               = true
+                healthy_threshold     = 5
+                interval              = 30
+                matcher               = "200"
+                path                  = "/"
+                port                  = "traffic-port"
+                protocol              = "HTTP"
+                timeout               = 5
+                unhealthy_threshold   = 2
               }
+
+              create_attachment = false
             }
           }
+
+          tags = local.tags
         }
   - name: generate tfvars
     ansible.builtin.template:
