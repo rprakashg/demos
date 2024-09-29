@@ -13,7 +13,6 @@ bucket_name: "deviceedge-isos"
 ami_bucket_name: "deviceedge-amis"
 image_registry: "deviceedge-repo-registry"
 
-
 cockpit: false
 microshift: true
 microshift_release: 4.16
