@@ -77,7 +77,7 @@
 - name: Tag
   containers.podman.podman_image:
     name: "{{ blueprint_name }}:{{ blueprint_version }}"
-    tag: "{{ repository_uri }}/{{ blueprint_name }}:{{ blueprint_version }}"
+    tag: "{{ repository_uri }}:{{ blueprint_name }}"
   register: tag_result
 
 - name: Display the tag result
@@ -86,7 +86,7 @@
 
 - name: Push to registry
   containers.podman.podman_image:
-    name: "{{ repository_uri }}/{{ blueprint_name }}:{{ blueprint_version }}"
+    name: "{{ repository_uri }}:{{ blueprint_name }}"
     push: yes
   register: push_result
 
