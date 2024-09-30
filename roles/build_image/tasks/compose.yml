@@ -1,7 +1,7 @@
 ---
 - name: Check whether components listed in blueprint and dependencies are valid
   ansible.builtin.shell: |
-    composer-cli blueprints depsolve {{ blueprint_name }} | jq -r ".[].body.errors | length"
+    composer-cli --json blueprints depsolve {{ blueprint_name }} | jq -r ".[].body.errors | length"
   register: depsolve_result
 
 - name: fail when errors
