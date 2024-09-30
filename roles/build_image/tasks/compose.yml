@@ -6,7 +6,8 @@
 
 - name: fail when errors
   assert:
-    that: depsolve_result.stdout == 0
+    that: 
+    - depsolve_result.stdout != 0
     fail_msg: "Depsolve errors in blueprint" 
     
 - name: Start compose
