@@ -76,6 +76,7 @@
         creates: "/home/ostree/{{ blueprint_name }}/repo-prod"
 
     - name: Create ecr repository
+      become: false
       ansible.builtin.shell: |
         aws ecr create-repository \
           --repository-name "{{ blueprint_name }}" \
