@@ -12,3 +12,4 @@ aws_region: us-west-2
 repository_uri: ""
 
 compose: true
+containerize: true
