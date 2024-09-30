@@ -38,7 +38,7 @@
     builder_blueprint: "{{ blueprints_dir }}/{{ blueprint | basename }}"
 
 - name: check if blueprint is already added to osbuild composer
-  ansible.builtin.shell: composer-cli --json blueprints show "{{ blueprint_name }}"
+  ansible.builtin.shell: composer-cli --json blueprints show "{{ blueprint_name }} | jq ".[].body.blueprints[].version"
   register: blueprint_show_result
   ignore_errors: yes
 
@@ -48,8 +48,7 @@
 
 - name: push the builder blueprint to imagebuilder if doesnt exist or new version
   when: 
-  - "{{ blueprint_show_result.stdout.body.errors | length }} == 0"
-  - "{{ blueprint_show_result.stdout.body.blueprints[].version }} != {{ blueprint_version }}" 
+  - blueprint_show_result.stdout != blueprint_version
   ansible.builtin.shell: composer-cli blueprints push "{{ builder_blueprint }}"
   
 - name: check if dev repo is already initialized
