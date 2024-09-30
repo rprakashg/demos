@@ -76,17 +76,17 @@
         creates: "/home/ostree/{{ blueprint_name }}/repo-prod"
 
     - name: Create ecr repository
-      community.aws.ecs_ecr:
-        name: "{{ blueprint_name }}"
-        state: present
-        image_tag_mutability: mutable
-        scan_on_push: true
-      register: ecr_repo
+      ansible.builtin.shell: |
+        aws ecr create-repository \
+          --repository-name "{{ blueprint_name }}" \
+          --region "{{ aws_region }}" \
+          --image-scanning-configuration scanOnPush=true
+      register: create_repo_result
     
     - name: debug repository url
       ansible.builtin.debug:
-        msg: "ECR Repository URI: {{ ecr_repo.repository.repository_uri }}"
+        msg: "ECR Repository URI: {{ create_repo_result.repository.repositoryUri }}"
     
     - name: set repository uri in facts
       set_fact:
-        repository_uri: "{{ ecr_repo.repository.repository_uri }}"
+        repository_uri: "{{ create_repo_result.repository.repositoryUri }}"
