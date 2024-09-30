@@ -1,14 +1,16 @@
 ---
-- name: start compose
-  block:
-  - name: check whether components listed in blueprint and dependencies are valid
-    ansible.builtin.shell: |
-      composer-cli blueprints depsolve {{ blueprint_name }} | jq -r ".[].body.errors | length"
-    register: depsolve_result
+- name: Check whether components listed in blueprint and dependencies are valid
+  ansible.builtin.shell: |
+    composer-cli blueprints depsolve {{ blueprint_name }} | jq -r ".[].body.errors | length"
+  register: depsolve_result
 
-  - name: start compose when no errors with depsolve
-    when: depsolve_result.stdout == 0
-    blocK:
+- name: fail when errors
+  assert:
+    that: depsolve_result.stdout == 0
+    fail_msg: "Depsolve errors in blueprint" 
+    
+- name: Start compose
+  block:
     - name: start compose 
       ansible.builtin.shell: |
         composer-cli --json compose start {{ blueprint_name }} edge-commit | jq -r ".[].body.build_id"
@@ -26,7 +28,7 @@
       delay: "{{ delay }}"
       register: check_status_result
 
-- name: download and untar compose artifact 
+- name: Download and untar compose artifact 
   block:
   - name: create a temp dir
     ansible.builtin.tempfile:
@@ -48,7 +50,7 @@
       dest: "{{ artifact_dir }}"
       remote_src: true
 
-- name: extract commit from artifact and commit to main ostree repo
+- name: Extract commit from artifact and commit to main ostree repo
   block:
     - name: get checksum
       ansible.builtin.command:
