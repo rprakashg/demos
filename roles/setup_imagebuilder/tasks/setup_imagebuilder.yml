@@ -33,7 +33,7 @@
 
   - name: install aws cli
     ansible.builtin.command:
-      cmd: pip3 install awscli boto3 botocore
+      cmd: sudo pip3 install awscli boto3 botocore
 
   - name: enable cockpit/composer/firewalld/podman
     ansible.builtin.systemd:
