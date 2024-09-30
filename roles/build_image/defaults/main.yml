@@ -7,5 +7,3 @@ dockerfile: ""
 
 retries: 100
 delay: 60
-
-s3_bucket: "deviceedge-ostree-repos"
