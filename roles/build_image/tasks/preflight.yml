@@ -68,15 +68,15 @@
       args:
         creates: "/home/ostree/{{ blueprint_name }}"
     
-    - name: initialize prod repository
+    - name: Initialize prod repository
       ansible.builtin.command:
         chdir: "/home/ostree/{{ blueprint_name }}"
         cmd: "ostree --repo=repo-prod init --mode=archive"
       args:
         creates: "/home/ostree/{{ blueprint_name }}"
 
-    - name: create ecr registry
-      community.aws.ecr_repository:
+    - name: Create ecr repository
+      community.aws.ecs_ecr:
         name: "{{ blueprint_name }}"
         state: present
         image_tag_mutability: MUTABLE
@@ -84,7 +84,7 @@
       register: ecr_repo
     
     - name: debug repository url
-      debug:
+      ansible.builtin.debug:
         msg: "ECR Repository URI: {{ ecr_repo.repository.repository_uri }}"
     
     - name: set repository uri in facts
