@@ -1,3 +1,5 @@
 blueprint_distro_lower: "{{ 'rhel' if ansible_distribution == 'RedHat' else ansible_distribution | lower }"
 blueprint_rev: "{{ distro_lower }}/{{ hostvars[inventory_hostname].ansible_distribution_major_version }}/x86_64/{{ 'iot' if ansible_distribution == 'Fedora' else 'edge' }}"
 blueprints_dir: /home/blueprints
+
+aws_region: us-west-2

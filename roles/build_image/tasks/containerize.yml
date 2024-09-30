@@ -1,0 +1,94 @@
+---
+- name: create a temp directory to build container
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: containerbuild
+  register: build_dir
+
+- name: debug tfdir path
+  ansible.builtin.debug:
+    var: build_dir.path
+
+- name: create dockerfile
+  ansible.builtin.copy:
+    dest: "{{ build_dir.path }}/Dockerfile"
+    content: |
+      ARG REPO
+      ARG BASE = registry.access.redhat.com/ubi9/ubi9
+      FROM ${BASE}
+
+      RUN dnf -y install nginx  && dnf clean all
+
+      COPY ${REPO} /usr/share/nginx/html
+      RUN ls 
+      COPY nginx.conf /etc/nginx.conf
+
+      EXPOSE 8080
+
+      CMD ["/usr/sbin/nginx", "-c", "/etc/nginx.conf"]
+
+- name: create nginx.conf file
+  ansible.builtin.copy:
+    dest: "{{ build_dir.path }}/nginx.conf"
+    content: |
+      events {
+      }
+      http {
+        server{
+          listen 8080;
+          root /usr/share/nginx/html;
+        }
+      }
+
+      pid /run/nginx.pid;
+      daemon off;
+
+- name: copy repo contents
+  ansible.builtin.copy:
+    dest: "{{ build_dir.path }}"
+    src: "/home/ostree/{{ blueprint_name }}/repo-dev"
+    mode: '0755'
+    recurse: yes
+
+- name: login to registry
+  ansible.builtin.shell:
+    AWS_ACCOUNT_ID = $(aws sts get-caller-identity --query Account --output text)
+
+    aws ecr get-login-password \
+      --region "{{ aws_region }}" | podman login --username AWS \
+      --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.{{ aws_region }}.amazonaws.com
+
+- name: Podman build
+  containers.podman.podman_image:
+    name: "{{ blueprint_name }}"
+    path: "{{ build_dir.path }}"
+    tag: "{{ blueprint_version }}"
+    state: present
+    build:
+      format: oci
+      extra_args: "--build-arg REPO=repo-dev"
+  register: container_build
+
+- name: Display container build result
+  ansible.builtin.debug:
+    var: container_build
+
+- name: Tag
+  containers.podman.podman_image:
+    name: "{{ blueprint_name }}:{{ blueprint_version }}"
+    tag: "{{ repository_uri }}/{{ blueprint_name }}:{{ blueprint_version }}"
+  register: tag_result
+
+- name: Display the tag result
+  ansible.builtin.debug:
+    var: tag_result
+
+- name: Push to registry
+  containers.podman.podman_image:
+    name: "{{ repository_uri }}/{{ blueprint_name }}:{{ blueprint_version }}"
+    push: yes
+  register: push_result
+
+- name: Display push result
+  ansible.builtin.debug:
+    var: push_result

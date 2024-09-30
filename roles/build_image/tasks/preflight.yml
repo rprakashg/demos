@@ -74,3 +74,19 @@
         cmd: "ostree --repo=repo-prod init --mode=archive"
       args:
         creates: "/home/ostree/{{ blueprint_name }}"
+
+    - name: create ecr registry
+      community.aws.ecr_repository:
+        name: "{{ blueprint_name }}"
+        state: present
+        image_tag_mutability: MUTABLE
+        scan_on_push: true
+      register: ecr_repo
+    
+    - name: debug repository url
+      debug:
+        msg: "ECR Repository URI: {{ ecr_repo.repository.repository_uri }}"
+    
+    - name: set repository uri in facts
+      set_fact:
+        repository_uri: "{{ ecr_repo.repository.repository_uri }}"
