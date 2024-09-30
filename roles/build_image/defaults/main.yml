@@ -7,3 +7,6 @@ dockerfile: ""
 
 retries: 100
 delay: 60
+
+aws_region: us-west-2
+repository_uri: ""

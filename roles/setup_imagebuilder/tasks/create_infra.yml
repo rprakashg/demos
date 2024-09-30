@@ -93,6 +93,11 @@
           type = string
         }
 
+        variable "image_registry" {
+          description = "Image registry name for ostree images"
+          type = string
+        }
+
         # Imagebuilder server
         module "ec2" {
           source  = "terraform-aws-modules/ec2-instance/aws"
@@ -206,7 +211,8 @@
                   "ecr:DescribeRepositories",
                   "ecr:PutLifeCyclePolicy",
                   "ecr:TagResource",
-                  "ecr:ListTagsForResource"
+                  "ecr:ListTagsForResource",
+                  "ecr:ListImages"
                 ],
                 Resource: "*"
               },
@@ -686,6 +692,40 @@
 
           tags = local.tags
         }
+
+        # Elastic Container Registry to store ostree repo images
+        module "ecr" {
+          source  = "terraform-aws-modules/ecr/aws"
+          version = "2.3.0"
+          
+          repository_name     = var.image_registry
+
+          repository_read_write_access_arns = [data.aws_caller_identity.current.arn]
+          
+          create_lifecycle_policy           = true
+          repository_lifecycle_policy       = jsonencode({
+            rules = [
+              {
+                rulePriority = 1,
+                description  = "Keep last 30 images",
+                selection    = {
+                  tagStatus = "tagged",
+                  tagPrefixList = ["v"],
+                  countType     = "imageCountMoreThan",
+                  countNumber   = 30
+                },
+                action = {
+                  type = "expire"
+                }
+              }
+            ]
+          })
+
+          repository_force_delete = true
+
+          tags = local.tags
+        }
+
   - name: generate tfvars
     ansible.builtin.template:
       src: input.tfvars.j2

@@ -11,6 +11,7 @@ my_ip: "136.27.40.26/32"
 
 bucket_name: "deviceedge-isos"
 ami_bucket_name: "deviceedge-amis"
+image_registry: "deviceedge-repo-images"
 
 cockpit: false
 microshift: true
