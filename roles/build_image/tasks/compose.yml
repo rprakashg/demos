@@ -79,4 +79,5 @@
     - name: copy compose.json
       ansible.builtin.copy:
         src: "{{ artifact_dir }}/compose.json"
-        dest: "/home/ostree/{{ blueprint_name }}/repo-dev/{{ checksum }}-compose.json"
+        dest: "/home/ostree/{{ blueprint_name }}/{{ checksum }}-compose.json"
+        remote_src: yes
