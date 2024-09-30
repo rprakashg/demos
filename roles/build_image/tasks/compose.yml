@@ -72,13 +72,7 @@
 
     - name: commit changes
       ansible.builtin.command:
-        argv:
-          - ostree
-          - " --repo=repo-dev"
-          - " commit -b {{ blueprint_rev }}"
-          - " -s 'Release {{ blueprint_version }}' "
-          - " --add-metadata-string=blueprint={{ blueprint_name }}"
-          - " --add-metadata-string=version={{ blueprint_version }}"
+        cmd: ostree --repo=repo-dev commit -b "{{ blueprint_rev }}" -s "Release {{ blueprint_version }}" --add-metadata-string="blueprint={{ blueprint_name }}" --add-metadata-string="version={{ blueprint_version }}"
         chdir: "/home/ostree/{{ blueprint_name }}"
       changed_when: true 
 
