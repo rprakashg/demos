@@ -20,13 +20,6 @@
   set_fact:
     blueprint_data: "{{ lookup('file', blueprint) | b64encode }}"
 
-- name: set builder blueprint
-  set_fact:
-    builder_blueprint: "{{ blueprints_dir }}/{{ blueprint | basename }}"
-
-- name: push the builder blueprint to imagebuilder
-  ansible.builtin.shell: composer-cli blueprints push "{{ builder_blueprint }}"
-  
 - name: get blueprint name
   ansible.builtin.shell: "echo '{{ blueprint_data | b64decode }}' | python -c 'import sys, toml; print(toml.loads(sys.stdin.read())[\"name\"])'"
   register: get_blueprint_name_result
@@ -40,6 +33,24 @@
     blueprint_name: "{{ get_blueprint_name_result.stdout }}"
     blueprint_version: "{{ get_blueprint_version_result.stdout }}"
 
+- name: set builder blueprint
+  set_fact:
+    builder_blueprint: "{{ blueprints_dir }}/{{ blueprint | basename }}"
+
+- name: check if blueprint is already added to osbuild composer
+  ansible.builtin.shell: composer-cli --json blueprints show "{{ blueprint_name }}"
+  register: blueprint_show_result
+
+- name: debug blueprint show result
+  ansible.builtin.debug:
+    var: blueprint_show_result
+
+- name: push the builder blueprint to imagebuilder if doesnt exist or new version
+  when: 
+  - "{{ blueprint_show_result.stdout.body.errors | length }} == 0"
+  - "{{ blueprint_show_result.stdout.body.blueprints[].version }} != {{ blueprint_version }}" 
+  ansible.builtin.shell: composer-cli blueprints push "{{ builder_blueprint }}"
+  
 - name: check if dev repo is already initialized
   ansible.builtin.stat:
     path: "/home/ostree/{{ blueprint_name }}/repo-dev"
