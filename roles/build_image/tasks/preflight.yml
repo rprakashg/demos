@@ -66,20 +66,20 @@
         chdir: "/home/ostree/{{ blueprint_name }}"
         cmd: "ostree --repo=repo-dev init --mode=archive"
       args:
-        creates: "/home/ostree/{{ blueprint_name }}"
+        creates: "/home/ostree/{{ blueprint_name }}/repo-dev"
     
     - name: Initialize prod repository
       ansible.builtin.command:
         chdir: "/home/ostree/{{ blueprint_name }}"
         cmd: "ostree --repo=repo-prod init --mode=archive"
       args:
-        creates: "/home/ostree/{{ blueprint_name }}"
+        creates: "/home/ostree/{{ blueprint_name }}/repo-prod"
 
     - name: Create ecr repository
       community.aws.ecs_ecr:
         name: "{{ blueprint_name }}"
         state: present
-        image_tag_mutability: MUTABLE
+        image_tag_mutability: mutable
         scan_on_push: true
       register: ecr_repo
     
