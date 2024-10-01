@@ -12,3 +12,4 @@ aws_region: us-west-2
 
 compose: true
 containerize: true
+repo: repo-dev

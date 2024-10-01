@@ -60,13 +60,21 @@
   set_fact:
     AWS_ACCOUNT_ID: "{{ get_account_info.stdout }}"
 
-- name: login to registry
+- name: get ecr token
   become: false
   ansible.builtin.shell: |
-    aws ecr get-login-password \
-      --region "{{ aws_region }}" | podman login --username AWS \
-      --password-stdin {{ AWS_ACCOUNT_ID }}.dkr.ecr.{{ aws_region }}.amazonaws.com
+     aws ecr get-login-password --region="{{ aws_region }}"
+  register: get_ecr_token_result
 
+- name: store token
+  ansible.builtin.set_fact:
+    ecr_token: "{{ get_ecr_token_result.stdout }}"
+
+- name: login to registry
+  ansible.builtin.shell: |
+    podman login --username=AWS \
+      --password="{{ ecr_token }}" "{{ AWS_ACCOUNT_ID }}.dkr.ecr.{{ aws_region }}.amazonaws.com"
+  
 - name: Podman build
   containers.podman.podman_image:
     name: "{{ blueprint_name }}"
@@ -75,7 +83,7 @@
     state: present
     build:
       format: oci
-      extra_args: "--build-arg REPO=repo-dev"
+      extra_args: "--build-arg REPO={{ repo }}"
   register: container_build
 
 - name: Display container build result
