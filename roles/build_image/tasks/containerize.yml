@@ -82,20 +82,12 @@
   ansible.builtin.debug:
     var: container_build
 
-- name: Tag
-  containers.podman.podman_image:
-    name: "{{ blueprint_name }}:{{ blueprint_version }}"
-    tag: "{{ repository_uri }}:{{ blueprint_name }}"
-  register: tag_result
-
-- name: Display the tag result
-  ansible.builtin.debug:
-    var: tag_result
-
 - name: Push to registry
   containers.podman.podman_image:
-    name: "{{ repository_uri }}:{{ blueprint_name }}"
+    name: "{{ blueprint_name }}:{{ blueprint_version }}"
     push: yes
+    push_args:
+      dest: "{{ repository_uri }}:{{ blueprint_name }}"
   register: push_result
 
 - name: Display push result
