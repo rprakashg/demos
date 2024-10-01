@@ -64,8 +64,8 @@
 
 - name: Describe repository
   become: false
-  ansible.builtin.command:
-    cmd: aws ecr describe-repositories --repository-names "{{ blueprint_name }}" --region "{{ aws_region }}" | jq ".repositories[0].repositoryUri" 
+  ansible.builtin.shell: |
+    aws ecr describe-repositories --repository-names "{{ blueprint_name }}" --region "{{ aws_region }}" | jq ".repositories[0].repositoryUri" 
   register: describe_repository_result
   ignore_errors: yes
 
@@ -77,8 +77,8 @@
 - name: Create ECR repo if it doesn't exist
   become: false
   when: describe_repository_result.rc != 0
-  ansible.builtin.command:
-    cmd: aws ecr create-repository --repository-name "{{ blueprint_name }}" --region "{{ aws_region }}" | jq ".repository.repositoryUri"
+  ansible.builtin.shell: |
+    aws ecr create-repository --repository-name "{{ blueprint_name }}" --region "{{ aws_region }}" | jq ".repository.repositoryUri"
   register: create_repository_result
   
 - name: Set repository 
