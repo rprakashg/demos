@@ -75,6 +75,7 @@
     repository_uri: "{{ describe_repository_result.stdout }}"
 
 - name: Create ECR repo if it doesn't exist
+  become: false
   when: describe_repository_result.rc != 0
   ansible.builtin.command:
     cmd: aws ecr create-repository --repository-name "{{ blueprint_name }}" --region "{{ aws_region }}" | jq ".repository.repositoryUri"
