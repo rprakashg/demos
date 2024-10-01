@@ -360,11 +360,6 @@
           value = module.ec2.public_dns[0]
         }
 
-        output "repository_uri" {
-          description = "Private ECR repository URI"
-          value = module.ecr.repository_uri
-        }
-
         # Security Groups
         module "public_subnet_sg" {
           source  = "terraform-aws-modules/security-group/aws"
