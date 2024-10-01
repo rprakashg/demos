@@ -9,6 +9,7 @@ retries: 100
 delay: 60
 
 aws_region: us-west-2
+aws_ecs_cluster_name: "imagebuilder-stack-fargate" 
 
 compose: true
 containerize: true
