@@ -52,7 +52,7 @@
 
 - name: push the builder blueprint to imagebuilder if doesnt exist or new version
   when: 
-  - "{{ blueprint_current_version }} != {{ blueprint_version }}"
+  - blueprint_current_version != blueprint_version
   ansible.builtin.shell: composer-cli blueprints push "{{ builder_blueprint }}"
   
 - name: check if dev repo is already initialized
