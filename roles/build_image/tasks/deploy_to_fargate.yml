@@ -2,3 +2,4 @@
 - name: Get task info
   community.aws.ecs_taskdefinition_info:
     task_definition: test-td
+    region: "{{ aws_region }}"
