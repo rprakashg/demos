@@ -14,13 +14,13 @@
     dest: "{{ build_dir.path }}/Dockerfile"
     content: |
       ARG REPO
-      ARG BASE = registry.access.redhat.com/ubi9/ubi9
+      ARG BASE=registry.access.redhat.com/ubi9/ubi
       FROM ${BASE}
 
       RUN dnf -y install nginx  && dnf clean all
 
       COPY ${REPO} /usr/share/nginx/html
-      RUN ls 
+
       COPY nginx.conf /etc/nginx.conf
 
       EXPOSE 8080
