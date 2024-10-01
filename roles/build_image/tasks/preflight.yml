@@ -24,22 +24,22 @@
   ansible.builtin.shell: "echo '{{ blueprint_data | b64decode }}' | python -c 'import sys, toml; print(toml.loads(sys.stdin.read())[\"name\"])'"
   register: get_blueprint_name_result
 
-- name: debug blueprint name
-  ansible.builtin.debug:
-    var: get_blueprint_name_result.stdout
-
 - name: get blueprint version
   ansible.builtin.shell: "echo '{{ blueprint_data | b64decode }}' | python -c 'import sys, toml; print(toml.loads(sys.stdin.read())[\"version\"])'"
   register: get_blueprint_version_result
-
-- name: debug blueprint name
-  ansible.builtin.debug:
-    var: get_blueprint_version_result.stdout
 
 - name: set blueprint name and version
   set_fact:
     blueprint_name: "{{ get_blueprint_name_result.stdout }}"
     blueprint_version: "{{ get_blueprint_version_result.stdout }}"
+
+- name: debug blueprint name
+  ansible.builtin.debug:
+    msg: "Blueprint Name: {{ blueprint_name }}"
+
+- name: debug blueprint version
+  ansible.builtin.debug:
+    msg: "Blueprint Version: {{ blueprint_version }}"
 
 - name: set builder blueprint
   set_fact:
@@ -49,19 +49,46 @@
   ansible.builtin.shell: composer-cli --json blueprints show "{{ blueprint_name }}" | jq ".[].body.blueprints[].version"
   register: blueprint_show_result
   ignore_errors: yes
-
-- name: debug blueprint show result
-  ansible.builtin.debug:
-    var: blueprint_show_result
-
+    
 - name: set current version in fact
   set_fact:
     blueprint_current_version: "{{ blueprint_show_result.stdout }}"
 
+- name: debug current blueprint version
+  ansible.builtin.debug:
+    msg: "Current blueprint version in osbuild composer: {{ blueprint_current_version }}"
+
 - name: push the builder blueprint to imagebuilder if doesnt exist or new version
   when: blueprint_current_version != blueprint_version
   ansible.builtin.shell: composer-cli blueprints push "{{ builder_blueprint }}"
+
+- name: Describe repository
+  become: false
+  ansible.builtin.command:
+    cmd: aws ecr describe-repositories --repository-names "{{ blueprint_name }}" | jq ".repositories[].repositoryUri" 
+  register: describe_repository_result
+  ignore_errors: yes
+
+- name: Set repository uri when success return code
+  when: describe_repository_result.rc == 0
+  set_fact:
+    repository_uri: "{{ describe_repository_result.stdout }}"
+
+- name: Create ECR repo if it doesn't exist
+  when: describe_repository_result.rc != 0
+  ansible.builtin.command:
+    cmd: aws ecr create-repository --repository-name "{{ blueprint_name }}" --region "{{ aws_region }}" | jq ".repository.repositoryUri"
+  register: create_repository_result
   
+- name: Set repository 
+  when: create_repository_result.rc == 0
+  set_fact:
+    repository_uri: "{{ create_repository_result.stdout }}"
+
+- name: debug repository uri
+  ansible.builtin.debug:
+    msg: "Repository Uri: {{ repository_uri }}"
+
 - name: check if dev repo is already initialized
   ansible.builtin.stat:
     path: "/home/ostree/{{ blueprint_name }}/repo-dev"
