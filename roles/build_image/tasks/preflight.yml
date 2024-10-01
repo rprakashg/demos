@@ -24,9 +24,17 @@
   ansible.builtin.shell: "echo '{{ blueprint_data | b64decode }}' | python -c 'import sys, toml; print(toml.loads(sys.stdin.read())[\"name\"])'"
   register: get_blueprint_name_result
 
+- name: debug blueprint name
+  ansible.builtin.debug:
+    var: get_blueprint_name_result.stdout
+
 - name: get blueprint version
   ansible.builtin.shell: "echo '{{ blueprint_data | b64decode }}' | python -c 'import sys, toml; print(toml.loads(sys.stdin.read())[\"version\"])'"
   register: get_blueprint_version_result
+
+- name: debug blueprint name
+  ansible.builtin.debug:
+    var: get_blueprint_version_result.stdout
 
 - name: set blueprint name and version
   set_fact:
@@ -51,8 +59,7 @@
     blueprint_current_version: "{{ blueprint_show_result.stdout }}"
 
 - name: push the builder blueprint to imagebuilder if doesnt exist or new version
-  when: 
-  - blueprint_current_version != blueprint_version
+  when: blueprint_current_version != blueprint_version
   ansible.builtin.shell: composer-cli blueprints push "{{ builder_blueprint }}"
   
 - name: check if dev repo is already initialized
