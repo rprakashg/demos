@@ -82,7 +82,7 @@
   register: create_repository_result
   
 - name: Set repository 
-  when: create_repository_result.rc == 0
+  when: describe_repository_result.rc != 0
   set_fact:
     repository_uri: "{{ create_repository_result.stdout }}"
 
