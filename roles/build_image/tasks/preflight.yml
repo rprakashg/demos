@@ -46,7 +46,7 @@
     builder_blueprint: "{{ blueprints_dir }}/{{ blueprint | basename }}"
 
 - name: check if blueprint is already added to osbuild composer
-  ansible.builtin.shell: composer-cli --json blueprints show "{{ blueprint_name }}" | jq ".[].body.blueprints[].version"
+  ansible.builtin.shell: composer-cli --json blueprints show "{{ blueprint_name }}" | jq -r ".[].body.blueprints[].version"
   register: blueprint_show_result
   ignore_errors: yes
     
