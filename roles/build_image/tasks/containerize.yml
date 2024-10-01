@@ -50,14 +50,22 @@
     mode: '0755'
     remote_src: yes
 
+- name: get account id
+  become: false
+  ansible.builtin.shell: |
+    aws sts get-caller-identity --query Account --output text
+  register: get_account_info
+
+- name: Store account id in fact
+  set_fact:
+    AWS_ACCOUNT_ID: "{{ get_account_info.stdout }}"
+
 - name: login to registry
   become: false
   ansible.builtin.shell: |
-    AWS_ACCOUNT_ID = $(aws sts get-caller-identity --query Account --output text)
-
     aws ecr get-login-password \
       --region "{{ aws_region }}" | podman login --username AWS \
-      --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.{{ aws_region }}.amazonaws.com
+      --password-stdin {{ AWS_ACCOUNT_ID }}.dkr.ecr.{{ aws_region }}.amazonaws.com
 
 - name: Podman build
   containers.podman.podman_image:
