@@ -46,9 +46,13 @@
   ansible.builtin.debug:
     var: blueprint_show_result
 
+- name: set current version in fact
+  set_fact:
+    blueprint_current_version: "{{ blueprint_show_result.stdout }}"
+
 - name: push the builder blueprint to imagebuilder if doesnt exist or new version
   when: 
-  - blueprint_show_result.stdout != blueprint_version
+  - "{{ blueprint_current_version }} != {{ blueprint_version }}"
   ansible.builtin.shell: composer-cli blueprints push "{{ builder_blueprint }}"
   
 - name: check if dev repo is already initialized

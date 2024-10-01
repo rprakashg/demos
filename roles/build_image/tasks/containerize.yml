@@ -48,9 +48,8 @@
     dest: "{{ build_dir.path }}"
     src: "/home/ostree/{{ blueprint_name }}/repo-dev"
     mode: '0755'
-    recurse: yes
     remote_src: yes
-    
+
 - name: login to registry
   become: false
   ansible.builtin.shell:
