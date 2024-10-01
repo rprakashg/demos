@@ -13,4 +13,6 @@ aws_ecs_cluster_name: "imagebuilder-stack-fargate"
 
 compose: true
 containerize: true
+deploy_to_fargate: true
+
 repo: repo-dev
