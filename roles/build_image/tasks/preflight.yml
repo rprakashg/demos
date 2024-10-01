@@ -51,21 +51,23 @@
   ignore_errors: yes
     
 - name: set current version in fact
+  when: blueprint_show_result.rc == 0
   set_fact:
     blueprint_current_version: "{{ blueprint_show_result.stdout }}"
 
 - name: debug current blueprint version
+  when: blueprint_show_result.rc == 0
   ansible.builtin.debug:
     msg: "Current blueprint version in osbuild composer: {{ blueprint_current_version }}"
 
 - name: push the builder blueprint to imagebuilder if doesnt exist or new version
-  when: blueprint_current_version != blueprint_version
+  when: ( blueprint_show_result.rc == 0 and blueprint_current_version != blueprint_version)
   ansible.builtin.shell: composer-cli blueprints push "{{ builder_blueprint }}"
 
 - name: Describe repository
   become: false
   ansible.builtin.shell: |
-    aws ecr describe-repositories --repository-names="{{ blueprint_name }}" --region="{{ aws_region }}" --query="repositories[].repositoryUri" --output=text
+    aws ecr describe-repositories --repository-names="{{ blueprint_name }}" --region="{{ aws_region }}" --query="repositories[0].repositoryUri" --output=text
   register: describe_repository_result
   ignore_errors: yes
 
