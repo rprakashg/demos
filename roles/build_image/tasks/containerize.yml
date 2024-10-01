@@ -74,7 +74,7 @@
   ansible.builtin.shell: |
     podman login --username=AWS \
       --password="{{ ecr_token }}" "{{ AWS_ACCOUNT_ID }}.dkr.ecr.{{ aws_region }}.amazonaws.com"
-  
+
 - name: Podman build
   containers.podman.podman_image:
     name: "{{ blueprint_name }}"
@@ -95,7 +95,7 @@
     name: "{{ blueprint_name }}:{{ blueprint_version }}"
     push: yes
     push_args:
-      dest: "{{ repository_uri }}:{{ blueprint_name }}"
+      dest: "{{ repository_uri }}:{{ blueprint_version }}"
   register: push_result
 
 - name: Display push result
