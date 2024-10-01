@@ -65,7 +65,7 @@
 - name: Describe repository
   become: false
   ansible.builtin.command:
-    cmd: aws ecr describe-repositories --repository-names "{{ blueprint_name }}" --region "{{ aws_region }}" | jq ".repositories[].repositoryUri" 
+    cmd: aws ecr describe-repositories --repository-names "{{ blueprint_name }}" --region "{{ aws_region }}" | jq ".repositories[0].repositoryUri" 
   register: describe_repository_result
   ignore_errors: yes
 
