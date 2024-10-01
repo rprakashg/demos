@@ -65,7 +65,7 @@
 - name: Describe repository
   become: false
   ansible.builtin.shell: |
-    aws ecr describe-repositories --repository-names "{{ blueprint_name }}" --region "{{ aws_region }}" | jq ".repositories[0].repositoryUri" 
+    aws ecr describe-repositories --repository-names="{{ blueprint_name }}" --region="{{ aws_region }}" --query="repositories[].repositoryUri" --output=text
   register: describe_repository_result
   ignore_errors: yes
 
@@ -78,7 +78,7 @@
   become: false
   when: describe_repository_result.rc != 0
   ansible.builtin.shell: |
-    aws ecr create-repository --repository-name "{{ blueprint_name }}" --region "{{ aws_region }}" | jq ".repository.repositoryUri"
+    aws ecr create-repository --repository-name="{{ blueprint_name }}" --region="{{ aws_region }}" --query="repository.repositoryUri" --output=text
   register: create_repository_result
   
 - name: Set repository 
