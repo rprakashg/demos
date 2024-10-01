@@ -52,7 +52,7 @@
 
 - name: login to registry
   become: false
-  ansible.builtin.shell:
+  ansible.builtin.shell: |
     AWS_ACCOUNT_ID = $(aws sts get-caller-identity --query Account --output text)
 
     aws ecr get-login-password \
