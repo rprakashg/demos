@@ -1,5 +1,37 @@
 ---
-- name: Get task info
-  community.aws.ecs_taskdefinition_info:
-    task_definition: test-td
-    region: "{{ aws_region }}"
+- name: Get image digest from ecr
+  become: false
+  ansible.builtin.shell: |
+    aws ecr list-images --repository-name="{{ blueprint_name }}" --region="{{ aws_region }}" --query="imageIds[0].imageDigest" --output=text
+  register: get_image_digest_result
+
+- name: Set digest in fact
+  ansible.builtin.set_fact:
+    image_digest: "{{ get_image_digest_result.stdout }}"
+
+- name: Debug digest
+  ansible.builtin.debug:
+    msg: "Image digest retrieved from ECR Repo: {{ image_digest }}"
+
+- name: Create an ECS task definition
+  community.aws.ecs_taskdefinition:
+    state: present
+    family: "{{ blueprint_name }}-taskdef"
+    containers:
+    - name: 
+      cpu: "{{ cpu }}"
+      memory: "{{ memory }}"
+      essential: true
+      image: "{{ repository_uri }}:{{ blueprint_version }}@{{ image_digest }}"
+      portMappings:
+      - name: http
+        containerPort: 8080 
+        hostPort: 8080
+        protocol: tcp
+        appProtocol: http
+    execution_role_arn: "{{ task_execution_role_arn }}"
+    task_role_arn: "{{ task_role_arn }}"
+    network_mode: awsvpc
+    launch_type: FARGATE
+    cpu: "{{ cpu }}"
+    memory: "{{ memory }}"

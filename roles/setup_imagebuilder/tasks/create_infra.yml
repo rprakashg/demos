@@ -92,7 +92,7 @@
           description = "S3 bucket to store edge AMI images"
           type = string
         }
-
+        
         # Imagebuilder server
         module "ec2" {
           source  = "terraform-aws-modules/ec2-instance/aws"
@@ -237,6 +237,27 @@
                   aws_iam_role.ecs_task_execution_role.arn,
                   aws_iam_role.ecs_task_role.arn
                 ] 
+              },
+              {
+                Effect  = "Allow",
+                Action  = [
+                  "iam:GetRole",
+                  "iam:GetPolicy",
+                  "iam:GetPolicyVersion",
+                  "iam:ListPolicies"
+                ],
+                Resource  = "*"
+              },
+              {
+                Effect  = "Allow",
+                Action  = [
+                  "elasticloadbalancing:DescribeLoadBalancers",
+                  "elasticloadbalancing:DescribeListeners",
+                  "elasticloadbalancing:DescribeTargetGroups",
+                  "elasticloadbalancing:DescribeTargetHealth",
+                  "elasticloadbalancing:DescribeTags"
+                ],
+                Resource  = "*"
               }
             ]
           })

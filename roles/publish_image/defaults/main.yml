@@ -6,4 +6,4 @@ output_image_type: "iso"
 image_types:
 - iso
 - ami
-- vmdk
+- qcow2

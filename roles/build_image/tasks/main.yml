@@ -14,5 +14,5 @@
   ansible.builtin.import_tasks: containerize.yml
 
 - name: deploy to fargate
-  when: deploy_to_fargate | default(trie)
+  when: deploy_to_fargate | default(true)
   ansible.builtin.import_tasks: deploy_to_fargate.yml  
