@@ -435,7 +435,7 @@
           
           policy = <<EOF
           {
-            "Version": "2012-10-27",
+            "Version": "2012-10-17",
             "Statement": [
               {
                 "Effect": "Allow",
@@ -478,7 +478,7 @@
           
           policy = <<EOF
           {
-            "Version": "2012-10-27",
+            "Version": "2012-10-17",
             "Statement": [
               {
                 "Effect": "Allow",
