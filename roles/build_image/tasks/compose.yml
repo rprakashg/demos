@@ -81,3 +81,8 @@
         src: "{{ artifact_dir }}/compose.json"
         dest: "/home/ostree/{{ blueprint_name }}/{{ checksum }}-compose.json"
         remote_src: yes
+
+- name: sync dev repo to s3 bucket
+  become: false
+  ansible.builtin.shell: |
+    aws s3 sync "/home/ostree/{{ blueprint_name }}/repo-dev" "s3://{{ ostree_bucket_name }}/{{ blueprint_name }}/repo"

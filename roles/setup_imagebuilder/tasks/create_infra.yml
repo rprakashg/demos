@@ -83,8 +83,8 @@
           type = string
         }
 
-        variable "bucket_name" {
-          description = "S3 Storage bucket for storing ostree content and downloadable ISO installers"
+        variable "iso_bucket_name" {
+          description = "S3 Storage bucket for storing downloadable ISO installers"
           type        = string
         }
 
@@ -93,6 +93,11 @@
           type = string
         }
         
+        variable "ostree_bucket_name" {
+          description = "S3 Storage bucket for storing OSTree content"
+          type        = string
+        }
+
         # Imagebuilder server
         module "ec2" {
           source  = "terraform-aws-modules/ec2-instance/aws"
@@ -181,22 +186,18 @@
                 Effect   = "Allow"
                 Action   = "s3:*"
                 Resource = [
-                  "arn:aws:s3:::${var.bucket_name}",
-                  "arn:aws:s3:::${var.bucket_name}/*",
+                  "arn:aws:s3:::${var.iso_bucket_name}",
+                  "arn:aws:s3:::${var.iso_bucket_name}/*",
                   "arn:aws:s3:::${var.ami_bucket_name}",
-                  "arn:aws:s3:::${var.ami_bucket_name}/*"
+                  "arn:aws:s3:::${var.ami_bucket_name}/*",
+                  "arn:aws:s3:::${var.ostree_bucket_name}",
+                  "arn:aws:s3:::${var.ostree_bucket_name}/*"
                 ]
               },
               {
                 Effect  = "Allow",
                 Action  = [
-                  "ecr:GetAuthorizationToken"
-                ],
-                Resource = "*"
-              },
-              {
-                Effect  = "Allow",
-                Action  = [
+                  "ecr:GetAuthorizationToken",
                   "ecr:BatchCheckLayerAvailability",
                   "ecr:InitiateLayerUpload",
                   "ecr:UploadLayerPart",
@@ -210,54 +211,6 @@
                   "ecr:ListImages"
                 ],
                 Resource: "*"
-              },
-              {
-                Effect = "Allow",
-                Action = [
-                  "ecs:RunTask",
-                  "ecs:StopTask",
-                  "ecs:RegisterTaskDefinition",
-                  "ecs:DescribeTasks",
-                  "ecs:DescribeTaskDefinition",
-                  "ecs:ListTasks",
-                  "ecs:ListClusters",
-                  "ecs:DescribeClusters",
-                  "ecs:UpdateService",
-                  "ecs:CreateService",
-                  "ecs:DeleteService"
-                ],
-                Resource = "*"
-              },
-              {
-                Effect  = "Allow",
-                Action  = [
-                  "iam:PassRole"
-                ],
-                Resource  = [
-                  aws_iam_role.ecs_task_execution_role.arn,
-                  aws_iam_role.ecs_task_role.arn
-                ] 
-              },
-              {
-                Effect  = "Allow",
-                Action  = [
-                  "iam:GetRole",
-                  "iam:GetPolicy",
-                  "iam:GetPolicyVersion",
-                  "iam:ListPolicies"
-                ],
-                Resource  = "*"
-              },
-              {
-                Effect  = "Allow",
-                Action  = [
-                  "elasticloadbalancing:DescribeLoadBalancers",
-                  "elasticloadbalancing:DescribeListeners",
-                  "elasticloadbalancing:DescribeTargetGroups",
-                  "elasticloadbalancing:DescribeTargetHealth",
-                  "elasticloadbalancing:DescribeTags"
-                ],
-                Resource  = "*"
               }
             ]
           })
@@ -273,101 +226,6 @@
         resource "aws_iam_instance_profile" "imagebuilder_instance_profile" {
           name = "imagebuilder_instance_profile"
           role = aws_iam_role.imagebuilder_access_role.name
-        }
-
-        # ECS Task execution IAM role
-        resource "aws_iam_role" "ecs_task_execution_role" {
-          name = "ecs-task-execution-role"
-
-          assume_role_policy = jsonencode({
-            Version = "2012-10-17"
-            Statement = [
-              {
-                Effect = "Allow"
-                Principal = {
-                  Service = "ecs-tasks.amazonaws.com"
-                }
-                Action = "sts:AssumeRole"
-              }
-            ]
-          })
-        }
-
-        # Permissions assigned to ECS task execution
-        resource "aws_iam_policy" "ecs_task_execution_policy" {
-          name   = "ecs-task-execution-policy"
-          policy = jsonencode({
-            Version = "2012-10-17",
-            Statement = [
-              {
-                Effect = "Allow",
-                Action = [
-                  "ecr:GetDownloadUrlForLayer",
-                  "ecr:BatchGetImage",
-                  "ecr:BatchCheckLayerAvailability",
-                  "ecr:GetAuthorizationToken"
-                ],
-                Resource = "*"
-              },
-              {
-                Effect = "Allow",
-                Action = [
-                  "logs:CreateLogStream",
-                  "logs:PutLogEvents"
-                ],
-                Resource = "arn:aws:logs:${var.region}:${local.account_id}:log-group:/ecs/*"
-              }
-            ]
-          })
-        }
-
-        # Attach ECS task execution policy to ECS task execution role
-        resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy_attach" {
-          role       = aws_iam_role.ecs_task_execution_role.name
-          policy_arn = aws_iam_policy.ecs_task_execution_policy.arn
-        }
-
-        # ECS Task role
-        resource "aws_iam_role" "ecs_task_role" {
-          name = "ecs-task-role"
-
-          assume_role_policy = jsonencode({
-            Version = "2012-10-17"
-            Statement = [
-              {
-                Effect = "Allow"
-                Principal = {
-                  Service = "ecs-tasks.amazonaws.com"
-                }
-                Action = "sts:AssumeRole"
-              }
-            ]
-          })
-        }
-
-        # ECS Task role permission
-        resource "aws_iam_policy" "ecs_task_policy" {
-          name   = "ecs-task-policy"
-          policy = jsonencode({
-            Version = "2012-10-17",
-            Statement = [
-              {
-                Effect = "Allow",
-                Action = [
-                  "s3:GetObject"
-                ],
-                Resource = [
-                  "arn:aws:s3:::${var.bucket_name}/*",
-                  "arn:aws:s3:::${var.ami_bucket_name}/*"
-                ]
-              }
-            ]
-          })
-        }
-
-        resource "aws_iam_role_policy_attachment" "ecs_task_policy_attach" {
-          role       = aws_iam_role.ecs_task_role.name
-          policy_arn = aws_iam_policy.ecs_task_policy.arn
         }
 
         # output variables
@@ -553,11 +411,11 @@
         }
 
         # S3 bucket to store edge iso installers
-        module "s3" {
+        module "isos" {
           source  = "terraform-aws-modules/s3-bucket/aws"
           version = "4.1.2"
 
-          bucket     = var.bucket_name
+          bucket     = var.iso_bucket_name
           acl        = "public-read"
 
           # For example only
@@ -584,8 +442,51 @@
                 "Principal": "*",
                 "Action": "s3:GetObject",
                 "Resource": [
-                  "arn:aws:s3:::${var.bucket_name}",
-                  "arn:aws:s3:::${var.bucket_name}/*"
+                  "arn:aws:s3:::${var.iso_bucket_name}",
+                  "arn:aws:s3:::${var.iso_bucket_name}/*"
+                ]
+              }
+            ]
+          }
+          EOF
+
+          tags = local.tags
+        }
+
+        # S3 bucket for storing ostree content
+        module "ostree" {
+          source  = "terraform-aws-modules/s3-bucket/aws"
+          version = "4.1.2"
+
+          bucket     = var.ostree_bucket_name
+          acl        = "public-read"
+
+          # For example only
+          force_destroy = true
+
+          control_object_ownership  = true
+          object_ownership          = "ObjectWriter"
+          block_public_acls         = false
+          attach_public_policy      = true
+          block_public_policy       = false
+          ignore_public_acls        = false
+          restrict_public_buckets   = false
+          
+          versioning = {
+            enabled = true
+          }
+          
+          policy = <<EOF
+          {
+            "Version": "2012-10-27",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": "s3:GetObject",
+                "Resource": [
+                  "arn:aws:s3:::${var.ostree_bucket_name}",
+                  "arn:aws:s3:::${var.ostree_bucket_name}/*"
                 ]
               }
             ]
@@ -612,102 +513,6 @@
           versioning = {
             enabled = true
           }
-          tags = local.tags
-        }
-
-        # Fargate cluster to run ostree containers
-        module "ecs" {
-          source  = "terraform-aws-modules/ecs/aws"
-          version = "5.11.4"
-
-          cluster_name    = "${var.stack}-fargate"
-
-          # Capacity provider
-          fargate_capacity_providers = {
-            FARGATE = {
-              default_capacity_provider_strategy = {
-                weight  = 50
-                base    = 20
-              }
-            }
-            FARGATE_SPOT = {
-              default_capacity_provider_strategy = {
-                weight  = 50
-              }
-            }
-          }
-
-          tags = local.tags
-        }
-
-        # alb to route traffic to containers running in fargate
-        module "alb" {
-          source  = "terraform-aws-modules/alb/aws"
-          version = "9.11.0"
-
-          name = "${var.stack}-alb"
-          
-          load_balancer_type  = "application"
-          vpc_id              = module.vpc.vpc_id
-          subnets             = module.vpc.public_subnets
-
-          # example
-          enable_deletion_protection = false
-
-          # security group
-          security_group_ingress_rules  = {
-            all_http = {
-              from_port   = 80
-              to_port     = 8080
-              ip_protocol = "tcp"
-              cidr_ipv4   = "0.0.0.0/0" 
-            }
-          }
-
-          security_group_egress_rules = {
-            all = {
-              ip_protocol = "-1"
-              cidr_ipv4   = module.vpc.vpc_cidr_block
-            }
-          }
-
-          client_keep_alive   = 7200
-          
-          listeners = {
-            ex-http = {
-              port      = 80
-              protocol  = "HTTP"
-
-              forward = {
-                target_group_key  = "ex_ecs_default"
-              }
-            }
-          }
-
-          target_groups = {
-            ex_ecs_default = {
-              backend_protocol                  = "HTTP"
-              backend_port                      = "8080"
-              target_type                       = "ip"
-              deregistration_delay              = 5
-              load_balancing_cross_zone_enabled = true
-
-              health_check = {
-                enabled               = true
-                healthy_threshold     = 5
-                interval              = 30
-                matcher               = "200"
-                path                  = "/"
-                port                  = "traffic-port"
-                protocol              = "HTTP"
-                timeout               = 5
-                unhealthy_threshold   = 2
-              }
-
-              create_attachment = false
-            }
-          }
-
           tags = local.tags
         }
 
