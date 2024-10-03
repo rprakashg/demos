@@ -38,8 +38,6 @@
     family: "{{ blueprint_name }}-taskdef"
     network_mode: awsvpc
     launch_type: FARGATE
-    requires_compatibilities:
-    - FARGATE
     containers:
     - name: "{{ blueprint_name }}-taskdef"
       image: "{{ repository_uri }}:{{ blueprint_version }}@{{ image_digest }}"
