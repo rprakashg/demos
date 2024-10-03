@@ -1,0 +1,95 @@
+---
+- name: check input blueprint is passed
+  assert:
+    that:
+    - dockerfile != ""
+    fail_msg: "dockerfile must be specified to build bootable container image"
+
+- name: Copy the dockerfile to the imagebuilder host
+  block:
+  - name: create directory to store dockerfiles if it doesn't exist
+    ansible.builtin.file:
+      path: "{{ dockerfiles_dir }}"
+      state: directory
+      mode: '0755'
+  - name: copy the dockerfile
+    ansible.builtin.copy:
+      src: "{{ dockerfile }}"
+      dest: "{{ dockerfiles_dir }}/{{ image_name }}.Dockerfile"
+
+- name: create ECR repo if doesnt exist
+  become: false
+  block:
+  - name: Describe repository
+    become: false
+    ansible.builtin.shell: |
+      aws ecr describe-repositories --repository-names="{{ image_name }}" --region="{{ aws_region }}" --query="repositories[0].repositoryUri" --output=text
+    register: describe_repository_result
+    ignore_errors: yes
+
+  - name: Set repository uri when success return code
+    when: describe_repository_result.rc == 0
+    set_fact:
+      repository_uri: "{{ describe_repository_result.stdout }}"
+  
+  - name: Create ECR repo if it doesn't exist
+    when: describe_repository_result.rc != 0
+    ansible.builtin.shell: |
+      aws ecr create-repository --repository-name="{{ blueprint_name }}" --region="{{ aws_region }}" --query="repository.repositoryUri" --output=text
+    register: create_repository_result
+
+  - name: Set repository 
+    when: describe_repository_result.rc != 0
+    set_fact:
+      repository_uri: "{{ create_repository_result.stdout }}"
+
+- name: build bootable container using the specified dockerfile
+  containers.podman.podman_image:
+    name: "{{ image_name }}"
+    path: "{{ dockerfiles_dir }}"
+    tag: "{{ tag }}"
+    state: present
+    build:
+      format: oci
+      context: .
+      file: "{{ image_name }}.Dockerfile"
+      
+- name: login to ECR repo
+  block:
+  - name: get account id
+    become: false
+    ansible.builtin.shell: |
+      aws sts get-caller-identity --query Account --output text
+    register: get_account_info
+
+  - name: Store account id in fact
+    set_fact:
+      AWS_ACCOUNT_ID: "{{ get_account_info.stdout }}"
+
+  - name: get ecr token
+    become: false
+    ansible.builtin.shell: |
+      aws ecr get-login-password --region="{{ aws_region }}"
+    register: get_ecr_token_result
+
+  - name: store token
+    ansible.builtin.set_fact:
+      ecr_token: "{{ get_ecr_token_result.stdout }}"
+
+  - name: login to registry
+    ansible.builtin.shell: |
+      podman login --username=AWS \
+        --password="{{ ecr_token }}" "{{ AWS_ACCOUNT_ID }}.dkr.ecr.{{ aws_region }}.amazonaws.com"
+
+- name: push the container to registry
+  containers.podman.podman_image:
+    name: "{{ image_name }}:{{ tag }}"
+    push: yes
+    push_args:
+      dest: "{{ repository_uri }}/{{ image_name }}:{{ tag }}"
+  register: push_result
+
+- name: Display push result
+  ansible.builtin.debug:
+    var: push_result
+

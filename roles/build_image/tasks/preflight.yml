@@ -64,34 +64,6 @@
   when: ( blueprint_show_result.rc == 0 and blueprint_current_version != blueprint_version)
   ansible.builtin.shell: composer-cli blueprints push "{{ builder_blueprint }}"
 
-- name: Describe repository
-  become: false
-  ansible.builtin.shell: |
-    aws ecr describe-repositories --repository-names="{{ blueprint_name }}" --region="{{ aws_region }}" --query="repositories[0].repositoryUri" --output=text
-  register: describe_repository_result
-  ignore_errors: yes
-
-- name: Set repository uri when success return code
-  when: describe_repository_result.rc == 0
-  set_fact:
-    repository_uri: "{{ describe_repository_result.stdout }}"
-
-- name: Create ECR repo if it doesn't exist
-  become: false
-  when: describe_repository_result.rc != 0
-  ansible.builtin.shell: |
-    aws ecr create-repository --repository-name="{{ blueprint_name }}" --region="{{ aws_region }}" --query="repository.repositoryUri" --output=text
-  register: create_repository_result
-  
-- name: Set repository 
-  when: describe_repository_result.rc != 0
-  set_fact:
-    repository_uri: "{{ create_repository_result.stdout }}"
-
-- name: debug repository uri
-  ansible.builtin.debug:
-    msg: "Repository Uri: {{ repository_uri }}"
-
 - name: check if dev repo is already initialized
   ansible.builtin.stat:
     path: "/home/ostree/{{ blueprint_name }}/repo-dev"

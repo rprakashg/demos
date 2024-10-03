@@ -1,18 +1,15 @@
 ---
 - name: preflight
   become: true
+  when: not blueprint == ""
   ansible.builtin.import_tasks: preflight.yml
 
 - name: compose
   become: true
-  when: compose | default(true)
+  when: not blueprint == ""
   ansible.builtin.import_tasks: compose.yml
 
-- name: containerize
+- name: bootable container build
   become: true
-  when: containerize | default(true)
-  ansible.builtin.import_tasks: containerize.yml
-
-- name: deploy to fargate
-  when: deploy_to_fargate | default(true)
-  ansible.builtin.import_tasks: deploy_to_fargate.yml  
+  when: not dockerfile == ""
+  ansible.builtin.import_tasks: bootc-build.yml
