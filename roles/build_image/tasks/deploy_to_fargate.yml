@@ -13,25 +13,65 @@
   ansible.builtin.debug:
     msg: "Image digest retrieved from ECR Repo: {{ image_digest }}"
 
+- name: get ecs task execution role arn
+  ansible.builtin.shell: |
+    aws iam get-role --role-name="{{ aws_ecs_task_execution_role }}" --query="Role.Arn" --output=text
+  register: get_task_exec_role_result
+
+- name: get ecs task role arn
+  ansible.builtin.shell: |
+    aws iam get-role --role-name="{{ aws_ecs_task_role }}" --query="Role.Arn" --output=text
+  register: get_task_role_result
+
+- name: set role arns in fact
+  ansible.builtin.set_fact:
+    task_execution_role_arn: "{{ get_task_exec_role_result.stdout }}"
+    task_role_arn: "{{ get_task_role_result.stdout }}"
+
+- name: debug arn values retrieved
+  ansible.builtin.debug:
+    msg: "Task Execution Role Arn: {{ task_execution_role_arn }}, Task Role Arn: {{ task_role_arn }}"
+
 - name: Create an ECS task definition
   community.aws.ecs_taskdefinition:
     state: present
     family: "{{ blueprint_name }}-taskdef"
+    network_mode: awsvpc
+    launch_type: FARGATE
+    requires_compatibilities:
+    - FARGATE
     containers:
-    - name: 
+    - name: "{{ blueprint_name }}-taskdef"
+      image: "{{ repository_uri }}:{{ blueprint_version }}@{{ image_digest }}"
       cpu: "{{ cpu }}"
       memory: "{{ memory }}"
       essential: true
-      image: "{{ repository_uri }}:{{ blueprint_version }}@{{ image_digest }}"
       portMappings:
-      - name: http
-        containerPort: 8080 
+      - containerPort: 8080 
         hostPort: 8080
         protocol: tcp
         appProtocol: http
-    execution_role_arn: "{{ task_execution_role_arn }}"
-    task_role_arn: "{{ task_role_arn }}"
-    network_mode: awsvpc
-    launch_type: FARGATE
     cpu: "{{ cpu }}"
     memory: "{{ memory }}"
+    execution_role_arn: "{{ task_execution_role_arn }}"
+    task_role_arn: "{{ task_role_arn }}"
+
+#- name: Create ecs service
+#  community.aws.ecs_service:
+#    cluster: "{{ aws_ecs_cluster_name }}"
+#    name: "{{ blueprint_name }}-service"
+#    task_definition:
+#    desired_count: 1
+#    launch_type: FARGATE
+#    load_balancers:
+#      containerName: "{{ blueprint_name }}"
+#      containerPort: 8080
+#      loadBalancerName: 
+
+#    network_configuration:
+#      subnets:
+
+#      security_groups:
+
+#      assign_public_ip: no
+    

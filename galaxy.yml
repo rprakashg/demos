@@ -44,7 +44,7 @@ dependencies:
   #infra.osbuild: ">=2.3.0"
   kubernetes.core: ">=3.2.0" 
   containers.podman: "1.16.0"
-  community.aws: "8.0.0"
+  amazon.aws: "8.0.0"
 
 # The URL of the originating SCM repository
 repository: https://github.com/rprakashg/demos
