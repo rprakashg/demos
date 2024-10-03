@@ -177,7 +177,7 @@
         # imagebuilder host permissions to access AWS resources and services 
         resource "aws_iam_policy" "imagebuilder_access_policy" {
           name        = "imagebuilder_access_policy"
-          description = "Policy for EC2 to access S3 bucket ${var.bucket_name}"
+          description = "Policy for EC2 to access S3 buckets"
 
           policy = jsonencode({
             Version = "2012-10-17"
