@@ -43,6 +43,10 @@
     set_fact:
       repository_uri: "{{ create_repository_result.stdout }}"
 
+- name: login to registry.redhat.io with RH credentials
+  ansible.builtin.shell: |
+    podman login --username="{{ rhuser }}" --password="{{ rhpassword }}" registry.redhat.io
+
 - name: build bootable container using the specified dockerfile
   containers.podman.podman_image:
     name: "{{ image_name }}"
