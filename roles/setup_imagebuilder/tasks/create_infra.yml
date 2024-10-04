@@ -93,11 +93,6 @@
           type = string
         }
         
-        variable "ostree_bucket_name" {
-          description = "S3 Storage bucket for storing OSTree content"
-          type        = string
-        }
-
         # Imagebuilder server
         module "ec2" {
           source  = "terraform-aws-modules/ec2-instance/aws"
@@ -189,9 +184,7 @@
                   "arn:aws:s3:::${var.iso_bucket_name}",
                   "arn:aws:s3:::${var.iso_bucket_name}/*",
                   "arn:aws:s3:::${var.ami_bucket_name}",
-                  "arn:aws:s3:::${var.ami_bucket_name}/*",
-                  "arn:aws:s3:::${var.ostree_bucket_name}",
-                  "arn:aws:s3:::${var.ostree_bucket_name}/*"
+                  "arn:aws:s3:::${var.ami_bucket_name}/*"
                 ]
               },
               {
@@ -444,49 +437,6 @@
                 "Resource": [
                   "arn:aws:s3:::${var.iso_bucket_name}",
                   "arn:aws:s3:::${var.iso_bucket_name}/*"
-                ]
-              }
-            ]
-          }
-          EOF
-
-          tags = local.tags
-        }
-
-        # S3 bucket for storing ostree content
-        module "ostree" {
-          source  = "terraform-aws-modules/s3-bucket/aws"
-          version = "4.1.2"
-
-          bucket     = var.ostree_bucket_name
-          acl        = "public-read"
-
-          # For example only
-          force_destroy = true
-
-          control_object_ownership  = true
-          object_ownership          = "ObjectWriter"
-          block_public_acls         = false
-          attach_public_policy      = true
-          block_public_policy       = false
-          ignore_public_acls        = false
-          restrict_public_buckets   = false
-          
-          versioning = {
-            enabled = true
-          }
-          
-          policy = <<EOF
-          {
-            "Version": "2012-10-17",
-            "Statement": [
-              {
-                "Effect": "Allow",
-                "Principal": "*",
-                "Action": "s3:GetObject",
-                "Resource": [
-                  "arn:aws:s3:::${var.ostree_bucket_name}",
-                  "arn:aws:s3:::${var.ostree_bucket_name}/*"
                 ]
               }
             ]
