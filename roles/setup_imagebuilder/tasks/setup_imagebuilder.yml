@@ -1,11 +1,6 @@
 ---
 - name: setup imagebuilder server
   block:
-  #- name: install epel 9 latest release
-  #  ansible.builtin.dnf:
-  #    state: present
-  #    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
-
   - name: install required packages
     ansible.builtin.dnf:
       state: present
@@ -36,7 +31,6 @@
       - python3-pip
       - python3-toml
       - httpd
-      #- s3fs-fuse
 
   - name: install aws cli
     ansible.builtin.command:
