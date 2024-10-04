@@ -35,7 +35,7 @@
   - name: Create ECR repo if it doesn't exist
     when: describe_repository_result.rc != 0
     ansible.builtin.shell: |
-      aws ecr create-repository --repository-name="{{ blueprint_name }}" --region="{{ aws_region }}" --query="repository.repositoryUri" --output=text
+      aws ecr create-repository --repository-name="{{ image_name }}" --region="{{ aws_region }}" --query="repository.repositoryUri" --output=text
     register: create_repository_result
 
   - name: Set repository 
