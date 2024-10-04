@@ -1,0 +1,13 @@
+---
+- name: login to registry.redhat.io
+  ansible.builtin.shell: |
+    podman login --username="{{ rhuser }}" --password="{{ rhpassword }}" registry.redhat.io
+  register: login_result
+
+- name: Debug login result
+  ansible.builtin.debug:
+    var: login_result
+
+- name: Pull bootc image builder
+  ansible.builtin.shell: |
+    podman pull registry.redhat.io/rhel9/bootc-image-builder

@@ -66,35 +66,22 @@
 
 - name: check if dev repo is already initialized
   ansible.builtin.stat:
-    path: "/home/ostree/{{ blueprint_name }}/repo-dev"
-  register: dev_dir_stat
-
-- name: check if prod repo is already initialized
-  ansible.builtin.stat:
-    path: "/home/ostree/{{ blueprint_name }}/repo-prod"
-  register: prod_dir_stat
+    path: "/var/www/html/{{ blueprint_name }}"
+  register: blueprint_dir_stat
 
 - name: initialize ostree repos
   when: 
-  - not prod_dir_stat.stat.exists
-  - not dev_dir_stat.stat.exists
+  - not blueprint_dir_stat.stat.exists
   block:
     - name: create directory
       ansible.builtin.file:
-        path: "/home/ostree/{{ blueprint_name }}"
+        path: "/var/www/html/{{ blueprint_name }}"
         state: directory
         mode: "0755"
 
-    - name: initialize dev repository
+    - name: initialize rpm-ostree repository for blueprint
       ansible.builtin.command:
-        chdir: "/home/ostree/{{ blueprint_name }}"
-        cmd: "ostree --repo=repo-dev init --mode=archive"
+        chdir: "/var/www/html/{{ blueprint_name }}"
+        cmd: "ostree --repo=repo init --mode=archive"
       args:
-        creates: "/home/ostree/{{ blueprint_name }}/repo-dev"
-    
-    - name: Initialize prod repository
-      ansible.builtin.command:
-        chdir: "/home/ostree/{{ blueprint_name }}"
-        cmd: "ostree --repo=repo-prod init --mode=archive"
-      args:
-        creates: "/home/ostree/{{ blueprint_name }}/repo-prod"
+        creates: "/var/www/html/{{ blueprint_name }}/repo"
