@@ -51,7 +51,7 @@
     state: present
     build:
       format: oci
-      file: "{{ image_name }}.Dockerfile"
+      file: "{{ dockerfiles_dir }}/{{ image_name }}.Dockerfile"
       
 - name: login to ECR repo
   block:
