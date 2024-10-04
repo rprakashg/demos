@@ -89,7 +89,7 @@
     name: "{{ image_name }}:{{ tag }}"
     push: yes
     push_args:
-      dest: "{{ repository_uri }}/{{ image_name }}:{{ tag }}"
+      dest: "{{ repository_uri }}:{{ tag }}"
   register: push_result
 
 - name: Display push result
