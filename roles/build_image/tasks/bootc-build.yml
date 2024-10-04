@@ -56,7 +56,12 @@
     build:
       format: oci
       file: "{{ dockerfiles_dir }}/{{ image_name }}.Dockerfile"
-      
+  register: build_result
+
+- name: Display build result
+  ansible.builtin.debug:
+    var: build_result
+
 - name: login to ECR repo
   block:
   - name: get account id
