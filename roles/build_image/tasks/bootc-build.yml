@@ -51,7 +51,6 @@
     state: present
     build:
       format: oci
-      context: .
       file: "{{ image_name }}.Dockerfile"
       
 - name: login to ECR repo
