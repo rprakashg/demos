@@ -85,4 +85,4 @@
 - name: sync dev repo to s3 bucket
   become: false
   ansible.builtin.shell: |
-    aws s3 sync "/home/ostree/{{ blueprint_name }}" "s3://{{ ostree_bucket_name }}/{{ blueprint_name }}"
+    aws s3 sync "/home/ostree/{{ blueprint_name }}/repo-dev" "s3://{{ ostree_bucket_name }}/{{ blueprint_name }}/repo"
