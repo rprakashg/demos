@@ -10,3 +10,5 @@
     subscription-manager usage --set="Development/Test"
     subscription-manager attach
     subscription-manager config --rhsm.manage_repos=1
+    subscription-manager repos --enable codeready-builder-for-rhel-9-$(arch)-rpms
+    
