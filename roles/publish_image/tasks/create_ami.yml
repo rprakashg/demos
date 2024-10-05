@@ -27,6 +27,9 @@
       when: describe_repository_result.rc == 0
       set_fact:
         repository_uri: "{{ describe_repository_result.stdout }}"
+    - name: debug repository uri
+      ansible.builtin.debug:
+        msg: "Repository Uri: {{ repository_uri}}"
 
   - name: create ami
     ansible.builtin.shell: |
