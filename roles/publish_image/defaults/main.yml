@@ -1,9 +1,14 @@
 ---
 ### Defaults
 
-blueprint: ""
-image: ""
+blueprint_name: ""
+image_name: ""
 tag: ""
+
+iso_bucket_name: "rhde-isos"
+ami_bucket_name: "rhde-amis"
+
+aws_region: us-west-2
 
 output_image_type: "iso"
 

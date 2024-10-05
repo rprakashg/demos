@@ -2,4 +2,42 @@
 - name: start
   ansible.builtin.debug:
     msg: Creating ami images
-- 
+
+- name: bootc
+  when:
+  - not image == ""
+  - not tag == ""
+  block:
+  - name: login to registry.redhat.io
+    ansible.builtin.shell: |
+      podman login --username="{{ rhuser }}" --password="{{ rhpassword }}" registry.redhat.io
+
+  - name: pull bootc image builder
+    ansible.builtin.shell: |
+      podman pull registry.redhat.io/rhel9/bootc-image-builder:latest
+  
+  - name: get repository uri
+    become: false
+    block:
+    - name: Describe repository
+      ansible.builtin.shell: |
+        aws ecr describe-repositories --repository-names="{{ image_name }}" --region="{{ aws_region }}" --query="repositories[0].repositoryUri" --output=text
+      register: describe_repository_result
+    - name: Set repository uri when success return code
+      when: describe_repository_result.rc == 0
+      set_fact:
+        repository_uri: "{{ describe_repository_result.stdout }}"
+
+  - name: create ami
+    ansible.builtin.shell: |
+      podman run \
+        --rm \
+        -it \
+        --privileged \
+        --pull=newer \
+        registry.redhat.io/rhel9/bootc-image-builder:latest \
+        --type ami
+        --aws-ami-name "{{ image_name }}-x86" \
+        --aws-bucket "{{ ami_bucket_name }}" \
+        --aws-region "{{ aws_region }}" \
+      "{{ repository_uri }}"

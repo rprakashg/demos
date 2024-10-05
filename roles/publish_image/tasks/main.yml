@@ -8,3 +8,7 @@
 - name: build iso
   ansible.builtin.import_tasks: create_iso_installer.yml
   when: output_image_type == "iso"
+
+- name: build ami
+  when: output_image_type == "ami"
+  ansible.builtin.import_tasks: create_ami.yml
