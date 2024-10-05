@@ -15,7 +15,7 @@
   - name: copy the dockerfile
     ansible.builtin.copy:
       src: "{{ dockerfile }}"
-      dest: "{{ dockerfiles_dir }}/{{ image_name }}.Dockerfile"
+      dest: "{{ dockerfiles_dir }}/{{ dockerfile | basename }}"
 
 - name: create ECR repo if doesnt exist
   become: false
@@ -55,7 +55,7 @@
     state: present
     build:
       format: oci
-      file: "{{ dockerfiles_dir }}/{{ image_name }}.Dockerfile"
+      file: "{{ dockerfiles_dir }}/{{ dockerfile | basename }}"
   register: build_result
 
 - name: Display build result
