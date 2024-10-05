@@ -5,7 +5,7 @@
 
 - name: bootc
   when:
-  - not image == ""
+  - not image_name == ""
   - not tag == ""
   block:
   - name: login to registry.redhat.io
