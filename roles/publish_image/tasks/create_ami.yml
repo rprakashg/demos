@@ -43,4 +43,4 @@
         --aws-ami-name "{{ image_name }}-x86" \
         --aws-bucket "{{ ami_bucket_name }}" \
         --aws-region "{{ aws_region }}" \
-      "{{ repository_uri }}"
+      "{{ repository_uri }}:{{ tag }}"
