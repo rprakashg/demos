@@ -1,12 +1,9 @@
 ---
 ### Defaults
 
-os_image: ""
-ostree_url: ""
-
-admin_user: admin
-admin_user_password: "R3dH@t!"
-admin_user_ssh_key: ""
+blueprint: ""
+image: ""
+tag: ""
 
 output_image_type: "iso"
 

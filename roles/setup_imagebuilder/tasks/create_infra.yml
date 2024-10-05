@@ -175,7 +175,7 @@
           description = "Policy for EC2 to access S3 buckets"
 
           policy = jsonencode({
-            Version = "2012-10-17"
+            Version = "2012-10-17",
             Statement = [
               {
                 Effect   = "Allow"
@@ -204,6 +204,34 @@
                   "ecr:ListImages"
                 ],
                 Resource: "*"
+              },
+              {
+                Effect  = "Allow",
+                Action  = [
+                  "ec2:ModifySnapshotAttribute",
+                  "ec2:CopySnapshot",
+                  "ec2:Describe*",
+                  "ec2:ImportSnapshot",
+                  "ec2:ImportImage",
+                  "ec2:RegisterImage"
+                ],
+                Resource  = "*"
+              },
+              {
+                Effect  = "Allow",
+                Action  = [
+                  "cloudwatch:PutMetricData"
+                ],
+                Resource  = "*"
+              },
+              {
+                Effect  = "Allow",
+                Action  = [
+                  "logs:CreateLogStream",
+                  "logs:CreateLogGroup",
+                  "logs:PutLogEvents"
+                ],
+                Resource = "*"
               }
             ]
           })
