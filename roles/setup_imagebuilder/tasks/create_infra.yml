@@ -201,7 +201,9 @@
                   "ecr:PutLifeCyclePolicy",
                   "ecr:TagResource",
                   "ecr:ListTagsForResource",
-                  "ecr:ListImages"
+                  "ecr:ListImages",
+                  "ecr:BatchGetImage",
+                  "ecr:GetDownloadUrlForLayer"
                 ],
                 Resource: "*"
               },
