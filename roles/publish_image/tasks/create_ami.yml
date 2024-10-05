@@ -31,6 +31,33 @@
       ansible.builtin.debug:
         msg: "Repository Uri: {{ repository_uri}}"
 
+- name: login to ECR repo
+  block:
+  - name: get account id
+    become: false
+    ansible.builtin.shell: |
+      aws sts get-caller-identity --query Account --output text
+    register: get_account_info
+
+  - name: Store account id in fact
+    set_fact:
+      AWS_ACCOUNT_ID: "{{ get_account_info.stdout }}"
+
+  - name: get ecr token
+    become: false
+    ansible.builtin.shell: |
+      aws ecr get-login-password --region="{{ aws_region }}"
+    register: get_ecr_token_result
+
+  - name: store token
+    ansible.builtin.set_fact:
+      ecr_token: "{{ get_ecr_token_result.stdout }}"
+
+  - name: login to registry
+    ansible.builtin.shell: |
+      podman login --username=AWS \
+        --password="{{ ecr_token }}" "{{ AWS_ACCOUNT_ID }}.dkr.ecr.{{ aws_region }}.amazonaws.com"
+        
   - name: create ami
     ansible.builtin.shell: |
       podman run \
@@ -39,7 +66,7 @@
         --privileged \
         --pull=newer \
         registry.redhat.io/rhel9/bootc-image-builder:latest \
-        --type ami
+        --type ami \
         --aws-ami-name "{{ image_name }}-x86" \
         --aws-bucket "{{ ami_bucket_name }}" \
         --aws-region "{{ aws_region }}" \
