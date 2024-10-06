@@ -1,13 +1,17 @@
 ---
-- name: start
-  ansible.builtin.debug:
-    msg: Creating ami images
+- name: load secrets from ansible vault
+  ansible.builtin.include_vars:
+    file: "./vars/secrets.yml"
 
-- name: bootc
+- name: bootc build
   when:
   - not image_name == ""
   - not tag == ""
   block:
+  - name: start
+    ansible.builtin.debug:
+      msg: "Creating ami images for bootc image {{ image_name }}"
+
   - name: login to registry.redhat.io
     ansible.builtin.shell: |
       podman login --username="{{ rhuser }}" --password="{{ rhpassword }}" registry.redhat.io
@@ -31,8 +35,6 @@
       ansible.builtin.debug:
         msg: "Repository Uri: {{ repository_uri}}"
 
-- name: login to ECR repo
-  block:
   - name: get account id
     become: false
     ansible.builtin.shell: |
@@ -76,3 +78,11 @@
         --aws-bucket "{{ ami_bucket_name }}" \
         --aws-region "{{ aws_region }}" \
         "{{ repository_uri }}:{{ tag }}"
+
+- name: blueprint
+  when:
+  - not blueprint_name = ""
+  block:
+  - name: start
+    ansible.builtin.debug:
+      msg: "Creating ami images for blueprint {{ blueprint_name }}"  

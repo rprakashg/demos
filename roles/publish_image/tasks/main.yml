@@ -4,7 +4,7 @@
     that:
       - output_image_type in image_types
     fail_msg: "Invalid choice: {{ output_image_type }}. Allowed values are: {{ image_types }}"
-
+  
 - name: build iso
   become: true
   when: output_image_type == "iso"
