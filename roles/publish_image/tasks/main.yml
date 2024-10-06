@@ -6,9 +6,10 @@
     fail_msg: "Invalid choice: {{ output_image_type }}. Allowed values are: {{ image_types }}"
 
 - name: build iso
-  ansible.builtin.import_tasks: create_iso_installer.yml
+  become: true
   when: output_image_type == "iso"
-
+  ansible.builtin.import_tasks: create_iso_installer.yml
+  
 - name: build ami
   become: true
   when: output_image_type == "ami"

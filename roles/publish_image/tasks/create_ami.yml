@@ -57,7 +57,12 @@
     ansible.builtin.shell: |
       podman login --username=AWS \
         --password="{{ ecr_token }}" "{{ AWS_ACCOUNT_ID }}.dkr.ecr.{{ aws_region }}.amazonaws.com"
-        
+    register: login_result
+  
+  - name: debug login result
+    ansible.builtin.debug:
+      var: login_result
+      
   - name: create ami
     ansible.builtin.shell: |
       podman run \
