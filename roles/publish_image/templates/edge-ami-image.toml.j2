@@ -10,6 +10,6 @@ name = "cloud-init"
 
 [[customizations.user]]
 name = "{{ admin_user }}"
-password = "{{ admin_password_e}}"
+password = "{{ admin_password_encoded }}"
 groups = ["wheel"]
 key = "{{ admin_ssh_key }}"

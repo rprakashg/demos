@@ -4,13 +4,22 @@
     that:
       - output_image_type in image_types
     fail_msg: "Invalid choice: {{ output_image_type }}. Allowed values are: {{ image_types }}"
-  
-- name: build iso
+
+- name: preflight
+  ansible.builtin.import_tasks: preflight.yml
+      
+- name: build ami for bootc
   become: true
-  when: output_image_type == "iso"
-  ansible.builtin.import_tasks: create_iso_installer.yml
-  
-- name: build ami
+  when: 
+  - output_image_type == "ami"
+  - not image_name == ""
+  - not tag == ""
+  ansible.builtin.import_tasks: create_ami_bootc.yml
+
+- name: build ami for blueprint
   become: true
-  when: output_image_type == "ami"
-  ansible.builtin.import_tasks: create_ami.yml
+  when:
+  - output_image_type == "ami"
+  - not blueprint_name == ""
+  ansible.builtin.import_tasks: create_ami_blueprint.yml
+  
