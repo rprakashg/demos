@@ -10,5 +10,6 @@
   when: output_image_type == "iso"
 
 - name: build ami
+  become: true
   when: output_image_type == "ami"
   ansible.builtin.import_tasks: create_ami.yml
