@@ -51,7 +51,7 @@
     register: edge_ami_blueprint_contents
   - name: get blueprint content
     ansible.builtin.set_fact:
-      blueprint_data: "{{ edge_ami_blueprint_contents | b64encode }}"
+      blueprint_data: "{{ edge_ami_blueprint_contents }}"
   - name: get blueprint description
     ansible.builtin.shell: |
       echo '{{ blueprint_data | b64decode }}' | python -c 'import sys, toml; print(toml.loads(sys.stdin.read())[\"description\"])'
