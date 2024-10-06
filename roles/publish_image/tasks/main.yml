@@ -5,6 +5,10 @@
       - output_image_type in image_types
     fail_msg: "Invalid choice: {{ output_image_type }}. Allowed values are: {{ image_types }}"
 
+- name: load secrets from ansible vault
+  ansible.builtin.include_vars:
+    file: "./vars/secrets.yml"
+
 - name: preflight
   ansible.builtin.import_tasks: preflight.yml
       

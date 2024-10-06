@@ -1,8 +1,4 @@
----
-- name: load secrets from ansible vault
-  ansible.builtin.include_vars:
-    file: "./vars/secrets.yml"
-    
+---    
 - name: start
   ansible.builtin.debug:
     msg: "Creating ami images for blueprint {{ blueprint_name }}"  
