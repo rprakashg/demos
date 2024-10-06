@@ -10,6 +10,9 @@ ami_bucket_name: "rhde-amis"
 
 aws_region: us-west-2
 
+retries: 100
+delay: 60
+
 output_image_type: "iso"
 
 image_types:
