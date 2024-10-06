@@ -79,9 +79,9 @@
         --aws-region "{{ aws_region }}" \
         "{{ repository_uri }}:{{ tag }}"
 
-- name: blueprint
+- name: blueprint build
   when:
-  - not blueprint_name = ""
+  - not blueprint_name == ""
   block:
   - name: start
     ansible.builtin.debug:
