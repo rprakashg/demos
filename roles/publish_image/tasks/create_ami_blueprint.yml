@@ -45,16 +45,9 @@
 
 - name: set ami description
   block:
-  - name: slurp the edge ami blueprint file contents
-    ansible.builtin.slurp:
-      src: "{{ edge_ami_blueprint }}"
-    register: edge_ami_blueprint_contents
-  - name: get blueprint content
-    ansible.builtin.set_fact:
-      blueprint_data: "{{ edge_ami_blueprint_contents }}"
   - name: get blueprint description
     ansible.builtin.shell: |
-      echo '{{ blueprint_data | b64decode }}' | python -c 'import sys, toml; print(toml.loads(sys.stdin.read())[\"description\"])'
+      composer-cli --json blueprints show edge-ami-image | jq -r ".[].body.blueprints[].description"
     register: get_blueprint_desc_result
   - name: set ami description
     ansible.builtin.set_fact:
