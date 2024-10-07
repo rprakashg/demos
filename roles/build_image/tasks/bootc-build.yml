@@ -77,7 +77,7 @@
       name: "{{ image_name }}:{{ tag }}"
       push: yes
       push_args:
-        dest: "{{ repository_uri }}:{{ tag }}"
+        dest: "{{ registry }}/{{ registry_user }}/{{ image_name }}:{{ tag }}"
     register: push_result
 
   - name: Display push result
