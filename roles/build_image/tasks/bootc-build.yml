@@ -1,21 +1,31 @@
 ---
-- name: check input blueprint is passed
+- name: check input dockerfile is passed
   assert:
     that:
     - dockerfile != ""
     fail_msg: "dockerfile must be specified to build bootable container image"
 
-- name: Copy the dockerfile to the imagebuilder host
+- name: Create a temp file and copy the contents of Dockerfile to it to build
   block:
-  - name: create directory to store dockerfiles if it doesn't exist
-    ansible.builtin.file:
-      path: "{{ dockerfiles_dir }}"
-      state: directory
-      mode: '0755'
-  - name: copy the dockerfile
+  - name: create temp file
+    ansible.builtin.tempfile:
+      state: file
+      suffix: Dockerfile
+    register: builder_dockerfile
+
+  - name: set builder dockerfile
+    ansible.builtin.set_fact:
+      builder_dockerfile: "{{ builder_dockerfile.path }}"
+
+  - name: read dockerfile data
+    set_fact:
+      dockerfile_data: "{{ lookup('file', dockerfile) | b64encode }}"
+
+  - name: copy contents of dockerfile
     ansible.builtin.copy:
-      src: "{{ dockerfile }}"
-      dest: "{{ dockerfiles_dir }}/{{ dockerfile | basename }}"
+      dest: "{{ builder_dockerfile }}"
+      content: |
+        {{ dockerfile_data | b64decode }}
 
 - name: create ECR repo if doesnt exist
   become: false
@@ -50,12 +60,12 @@
 - name: build bootable container using the specified dockerfile
   containers.podman.podman_image:
     name: "{{ image_name }}"
-    path: "{{ dockerfiles_dir }}"
+    path: "{{ builder_dockerfile | dirname }}"
     tag: "{{ tag }}"
     state: present
     build:
       format: oci
-      file: "{{ dockerfiles_dir }}/{{ dockerfile | basename }}"
+      file: "{{ builder_dockerfile }}"
   register: build_result
 
 - name: Display build result
@@ -65,7 +75,6 @@
 - name: login to ECR repo
   block:
   - name: get account id
-    become: false
     ansible.builtin.shell: |
       aws sts get-caller-identity --query Account --output text
     register: get_account_info
@@ -75,7 +84,6 @@
       AWS_ACCOUNT_ID: "{{ get_account_info.stdout }}"
 
   - name: get ecr token
-    become: false
     ansible.builtin.shell: |
       aws ecr get-login-password --region="{{ aws_region }}"
     register: get_ecr_token_result

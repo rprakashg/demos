@@ -8,6 +8,5 @@
   ansible.builtin.import_tasks: compose.yml
 
 - name: bootable container build
-  become: true
   when: not dockerfile == ""
   ansible.builtin.import_tasks: bootc-build.yml
