@@ -68,6 +68,8 @@
     ansible.builtin.tempfile:
       state: directory
       suffix: "{{ blueprint_name }}"
+      mode: '0755'
+      owner: "{{ ansible_user }}"
     register: tempdir_result
   - name: set artifact dir
     ansible.builtin.set_fact:
