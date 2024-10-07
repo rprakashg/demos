@@ -46,25 +46,6 @@
   ansible.builtin.debug:
     var: build_result
 
-
-  - name: Store account id in fact
-    set_fact:
-      AWS_ACCOUNT_ID: "{{ get_account_info.stdout }}"
-
-  - name: get ecr token
-    ansible.builtin.shell: |
-      aws ecr get-login-password --region="{{ aws_region }}"
-    register: get_ecr_token_result
-
-  - name: store token
-    ansible.builtin.set_fact:
-      ecr_token: "{{ get_ecr_token_result.stdout }}"
-
-  - name: login to registry
-    ansible.builtin.shell: |
-      podman login --username=AWS \
-        --password="{{ ecr_token }}" "{{ AWS_ACCOUNT_ID }}.dkr.ecr.{{ aws_region }}.amazonaws.com"
-
 - name: push the container to registry
   block:
   - name: login to registry
