@@ -157,7 +157,7 @@
           name = "imagebuilder_access_role"
 
           assume_role_policy = jsonencode({
-            Version = "2012-10-17"
+            Version = "2012-10-17",
             Statement = [
               {
                 Action = "sts:AssumeRole"
@@ -173,7 +173,7 @@
         # imagebuilder host permissions to access AWS resources and services 
         resource "aws_iam_policy" "imagebuilder_access_policy" {
           name        = "imagebuilder_access_policy"
-          description = "Policy for EC2 to access S3 buckets"
+          description = "Imagebuilder instance profile role policy"
 
           policy = jsonencode({
             Version = "2012-10-17",
@@ -211,6 +211,73 @@
               {
                 Effect  = "Allow",
                 Action  = [
+                  "ec2:ImportSnapshot",
+                  "ec2:DescribeSnapshots"
+                ],
+                Resource  = "*"
+              }
+            ]
+          })
+        }
+
+        # Attach the IAM policy to the IAM Role
+        resource "aws_iam_role_policy_attachment" "imagebuilder_access_policy_attachment" {
+          role       = aws_iam_role.imagebuilder_access_role.name
+          policy_arn = aws_iam_policy.imagebuilder_access_policy.arn
+        }
+
+        # Create an IAM instance profile for the EC2 instance
+        resource "aws_iam_instance_profile" "imagebuilder_instance_profile" {
+          name = "imagebuilder_instance_profile"
+          role = aws_iam_role.imagebuilder_access_role.name
+        }
+
+        # Create a vmimport service role
+        resource "aws_iam_policy" "vmimport_service_role" {
+          name = "vmimport"
+
+          assume_role_policy = jsonencode({
+            Version = "2012-10-17",
+            Statement = [
+              {
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": "vmie.amazonaws.com"
+                },
+                "Action": "sts:AssumeRole",
+                "Condition": {
+                  "StringEquals": {
+                    "sts:Externalid": "vmimport"  
+                  }
+                }
+              }
+            ]
+          })
+        }
+
+        # Create vmimport service role policy
+        resource "aws_iam_policy" "vmimport_service_role_policy" {
+          name        = "vmimport_service_role_policy"
+          description = "vmimport service role policy"
+
+          policy = jsonencode({
+            Version = "2012-10-17",
+            Statement = [
+              {
+                Effect  = "Allow",
+                Action  = [
+                  "s3:GetBucketLocation",
+                  "s3:GetObject",
+                  "s3:PutObject"
+                ],
+                Resource: [
+                  "arn:aws:s3:::${var.ami_bucket_name}",
+                  "arn:aws:s3:::${var.ami_bucket_name}/*"
+                ]
+              },
+              {
+                Effect  = "Allow",
+                Action  = [
                   "ec2:CancelConversionTask",
                   "ec2:CancelExportTask",
                   "ec2:CreateImage",
@@ -234,40 +301,19 @@
                   "ec2:ImportSnapshot",
                   "ec2:DescribeImportImageTasks",
                   "ec2:DescribeImportSnapshotTasks",
-                  "ec2:CancelImportTask"
+                  "ec2:CancelImportTask",
+                  "ec2:RegisterImage"
                 ],
                 Resource  = "*"
-              },
-              {
-                Effect  = "Allow",
-                Action  = [
-                  "cloudwatch:PutMetricData"
-                ],
-                Resource  = "*"
-              },
-              {
-                Effect  = "Allow",
-                Action  = [
-                  "logs:CreateLogStream",
-                  "logs:CreateLogGroup",
-                  "logs:PutLogEvents"
-                ],
-                Resource = "*"
               }
             ]
           })
         }
 
-        # Attach the IAM policy to the IAM Role
-        resource "aws_iam_role_policy_attachment" "imagebuilder_access_policy_attachment" {
-          role       = aws_iam_role.imagebuilder_access_role.name
-          policy_arn = aws_iam_policy.imagebuilder_access_policy.arn
-        }
-
-        # Create an IAM instance profile for the EC2 instance
-        resource "aws_iam_instance_profile" "imagebuilder_instance_profile" {
-          name = "imagebuilder_instance_profile"
-          role = aws_iam_role.imagebuilder_access_role.name
+        # Attach the vmimport service role policy to vmimport service role
+        resource "aws_iam_role_policy_attachment" "vmimport_service_role_policy_attachment" {
+          role = aws_iam_role.vmimport_service_role.name
+          policy_arn = aws_iam_policy.vmimport_service_role_policy.arn
         }
 
         # output variables

@@ -116,15 +116,3 @@
     retries: "{{ retries }}"
     delay: "{{ delay }}"
     register: describe_snapshot_tasks_result
-
-  - name: Get the ami id
-    become: false
-    ansible.builtin.shell: |
-      aws ec2 describe-images --region="{{ aws_region }}" --query="Images[0].ImageId" \
-        --filters="Name=Description, Values={{ ami_description }}" \
-        --output=text
-    register: describe_images_result
-
-  - name: Debug describe images result
-    ansible.builtin.debug:
-      msg: "AMI ID: {{ describe_images_result.stdout }}"
