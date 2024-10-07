@@ -3,6 +3,12 @@
   ansible.builtin.debug:
     msg: "Creating ami images for bootc image {{ image_name }}"
 
+- name: Login to registry
+  containers.podman.podman_login:
+    username: "{{ rhuser }}"
+    password: "{{ rhpassword }}"
+    registry: "{{ registry }}"
+    
 - name: create ami
   ansible.builtin.shell: |
     podman run \
