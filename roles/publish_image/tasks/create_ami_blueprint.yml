@@ -3,14 +3,15 @@
   ansible.builtin.debug:
     msg: "Creating ami images for blueprint {{ blueprint_name }}"  
 
+- name: create a temp file for edge ami blueprint
+  ansible.builtin.tempfile:
+    state: file
+    suffix: toml
+  register: builder_ami_blueprint
+
 - name: Set edge ami blueprint filename
   ansible.builtin.set_fact:
-    edge_ami_blueprint: "{{ blueprints_dir }}/edge-ami-image.toml"
-
-- name: Get edge ami blueprint
-  ansible.builtin.stat:
-    path: "{{ edge_ami_blueprint }}"
-  register: file_stat
+    edge_ami_blueprint: "{{ builder_ami_blueprint.path }}"
 
 - name: Create edge ami blueprint if one doesn't exist
   when:
