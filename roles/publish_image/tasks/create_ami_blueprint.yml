@@ -78,7 +78,6 @@
     ansible.builtin.shell: |
       composer-cli compose image "{{ job_id }}" --filename "{{ artifact_filename }}"
   - name: upload artifact to s3
-    become: false
     ansible.builtin.shell: |
       aws s3 cp "{{ artifact_filename }}" "s3://{{ ami_bucket_name }}"
   - name: set ami url
@@ -92,12 +91,13 @@
     ansible.builtin.template:
       src: container-simple.json.j2
       dest: "{{ artifact_dir }}/container-simple.json"
+      
   - name: import snapshot
-    become: false
     ansible.builtin.shell: |
       aws ec2 import-snapshot --description "{{ ami_description }} - {{ blueprint_name }}" \
         --disk-container file://"{{ artifact_dir }}/container-simple.json" --region "{{ aws_region }}"
     register: import_snapshot_result
+
   - name: debug import snapshot result
     ansible.builtin.debug:
       var: import_snapshot_result
@@ -107,7 +107,6 @@
       import_snapshot_json: "{{ import_snapshot_result.stdout | from_json }}"
 
   - name: check if import snapshot task complete
-    become: false
     ansible.builtin.shell: |
       aws ec2 describe-import-snapshot-tasks \
         --import-task-ids="{{ import_snapshot_json.ImportTaskId }}" --query="ImportSnapshotTasks[0].SnapshotTaskDetail.Status" --output=text

@@ -22,7 +22,6 @@
   ansible.builtin.import_tasks: create_ami_bootc.yml
 
 - name: build ami for blueprint
-  become: true
   when:
   - output_image_type == "ami"
   - not blueprint_name == ""
