@@ -126,6 +126,9 @@
       dest: /etc/osbuild-worker/osbuild-worker.toml
 
 - name: Add user to weldr
+  become: true
+  become_method: sudo
+  become_user: root
   ansible.builtin.user:
     name: "{{ ansible_user_id }}"
     groups: weldr
