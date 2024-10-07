@@ -2,49 +2,7 @@
 - name: start
   ansible.builtin.debug:
     msg: "Creating ami images for bootc image {{ image_name }}"
-  
-- name: get repository uri
-  block:
-  - name: Describe repository
-    become: false
-    ansible.builtin.shell: |
-      aws ecr describe-repositories --repository-names="{{ image_name }}" --region="{{ aws_region }}" --query="repositories[0].repositoryUri" --output=text
-    register: describe_repository_result
-  - name: Set repository uri when success return code
-    when: describe_repository_result.rc == 0
-    set_fact:
-      repository_uri: "{{ describe_repository_result.stdout }}"
-  - name: debug repository uri
-    ansible.builtin.debug:
-      msg: "Repository Uri: {{ repository_uri}}"
 
-- name: login to registry
-  block:
-  - name: get account id
-    become: false
-    ansible.builtin.shell: |
-      aws sts get-caller-identity --query Account --output text
-    register: get_account_info
-  - name: Store account id in fact
-    set_fact:
-      AWS_ACCOUNT_ID: "{{ get_account_info.stdout }}"
-  - name: get ecr token
-    become: false
-    ansible.builtin.shell: |
-      aws ecr get-login-password --region="{{ aws_region }}"
-    register: get_ecr_token_result
-  - name: store token
-    ansible.builtin.set_fact:
-      ecr_token: "{{ get_ecr_token_result.stdout }}"
-  - name: login to registry
-    ansible.builtin.shell: |
-      podman login --username=AWS \
-        --password="{{ ecr_token }}" "{{ AWS_ACCOUNT_ID }}.dkr.ecr.{{ aws_region }}.amazonaws.com"
-    register: login_result
-  - name: debug login result
-    ansible.builtin.debug:
-      var: login_result
-      
 - name: create ami
   ansible.builtin.shell: |
     podman run \
@@ -57,5 +15,5 @@
       --aws-ami-name "{{ image_name }}-x86" \
       --aws-bucket "{{ ami_bucket_name }}" \
       --aws-region "{{ aws_region }}" \
-      "{{ repository_uri }}:{{ tag }}"
+      {{ registry }}/{{ registry_user }}/{{ image_name }}:{{ tag }}
 

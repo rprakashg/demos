@@ -149,7 +149,7 @@
     register: register_ami_result
   - name: set ami id
     ansible.builtin.set_fact:
-      ami_id: register_ami_result.stdout
+      ami_id: "{{ register_ami_result.stdout }}"
   - name: debug new ami id
     ansible.builtin.debug:
       msg: "New AMI ID: {{ ami_id }}"
