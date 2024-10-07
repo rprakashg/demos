@@ -79,7 +79,6 @@
       push_args:
         dest: "{{ registry }}/{{ registry_user }}/{{ image_name }}:{{ tag }}"
     register: push_result
-
   - name: Display push result
     ansible.builtin.debug:
       var: push_result
