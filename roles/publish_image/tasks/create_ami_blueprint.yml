@@ -112,7 +112,7 @@
         --import-task-ids="{{ import_snapshot_json.ImportTaskId }}" \
         --query="ImportSnapshotTasks[0].SnapshotTaskDetail.Status" --output=text \
         --region="{{ aws_region }}"
-    until: not describe_snapshot_tasks_result.stdout == "completed"
+    until: describe_snapshot_tasks_result.stdout == "completed"
     retries: "{{ retries }}"
     delay: "{{ delay }}"
     register: describe_snapshot_tasks_result
