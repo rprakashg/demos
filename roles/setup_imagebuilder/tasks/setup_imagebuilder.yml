@@ -57,12 +57,6 @@
     loop:
       - cockpit
       - http
-
-  - name: Add user to weldr group
-    ansible.builtin.user:
-      name: "{{ ansible_user_id }}"
-      groups: weldr
-      append: true
       
 - name: setup imagebuilder with microshift
   when: microshift | default(true)

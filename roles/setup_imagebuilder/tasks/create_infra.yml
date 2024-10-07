@@ -137,6 +137,7 @@
 
             sudo useradd -m ${var.admin_user}
             sudo usermod -aG wheel ${var.admin_user}
+            sudo usermod -aG weldr ${var.admin_user}
             sudo sed -i -e 's/^# %wheel/%wheel/' -e 's/^%wheel/# %wheel/' /etc/sudoers
             sudo sed -i -e 's/^%wheel/# %wheel/' -e 's/^# %wheel/%wheel/' /etc/sudoers
             sudo -u ${var.admin_user} mkdir -p /home/${var.admin_user}/.ssh
