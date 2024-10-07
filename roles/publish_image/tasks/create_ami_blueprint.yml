@@ -110,7 +110,30 @@
     ansible.builtin.shell: |
       aws ec2 describe-import-snapshot-tasks \
         --import-task-ids="{{ import_snapshot_json.ImportTaskId }}" --query="ImportSnapshotTasks[0].SnapshotTaskDetail.Status" --output=text
-    until: describe_snapshot_tasks_result.Stdout == "completed"
+    until: describe_snapshot_tasks_result.stdout == "completed"
     retries: "{{ retries }}"
     delay: "{{ delay }}"
     register: describe_snapshot_tasks_result
+
+- name: Get snapshot id
+  when: describe_snapshot_tasks_result.stdout == "completed"
+  block:
+  - name: Get snapshot id
+    ansible.builtin.shell: |
+      aws ec2 describe-import-snapshot-tasks \
+          --import-task-ids="{{ import_snapshot_json.ImportTaskId }}" \
+          --query="ImportSnapshotTasks[0].SnapshotTaskDetail.SnapshotId" \
+          --output=text
+    register: get_snapshot_id_result
+
+  - name: Set snapshot id
+    ansible.builtin.set_fact:
+      snapshot_id: "{{ get_snapshot_id_result.stdout }}"
+
+- name: Register AMI
+  when: describe_snapshot_tasks_result.stdout == "completed"
+  block:
+  - name: Start
+    ansible.builtin.debug:
+      msg: "Registering AMI"
+  
