@@ -27,32 +27,6 @@
       content: |
         {{ dockerfile_data | b64decode }}
 
-- name: create ECR repo if doesnt exist
-  become: false
-  block:
-  - name: Describe repository
-    become: false
-    ansible.builtin.shell: |
-      aws ecr describe-repositories --repository-names="{{ image_name }}" --region="{{ aws_region }}" --query="repositories[0].repositoryUri" --output=text
-    register: describe_repository_result
-    ignore_errors: yes
-
-  - name: Set repository uri when success return code
-    when: describe_repository_result.rc == 0
-    set_fact:
-      repository_uri: "{{ describe_repository_result.stdout }}"
-  
-  - name: Create ECR repo if it doesn't exist
-    when: describe_repository_result.rc != 0
-    ansible.builtin.shell: |
-      aws ecr create-repository --repository-name="{{ image_name }}" --region="{{ aws_region }}" --query="repository.repositoryUri" --output=text
-    register: create_repository_result
-
-  - name: Set repository 
-    when: describe_repository_result.rc != 0
-    set_fact:
-      repository_uri: "{{ create_repository_result.stdout }}"
-
 - name: login to registry.redhat.io with RH credentials
   ansible.builtin.shell: |
     podman login --username="{{ rhuser }}" --password="{{ rhpassword }}" registry.redhat.io
@@ -72,12 +46,6 @@
   ansible.builtin.debug:
     var: build_result
 
-- name: login to ECR repo
-  block:
-  - name: get account id
-    ansible.builtin.shell: |
-      aws sts get-caller-identity --query Account --output text
-    register: get_account_info
 
   - name: Store account id in fact
     set_fact:
@@ -98,14 +66,21 @@
         --password="{{ ecr_token }}" "{{ AWS_ACCOUNT_ID }}.dkr.ecr.{{ aws_region }}.amazonaws.com"
 
 - name: push the container to registry
-  containers.podman.podman_image:
-    name: "{{ image_name }}:{{ tag }}"
-    push: yes
-    push_args:
-      dest: "{{ repository_uri }}:{{ tag }}"
-  register: push_result
+  block:
+  - name: login to registry
+    containers.podman.podman_login:
+      username: "{{ rhuser }}"
+      password: "{{ rhpassword }}"
+      registry: "{{ registry }}"
+  - name: push to registry
+    containers.podman.podman_image:
+      name: "{{ image_name }}:{{ tag }}"
+      push: yes
+      push_args:
+        dest: "{{ repository_uri }}:{{ tag }}"
+    register: push_result
 
-- name: Display push result
-  ansible.builtin.debug:
-    var: push_result
+  - name: Display push result
+    ansible.builtin.debug:
+      var: push_result
 
