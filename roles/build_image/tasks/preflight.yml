@@ -28,7 +28,7 @@
 
 - name: create temp file to store blueprint
   ansible.builtin.tempfile:
-    tate: file
+    state: file
     suffix: toml
   register: builder_blueprint
 
