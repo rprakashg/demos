@@ -143,7 +143,7 @@
       aws ec2 register-image \
         --name "{{ blueprint_name }}-ami" \
         --root-device-name /dev/xvda \
-        --block-device-mappings DeviceName=/dev/xvda, Ebs={SnapshotId="{{ snapshot_id }}"} DeviceName=/dev/xvdf, Ebs={VolumeSize=100} \
+        --block-device-mappings DeviceName=/dev/xvda,Ebs={SnapshotId={{ snapshot_id }}} DeviceName=/dev/xvdf,Ebs={VolumeSize=100} \
         --boot-mode uefi --query="ImageId" --output=text \
         --region="{{ aws_region }}"
     register: register_ami_result
