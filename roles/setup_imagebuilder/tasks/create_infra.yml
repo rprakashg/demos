@@ -233,7 +233,7 @@
         }
 
         # Create a vmimport service role
-        resource "aws_iam_policy" "vmimport_service_role" {
+        resource "aws_iam_role" "vmimport_service_role" {
           name = "vmimport"
 
           assume_role_policy = jsonencode({
