@@ -14,8 +14,6 @@
     edge_ami_blueprint: "{{ builder_ami_blueprint.path }}"
 
 - name: Create edge ami blueprint if one doesn't exist
-  when:
-  - not file_stat.stat.exists
   ansible.builtin.template:
     src: edge-ami-image.toml.j2
     dest: "{{ edge_ami_blueprint }}"
