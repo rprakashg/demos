@@ -212,7 +212,7 @@
                 Action  = [
                   "ec2:DescribeSnapshots",
                   "ec2:ImportSnapshot",
-                  "ec2:DescribeImportSnapshotTasks"
+                  "ec2:DescribeImportSnapshotTasks",
                   "ec2:DescribeRegions",
                   "ec2:RegisterImage"
                 ],
