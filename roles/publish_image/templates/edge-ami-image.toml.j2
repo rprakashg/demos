@@ -2,14 +2,16 @@ name            = "edge-ami-image"
 description     = "Blueprint for Edge AMI image"
 version         = "0.0.1"
 distro          = "rhel-9.4"
-modules = []
-groups = []
 
 [[packages]]
 name = "cloud-init"
+version = "*"
 
 [[customizations.user]]
 name = "{{ admin_user }}"
-password = "{{ admin_password_encoded }}"
+password = "{{ admin_password }}"
 groups = ["wheel"]
+
+[[customizations.sshkey]]
+user = "{{ admin_user }}"
 key = "{{ admin_ssh_key }}"

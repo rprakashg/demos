@@ -15,21 +15,9 @@
 - name: Create edge ami blueprint if one doesn't exist
   when:
   - not file_stat.stat.exists
-  block:
-  - name: encode the admin user password
-    ansible.builtin.shell: |
-      echo "{{ admin_password }}" | openssl passwd -1 -stdin
-    register: pwd_encode_result
-  - name: Set encoded password 
-    ansible.builtin.set_fact:
-      admin_password_encoded: "{{ pwd_encode_result.stdout }}"
-  - name: debug encoded pwd
-    ansible.builtin.debug:
-      msg: "Encoded password: {{ admin_password_encoded }}"    
-  - name: create edge-ami blueprint
-    ansible.builtin.template:
-      src: edge-ami-image.toml.j2
-      dest: "{{ edge_ami_blueprint }}"
+  ansible.builtin.template:
+    src: edge-ami-image.toml.j2
+    dest: "{{ edge_ami_blueprint }}"
 
 - name: Push edge ami blueprint to composer if not already added
   block:  
@@ -98,44 +86,45 @@
     ansible.builtin.set_fact:
       ami_url: "s3://{{ ami_bucket_name }}/{{ artifact_filename | basename }}"
 
-- name: create container simple json
-  ansible.builtin.template:
-    src: container-simple.json.j2
-    dest: "{{ artifact_dir }}/container-simple.json"
+- name: Import snapshot
+  when: check_status_result.stdout == "FINISHED"
+  block:
+  - name: create container simple json
+    ansible.builtin.template:
+      src: container-simple.json.j2
+      dest: "{{ artifact_dir }}/container-simple.json"
+  - name: import snapshot
+    become: false
+    ansible.builtin.shell: |
+      aws ec2 import-snapshot --description "{{ ami_description }} - {{ blueprint_name }}" \
+        --disk-container file://"{{ artifact_dir }}/container-simple.json" --region "{{ aws_region }}"
+    register: import_snapshot_result
+  - name: debug import snapshot result
+    ansible.builtin.debug:
+      var: import_snapshot_result
 
-- name: import snapshot
-  become: false
-  ansible.builtin.shell: |
-    aws ec2 import-snapshot --description "{{ ami_description }} - {{ blueprint_name }}" \
-      --disk-container file://"{{ artifact_dir }}/container-simple.json" --region "{{ aws_region }}"
-  register: import_snapshot_result
+  - name: parse result as json
+    ansible.builtin.set_fact:
+      import_snapshot_json: "{{ import_snapshot_result.stdout | from_json }}"
 
-- name: debug import snapshot result
-  ansible.builtin.debug:
-    var: import_snapshot_result
+  - name: check if import snapshot task complete
+    become: false
+    ansible.builtin.shell: |
+      aws ec2 describe-import-snapshot-tasks \
+        --import-task-ids="{{ import_snapshot_json.ImportTaskId }}" --query="ImportSnapshotTasks[0].SnapshotTaskDetail.Status" --output=text
+    until: describe_snapshot_tasks_result == "completed"
+    retries: "{{ retries }}"
+    delay: "{{ delay }}"
+    register: describe_snapshot_tasks_result
 
-- name: parse result as json
-  ansible.builtin.set_fact:
-    import_snapshot_json: "{{ import_snapshot_result.stdout | from_json }}"
+  - name: Get the ami id
+    become: false
+    ansible.builtin.shell: |
+      aws ec2 describe-images --region="{{ aws_region }}" --query="Images[0].ImageId" \
+        --filters="Name=Description, Values={{ ami_description }}" \
+        --output=text
+    register: describe_images_result
 
-- name: check if import snapshot task complete
-  become: false
-  ansible.builtin.shell: |
-    aws ec2 describe-import-snapshot-tasks \
-      --import-task-ids="{{ import_snapshot_json.ImportTaskId }}" --query="ImportSnapshotTasks[0].SnapshotTaskDetail.Status" --output=text
-  until: describe_snapshot_tasks_result == "completed"
-  retries: "{{ retries }}"
-  delay: "{{ delay }}"
-  register: describe_snapshot_tasks_result
-
-- name: Get the ami id
-  become: false
-  ansible.builtin.shell: |
-    aws ec2 describe-images --region="{{ aws_region }}" --query="Images[0].ImageId" \
-      --filters="Name=Description, Values={{ ami_description }}" \
-      --output=text
-  register: describe_images_result
-
-- name: Debug describe images result
-  ansible.builtin.debug:
-    msg: "AMI ID: {{ describe_images_result.stdout }}"
+  - name: Debug describe images result
+    ansible.builtin.debug:
+      msg: "AMI ID: {{ describe_images_result.stdout }}"
