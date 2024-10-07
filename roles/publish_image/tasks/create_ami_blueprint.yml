@@ -109,7 +109,9 @@
   - name: check if import snapshot task complete
     ansible.builtin.shell: |
       aws ec2 describe-import-snapshot-tasks \
-        --import-task-ids="{{ import_snapshot_json.ImportTaskId }}" --query="ImportSnapshotTasks[0].SnapshotTaskDetail.Status" --output=text
+        --import-task-ids="{{ import_snapshot_json.ImportTaskId }}" \
+        --query="ImportSnapshotTasks[0].SnapshotTaskDetail.Status" --output=text \
+        --region="{{ aws_region }}"
     until: not describe_snapshot_tasks_result.stdout == "completed"
     retries: "{{ retries }}"
     delay: "{{ delay }}"
@@ -123,7 +125,7 @@
       aws ec2 describe-import-snapshot-tasks \
           --import-task-ids="{{ import_snapshot_json.ImportTaskId }}" \
           --query="ImportSnapshotTasks[0].SnapshotTaskDetail.SnapshotId" \
-          --output=text
+          --output=text --region="{{ aws_region }}"
     register: get_snapshot_id_result
 
   - name: Set snapshot id
@@ -142,7 +144,8 @@
         --name "{{ blueprint_name }}-ami" \
         --root-device-name /dev/xvda \
         --block-device-mappings DeviceName=/dev/xvda, Ebs={SnapshotId="{{ snapshot_id }}"} DeviceName=/dev/xvdf, Ebs={VolumeSize=100} \
-        --boot-mode uefi --query="ImageId" --output=text
+        --boot-mode uefi --query="ImageId" --output=text \
+        --region="{{ aws_region }}"
     register: register_ami_result
   - name: set ami id
     ansible.builtin.set_fact:
