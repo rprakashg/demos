@@ -52,6 +52,7 @@
       remote_src: true
 
 - name: Extract commit from artifact and commit to main ostree repo
+  become: yes
   block:
     - name: get checksum
       ansible.builtin.command:
