@@ -124,7 +124,13 @@
         [containers]
         auth_file_path = "/etc/osbuild-worker/pull-secret.json"
       dest: /etc/osbuild-worker/osbuild-worker.toml
-      
+
+- name: Add user to weldr
+  ansible.builtin.user:
+    name: "{{ ansible_user_id }}"
+    groups: weldr
+    append: true
+          
 - name: reboot imagebuilder
   block:
   - name: rebooting server
