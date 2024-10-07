@@ -136,4 +136,19 @@
   - name: Start
     ansible.builtin.debug:
       msg: "Registering AMI"
-  
+  - name: register
+    ansible.builtin.shell: |
+      aws ec2 register-image \
+        --name "{{ blueprint_name }}-ami" \
+        --root-device-name /dev/xvda \
+        --block-device-mappings DeviceName=/dev/xvda, Ebs={SnapshotId="{{ snapshot_id }}"} DeviceName=/dev/xvdf, Ebs={VolumeSize=100} \
+        --boot-mode uefi --query="ImageId" --output=text
+    register: register_ami_result
+  - name: set ami id
+    ansible.builtin.set_fact:
+      ami_id: register_ami_result.stdout
+  - name: debug new ami id
+    ansible.builtin.debug:
+      msg: "New AMI ID: {{ ami_id }}"
+
+
