@@ -167,7 +167,7 @@
 
 - name: Delete the raw image that was uploaded to s3
   ansible.builtin.shell: |
-    aws s3 rm "s3://{{ ami_bucket_name }}/{{ artifact_filename | basename }}
+    aws s3 rm "s3://{{ ami_bucket_name }}/{{ artifact_filename | basename }}"
   register: artifact_delete_result
 
 - name: Debug delete result
