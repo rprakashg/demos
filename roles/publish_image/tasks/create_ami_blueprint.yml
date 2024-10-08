@@ -136,11 +136,7 @@
   - name: Set snapshot id
     ansible.builtin.set_fact:
       snapshot_id: "{{ get_snapshot_id_result.stdout }}"
-  
-  - name: debug snapshot id
-    ansible.builtin.debug:
-      var: "{{ snapshot_id }}"
-      
+        
 - name: Register AMI
   when: describe_snapshot_tasks_result.stdout == "completed"
   block:
@@ -152,7 +148,7 @@
       aws ec2 register-image \
         --name "{{ blueprint_name }}-ami-x86" \
         --architecture x86_64
-        --tag-specifications Key=Name,Value="{{ {{ blueprint_name }}-ami-x86 }}"
+        --tag-specifications Key=Name,Value="{{ blueprint_name }}-ami-x86"
         --root-device-name /dev/sda1 \
         --block-device-mappings DeviceName=/dev/sda1,Ebs={SnapshotId="{{ snapshot_id }}" } \
         --boot-mode uefi-preferred --query="ImageId" --output=text \
