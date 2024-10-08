@@ -24,6 +24,9 @@
     - yum-utils
     - createrepo
     - tree
+    - python3
+    - python3-pip
+    - python3-toml
 
 - name: install aws cli
   ansible.builtin.command:
