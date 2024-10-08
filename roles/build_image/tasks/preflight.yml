@@ -49,7 +49,6 @@
     
 - name: set current version in fact
   when: 
-  - blueprint_show_result.rc | int == 0
   - not blueprint_show_result.stdout == ""
   set_fact:
     blueprint_current_version: "{{ blueprint_show_result.stdout }}"
@@ -57,17 +56,19 @@
 
 - name: debug current blueprint version
   when: 
-  - blueprint_show_result.rc | int == 0
   - not blueprint_show_result.stdout == ""
   ansible.builtin.debug:
     msg: "Current blueprint version in osbuild composer: {{ blueprint_current_version }}"
 
 - name: debug ostree-url
+  when: 
+  - not blueprint_show_result.stdout == ""
   ansible.builtin.debug:
     msg: "OSTree URL: {{ ostree_url }}"
     
 - name: push the builder blueprint to imagebuilder if doesnt exist or new version
-  when: ( blueprint_show_result.rc == 0 and blueprint_current_version != blueprint_version)
+  when: 
+  - blueprint_current_version != blueprint_version
   ansible.builtin.shell: composer-cli blueprints push "{{ builder_blueprint }}"
 
 - name: check if dev repo is already initialized
