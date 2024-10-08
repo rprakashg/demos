@@ -1,36 +1,65 @@
 ---
-- name: Setup imagebuilder for x86_64
-  ansible.builtin.import_role:
-    name: infra.osbuild.setup_server
-  when: ansible_architecture is not defined or ansible_architecture == "x86_64"  
+- name: Setup imagebuilder
+  block:
+  - name: Install packages
+    ansible.builtin.dnf:
+      state: latest
+      name: "{{ packages }}"
+    vars:
+      packages:
+      - rsync
+      - osbuild-composer
+      - composer-cli
+      - cockpit-composer
+      - bash-completion
+      - firewalld
+      - genisoimage
+      - httpd
+      - syslinux
+      - cockpit
+      - weldr-client
+      - python3
+      - lorax
+      - pykickstart
+      - coreutils
+      - glibc-minimal-langpack
+      - pykickstart
+      - mtools
+      - xorriso
+      - isomd5sum
+      - butane
+      - rpmdevtools
+      - rpmlint
+      - yum-utils
+      - createrepo
+      - tree
+      - python3-pip
+      - python3-toml
+  - name: enable cockpit/composer/firewalld/podman
+    ansible.builtin.systemd:
+      state: started
+      enabled: true
+      name: "{{ item }}"
+    loop:
+      - osbuild-composer.socket
+      - cockpit.socket
+      - podman.socket
+      - firewalld
+      - httpd.service
 
-- name: Install additional packages
-  ansible.builtin.dnf:
-    state: latest
-    name: "{{ packages }}"
-  vars:
-    packages:
-    - coreutils
-    - glibc-minimal-langpack
-    - pykickstart
-    - mtools
-    - xorriso
-    - genisoimage
-    - isomd5sum
-    - lorax
-    - butane
-    - rpmdevtools
-    - rpmlint
-    - yum-utils
-    - createrepo
-    - tree
-    - python3
-    - python3-pip
-    - python3-toml
+  - name: configure firewall to allow access to web console
+    ansible.posix.firewalld:
+      permanent: true
+      immediate: true
+      service: "{{ item }}"
+      state: enabled
+    loop:
+      - cockpit
+      - http
 
-- name: install aws cli
-  ansible.builtin.command:
-    cmd: pip3 install awscli boto3 botocore
+  - name: install aws cli
+    ansible.builtin.command:
+      cmd: pip3 install awscli boto3 botocore
       
 - name: setup imagebuilder with microshift
   when: microshift | default(true)
