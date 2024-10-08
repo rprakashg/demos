@@ -80,6 +80,11 @@
   - name: upload artifact to s3
     ansible.builtin.shell: |
       aws s3 cp "{{ artifact_filename }}" "s3://{{ ami_bucket_name }}"
+  - name: delete local file
+    ansible.builtin.file:
+      state: absent
+      path: "{{ artifact_filename }}"
+
   - name: set ami url
     ansible.builtin.set_fact:
       ami_url: "s3://{{ ami_bucket_name }}/{{ artifact_filename | basename }}"
@@ -131,7 +136,11 @@
   - name: Set snapshot id
     ansible.builtin.set_fact:
       snapshot_id: "{{ get_snapshot_id_result.stdout }}"
-
+  
+  - name: debug snapshot id
+    ansible.builtin.debug:
+      var: "{{ snapshot_id }}"
+      
 - name: Register AMI
   when: describe_snapshot_tasks_result.stdout == "completed"
   block:
@@ -156,4 +165,11 @@
     ansible.builtin.debug:
       msg: "New AMI ID: {{ ami_id }}"
 
+- name: Delete the raw image that was uploaded to s3
+  ansible.builtin.shell: |
+    aws s3 rm "s3://{{ ami_bucket_name }}/{{ artifact_filename | basename }}
+  register: artifact_delete_result
 
+- name: Debug delete result
+  ansible.builtin.debug:
+    var: artifact_delete_result.stdout
