@@ -48,18 +48,21 @@
   ignore_errors: yes
     
 - name: set current version in fact
-  when: blueprint_show_result.rc == 0
+  when: 
+  - blueprint_show_result.rc | int == 0
+  - not blueprint_show_result.stdout == ""
   set_fact:
     blueprint_current_version: "{{ blueprint_show_result.stdout }}"
     ostree_url: "http://{{ ansible_host }}/{{ blueprint_name }}/repo"
 
 - name: debug current blueprint version
-  when: blueprint_show_result.rc == 0
+  when: 
+  - blueprint_show_result.rc | int == 0
+  - not blueprint_show_result.stdout == ""
   ansible.builtin.debug:
     msg: "Current blueprint version in osbuild composer: {{ blueprint_current_version }}"
 
 - name: debug ostree-url
-  when: blueprint_show_result.rc == 0
   ansible.builtin.debug:
     msg: "OSTree URL: {{ ostree_url }}"
     
