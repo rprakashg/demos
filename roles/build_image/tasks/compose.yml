@@ -10,24 +10,35 @@
     - depsolve_result.stdout != 0
     fail_msg: "Depsolve errors in blueprint" 
     
-- name: Start compose
+- name: Start edge commit
+  when: ostree_url == ""
   block:
-    - name: create edge commit
-      ansible.builtin.shell: |
-        composer-cli --json compose start-ostree {{ blueprint_name }} edge-commit | jq -r ".[].body.build_id"
-      register: start_compose_result
-            
-    - name: set job id
-      set_fact:
-        job_id: "{{ start_compose_result.stdout }}"
+  - name: create edge commit
+    ansible.builtin.shell: |
+      composer-cli --json compose start-ostree {{ blueprint_name }} edge-commit | jq -r ".[].body.build_id"
+    register: edge_commit_result
+  - name: set job id
+    set_fact:
+      job_id: "{{ edge_commit_result.stdout }}"
 
-    - name: wait for compose to finish
-      ansible.builtin.shell: |
-        composer-cli --json compose info {{ job_id }} | jq -r ".[].body.queue_status"
-      until: check_status_result.stdout not in ["RUNNING", "WAITING"]
-      retries: "{{ retries }}"
-      delay: "{{ delay }}"
-      register: check_status_result
+- name: Update commit
+  when: not ostree_url == ""
+  block:
+  - name: create update commit    
+    ansible.builtin.shell: |
+      composer-cli --json compose start-ostree {{ blueprint_name }} edge-commit | jq -r ".[].body.build_id"
+    register: update_commit_result
+  - name: set job id
+    set_fact:
+      job_id: "{{ update_commit_result.stdout }}"
+
+- name: wait for compose to finish
+  ansible.builtin.shell: |
+    composer-cli --json compose info {{ job_id }} | jq -r ".[].body.queue_status"
+  until: check_status_result.stdout not in ["RUNNING", "WAITING"]
+  retries: "{{ retries }}"
+  delay: "{{ delay }}"
+  register: check_status_result
 
 - name: Download and untar compose artifact 
   block:
