@@ -147,8 +147,8 @@
     ansible.builtin.shell: |
       aws ec2 register-image \
         --name "{{ blueprint_name }}-ami-x86" \
-        --architecture x86_64
-        --tag-specifications Key=Name,Value="{{ blueprint_name }}-ami-x86"
+        --architecture x86_64 \
+        --tag-specifications Key=Name,Value="{{ blueprint_name }}-ami-x86" \
         --root-device-name /dev/sda1 \
         --block-device-mappings DeviceName=/dev/sda1,Ebs={SnapshotId="{{ snapshot_id }}" } \
         --boot-mode uefi-preferred --query="ImageId" --output=text \
