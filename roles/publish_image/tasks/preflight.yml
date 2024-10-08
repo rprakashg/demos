@@ -17,7 +17,7 @@
     username: "{{ rhuser }}"
     password: "{{ rhpassword }}"
     registry: "{{ registry }}"
-  result: registry_login_result
+  register: registry_login_result
 
 - name: debug login
   ansible.builtin.debug:
