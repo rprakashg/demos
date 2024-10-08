@@ -7,6 +7,7 @@
       name: "{{ packages }}"
     vars:
       packages:
+      - podman
       - rsync
       - osbuild-composer
       - composer-cli
@@ -46,7 +47,6 @@
       - podman.socket
       - firewalld
       - httpd.service
-
   - name: configure firewall to allow access to web console
     ansible.posix.firewalld:
       permanent: true
@@ -56,7 +56,6 @@
     loop:
       - cockpit
       - http
-
   - name: install aws cli
     ansible.builtin.command:
       cmd: pip3 install awscli boto3 botocore
