@@ -30,17 +30,17 @@
   ansible.builtin.tempfile:
     state: file
     suffix: toml
-  register: builder_blueprint
+  register: builder_blueprint_result
 
 - name: copy blueprint content to temp file
   ansible.builtin.copy:
-    dest: "{{ builder_blueprint.path }}"
+    dest: "{{ builder_blueprint_result.path }}"
     content: |
       {{ blueprint_data | b64decode }}
 
 - name: set builder blueprint
   set_fact:
-    builder_blueprint: "{{ builder_blueprint.path }}"
+    builder_blueprint: "{{ builder_blueprint_result.path }}"
 
 - name: check if blueprint is already added to osbuild composer
   ansible.builtin.shell: composer-cli --json blueprints show "{{ blueprint_name }}" | jq -r ".[].body.blueprints[].version"
@@ -85,3 +85,8 @@
         cmd: "ostree --repo=repo init --mode=archive"
       args:
         creates: "/var/www/html/{{ blueprint_name }}/repo"
+
+- name: delete temp file
+  ansible.builtin.file:
+    state: absent
+    path: "{{ builder_blueprint }}"
