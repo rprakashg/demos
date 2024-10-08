@@ -12,15 +12,18 @@
     
 - name: Start compose
   block:
-    - name: start compose
+    - name: create edge commit
+      when: ostree_url == ""
       ansible.builtin.shell: |
-        if ["{{ ostree_url }}" == ""]; then
-          composer-cli --json compose start-ostree {{ blueprint_name }} edge-commit | jq -r ".[].body.build_id"
-        else
-          composer-cli --json compose start-ostree {{ blueprint_name }} edge-commit --url="{{ ostree_url }}" --ref="{{ blueprint_rev }}" | jq -r ".[].body.build_id"
-        fi
+        composer-cli --json compose start-ostree {{ blueprint_name }} edge-commit | jq -r ".[].body.build_id"
       register: start_compose_result
 
+    - name: create update commit
+      when: not ostree_url == ""
+      ansible.builtin.shell: |
+        composer-cli --json compose start-ostree {{ blueprint_name }} edge-commit --url="{{ ostree_url }}" --ref="{{ blueprint_rev }}" | jq -r ".[].body.build_id"
+      register: start_compose_result
+            
     - name: set job id
       set_fact:
         job_id: "{{ start_compose_result.stdout }}"
