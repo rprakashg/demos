@@ -12,9 +12,13 @@
     
 - name: Start compose
   block:
-    - name: start compose 
+    - name: start compose
       ansible.builtin.shell: |
-        composer-cli --json compose start {{ blueprint_name }} edge-commit | jq -r ".[].body.build_id"
+        if ["{{ ostree_url }}" == ""]; then
+          composer-cli --json compose start-ostree {{ blueprint_name }} edge-commit | jq -r ".[].body.build_id"
+        else
+          composer-cli --json compose start-ostree {{ blueprint_name }} edge-commit --url="{{ ostree_url }}" --ref="{{ blueprint_rev }}" | jq -r ".[].body.build_id"
+        fi
       register: start_compose_result
 
     - name: set job id

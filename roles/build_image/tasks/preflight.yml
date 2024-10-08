@@ -51,6 +51,7 @@
   when: blueprint_show_result.rc == 0
   set_fact:
     blueprint_current_version: "{{ blueprint_show_result.stdout }}"
+    ostree_url: "{{ ansible_host }}/{{ blueprint_name }}/repo"
 
 - name: debug current blueprint version
   when: blueprint_show_result.rc == 0
