@@ -3,7 +3,7 @@
 
 blueprint_name: ""
 image_name: ""
-tag: ""
+tag: "ami"
 registry: quay.io
 registry_user: rgopinat
 

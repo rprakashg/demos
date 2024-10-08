@@ -12,8 +12,17 @@
   ansible.builtin.shell: |
     podman pull registry.redhat.io/rhel9/bootc-image-builder
 
-- name: create blueprints directory on imagebuilder server if it doesn't exist
-  ansible.builtin.file:
-    path: "{{ blueprints_dir }}"
-    state: directory
-    mode: '0755'
+- name: Login to registry
+  containers.podman.podman_login:
+    username: "{{ rhuser }}"
+    password: "{{ rhpassword }}"
+    registry: "{{ registry }}"
+  result: registry_login_result
+
+- name: debug login
+  ansible.builtin.debug:
+    var: registry_login_result
+
+- name: Pull image
+  ansible.builtin.shell: |
+    podman pull {{ registry }}/{{ registry_user }}/{{ image_name }}:{{ tag }}

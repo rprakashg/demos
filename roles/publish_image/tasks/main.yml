@@ -10,6 +10,10 @@
     file: "./vars/secrets.yml"
 
 - name: preflight
+  when:
+  - output_image_type == "ami"
+  - not image_name == ""
+  - not tag == ""
   become: true
   ansible.builtin.import_tasks: preflight.yml
       
