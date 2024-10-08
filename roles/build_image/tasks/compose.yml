@@ -41,6 +41,7 @@
   register: check_status_result
 
 - name: Download and untar compose artifact 
+  when: check_status_result.stdout == "FINISHED"
   block:
   - name: create a temp dir
     ansible.builtin.tempfile:
@@ -63,6 +64,7 @@
       remote_src: true
 
 - name: Extract commit from artifact and commit to main ostree repo
+  when: check_status_result.stdout == "FINISHED"
   become: yes
   block:
     - name: get checksum

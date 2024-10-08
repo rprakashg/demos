@@ -58,6 +58,11 @@
   ansible.builtin.debug:
     msg: "Current blueprint version in osbuild composer: {{ blueprint_current_version }}"
 
+- name: debug ostree-url
+  when: blueprint_show_result.rc == 0
+  ansible.builtin.debug:
+    msg: "OSTree URL: {{ ostree_url }}"
+    
 - name: push the builder blueprint to imagebuilder if doesnt exist or new version
   when: ( blueprint_show_result.rc == 0 and blueprint_current_version != blueprint_version)
   ansible.builtin.shell: composer-cli blueprints push "{{ builder_blueprint }}"
