@@ -16,4 +16,8 @@
       --aws-bucket "{{ ami_bucket_name }}" \
       --aws-region "{{ aws_region }}" \
       {{ registry }}/{{ registry_user }}/{{ image_name }}:{{ tag }}
+  register: create_ami_result
 
+- name: debug create ami result
+  ansible.builtin.debug:
+    var: create_ami_result
