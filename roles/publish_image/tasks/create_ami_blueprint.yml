@@ -141,10 +141,11 @@
   - name: register
     ansible.builtin.shell: |
       aws ec2 register-image \
-        --name "{{ blueprint_name }}-ami" \
-        --root-device-name /dev/xvda \
-        --block-device-mappings DeviceName=/dev/xvda,Ebs={SnapshotId={{ snapshot_id }}} DeviceName=/dev/xvdf,Ebs={VolumeSize=100} \
-        --boot-mode uefi --query="ImageId" --output=text \
+        --name "{{ blueprint_name }}-ami-x86" \
+        --architecture x86_64
+        --root-device-name /dev/sda1 \
+        --block-device-mappings DeviceName=/dev/sda1,Ebs={SnapshotId="{{ snapshot_id }}" } \
+        --boot-mode uefi-preferred --query="ImageId" --output=text \
         --region="{{ aws_region }}"
     register: register_ami_result
   - name: set ami id

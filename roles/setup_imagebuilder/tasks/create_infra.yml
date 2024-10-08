@@ -214,7 +214,8 @@
                   "ec2:ImportSnapshot",
                   "ec2:DescribeImportSnapshotTasks",
                   "ec2:DescribeRegions",
-                  "ec2:RegisterImage"
+                  "ec2:RegisterImage",
+                  "ec2:CreateTags"
                 ],
                 Resource  = "*"
               }, 
