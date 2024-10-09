@@ -20,7 +20,7 @@
 
 - name: debug name and version
   ansible.builtin.debug:
-    msg: "Blueprint Name: {{ blueprint_name }} Blueprint Version: {{ blueprint_version }}"
+    msg: "Blueprint Name: {{ blueprint_name }} and Blueprint Version: {{ blueprint_version }}"
 
 - name: create temp file to store blueprint
   ansible.builtin.tempfile:
@@ -68,11 +68,13 @@
   ansible.builtin.shell: composer-cli blueprints push "{{ builder_blueprint }}"
 
 - name: check if dev repo is already initialized
+  become: true
   ansible.builtin.stat:
     path: "/var/www/html/{{ blueprint_name }}"
   register: blueprint_dir_stat
 
 - name: initialize ostree repos
+  become: true
   when: 
   - not blueprint_dir_stat.stat.exists
   block:
