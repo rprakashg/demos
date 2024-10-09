@@ -1,0 +1,51 @@
+---
+- name: start
+  ansible.builtin.debug:
+    msg: "Create ISO installer start"
+    
+- name: Create a temp dir
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: toml
+  register: temp_dir
+
+- name: debug temp dir
+  ansible.builtin.debug:
+    msg: "Temp directory created at: {{ temp_dir.path }}"
+
+- name: Generate a config.toml file
+  ansible.builtin.template:
+    src: config.toml.j2
+    dest: "{{ temp_dir.path }}/config.toml"
+
+- name: create an output dir under tmp dir
+  ansible.builtin.file:
+    state: directory
+    path: "{{ temp_dir.path }}/output"
+    mode: "0755"
+
+- name: build iso
+  become: true
+  ansible.builtin.shell: |
+    podman run \
+      --rm \
+      -it \
+      --privileged \
+      --pull=newer \
+      --security-opt label=type:unconfined_t \
+      -v /var/lib/containers/storage:/var/lib/containers/storage \
+      -v "{{ temp_dir.path }}/config.toml":/config.toml \
+      -v "{{ temp_dir.path }}/output":/output \
+      registry.redhat.io/rhel9/bootc-image-builder:latest \
+      --type iso \
+      --config config.toml \
+      {{ registry }}/{{ registry_user }}/{{ image_name }}:{{ tag }}
+  register: create_iso_result
+
+- name: debug result
+  ansible.builtin.debug:
+    var: create_iso_result
+  
+- name: Upload to s3 bucket
+  ansible.builtin.shell: |
+    aws s3 cp "{{ temp_dir.path }}/output/*.iso" "s3://{{ iso_bucket_name }}"
