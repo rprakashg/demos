@@ -65,6 +65,7 @@
 
 - name: Extract commit from artifact and commit to main ostree repo
   when: check_status_result.stdout == "FINISHED"
+  become: true
   block:
     - name: get checksum
       ansible.builtin.command:
@@ -94,3 +95,8 @@
         src: "{{ artifact_dir }}/compose.json"
         dest: "/var/www/html/{{ blueprint_name }}/{{ checksum }}-compose.json"
         remote_src: yes
+
+- name: Delete artifacts dir
+  ansible.builtin.file:
+    path: "{{ artifact_dir }}"
+    state: absent
