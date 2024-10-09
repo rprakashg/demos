@@ -9,9 +9,9 @@ def load_toml_file(file):
         with open(file, 'r') as f:
             data = toml.load(f)
         return data
-    except: 
+    except Exception as e: 
         raise AnsibleRuntimeError(
-            'Error loading "toml" file. Please check the file'        
+            f'Error loading "toml" file. Please check the file. {e}'        
         )
     
 def from_toml(toml_file):

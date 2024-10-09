@@ -9,20 +9,14 @@
   set_fact:
     blueprint_data: "{{ lookup('file', blueprint) | b64encode }}"
 
-- name: get blueprint name
-  ansible.builtin.shell: |
-    echo '{{ blueprint_data | b64decode }}' | python -c 'import sys, toml; print(toml.loads(sys.stdin.read())[\"name\"])'
-  register: get_blueprint_name_result
-
-- name: get blueprint version
-  ansible.builtin.shell: |
-    echo '{{ blueprint_data | b64decode }}' | python -c 'import sys, toml; print(toml.loads(sys.stdin.read())[\"version\"])'
-  register: get_blueprint_version_result
+- name: parse blueprint file
+  ansible.builtin.set_fact:
+    parsed_blueprint: "{{ blueprint | from_toml }}"
 
 - name: set blueprint name and version
   set_fact:
-    blueprint_name: "{{ get_blueprint_name_result.stdout }}"
-    blueprint_version: "{{ get_blueprint_version_result.stdout }}"
+    blueprint_name: "{{ parsed_blueprint.name }}"
+    blueprint_version: "{{ parsed_blueprint.version }}"
 
 - name: debug name and version
   ansible.builtin.debug:
