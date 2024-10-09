@@ -31,6 +31,7 @@
   ansible.builtin.import_tasks: create_ami_blueprint.yml
 
 - name: build iso for bootc
+  become: true
   when:
   - output_image_type == "iso"
   - not image_name == ""

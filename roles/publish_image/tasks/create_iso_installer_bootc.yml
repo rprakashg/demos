@@ -25,7 +25,6 @@
     mode: "0755"
 
 - name: build iso
-  become: true
   ansible.builtin.shell: |
     podman run \
       --rm \
