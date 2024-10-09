@@ -78,14 +78,12 @@
     ansible.builtin.shell: |
       composer-cli compose image "{{ job_id }}" --filename "{{ artifact_filename }}"
   - name: upload artifact to s3
-    become: false
     ansible.builtin.shell: |
       aws s3 cp "{{ artifact_filename }}" "s3://{{ ami_bucket_name }}"
   - name: delete local file
     ansible.builtin.file:
       state: absent
       path: "{{ artifact_filename }}"
-
   - name: set ami url
     ansible.builtin.set_fact:
       ami_url: "s3://{{ ami_bucket_name }}/{{ artifact_filename | basename }}"
@@ -99,7 +97,6 @@
       dest: "{{ artifact_dir }}/container-simple.json"
       
   - name: import snapshot
-    become: false
     ansible.builtin.shell: |
       aws ec2 import-snapshot --description "{{ ami_description }} - {{ blueprint_name }}" \
         --disk-container file://"{{ artifact_dir }}/container-simple.json" --region "{{ aws_region }}"
@@ -114,7 +111,6 @@
       import_snapshot_json: "{{ import_snapshot_result.stdout | from_json }}"
 
   - name: check if import snapshot task complete
-    become: false
     ansible.builtin.shell: |
       aws ec2 describe-import-snapshot-tasks \
         --import-task-ids="{{ import_snapshot_json.ImportTaskId }}" \
@@ -129,7 +125,6 @@
   when: describe_snapshot_tasks_result.stdout == "completed"
   block:
   - name: Get snapshot id
-    become: false
     ansible.builtin.shell: |
       aws ec2 describe-import-snapshot-tasks \
           --import-task-ids="{{ import_snapshot_json.ImportTaskId }}" \
@@ -148,7 +143,6 @@
     ansible.builtin.debug:
       msg: "Registering AMI"
   - name: register
-    become: false
     ansible.builtin.shell: |
       aws ec2 register-image \
         --name "{{ blueprint_name }}-ami-x86" \
@@ -167,7 +161,6 @@
       msg: "New AMI ID: {{ ami_id }}"
 
 - name: Delete the raw image that was uploaded to s3
-  become: false
   ansible.builtin.shell: |
     aws s3 rm "s3://{{ ami_bucket_name }}/{{ artifact_filename | basename }}"
   register: artifact_delete_result

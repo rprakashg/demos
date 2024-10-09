@@ -1,0 +1,4 @@
+---
+- name: Start
+  ansible.builtin.debug:
+    msg: "Starting building ISO installer for image {{ blueprint_name }}"
