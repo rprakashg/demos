@@ -49,6 +49,9 @@
     ansible.builtin.shell: |
       composer-cli --json compose start-ostree "edge-ami-image" edge-ami --ref="{{ blueprint_rev }}" --url="{{ ostree_repo_url }}" | jq -r ".[].body.build_id"
     register: start_compose_result
+  - name: debug start
+    ansible.builtin.debug:
+      var: start_compose_result
   - name: set job id
     set_fact:
       job_id: "{{ start_compose_result.stdout }}"
