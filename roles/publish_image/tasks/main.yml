@@ -14,7 +14,6 @@
   when:
   - not image_name == ""
   - not tag == ""
-  become: true
   ansible.builtin.import_tasks: preflight.yml
       
 - name: build ami for bootc
