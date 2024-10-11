@@ -78,67 +78,21 @@
   when:
   - not kickstart_file == ""
   block:
-  - name: copy the kickstart file int artifact directory
+  - name: copy the kickstart file into artifact directory
     ansible.builtin.copy:
       src: "{{ kickstart_file }}"
       dest: "{{ artifact_dir }}"
-  - name: create iso mount directory
-    ansible.builtin.tempfile:
-      state: directory
-      suffix: iso_mount
-    register: mount_dir
-  - name: Set iso mount directory
-    ansible.builtin.set_fact:
-      iso_mount_dir: "{{ mount_dir.path }}"
-  - name: debug the mount directory
-    ansible.builtin.debug:
-      msg: "ISO Mount directory: {{ iso_mount_dir }}"
-  - name: create iso work directory
-    ansible.builtin.tempfile:
-      state: directory
-      suffix: iso_work
-    register: work_dir
-  - name: set iso work directory
-    ansible.builtin.set_fact:
-      iso_work_dir: "{{ work_dir.path }}"
-  - name: debug the work directory
-    ansible.builtin.debug:
-      msg: "ISO work directory: {{ iso_work_dir }}"
-  - name: mount the downloaded iso
-    ansible.posix.mount:
-      path: "{{ iso_mount_dir }}"
-      src: "{{ artifact_file }}"
-      fstype: iso9660
-      opts: loop
-      state: mounted
-  - name: copy contents of the iso into iso work directory
+  - name: inject kickstart into ISO using mkksiso utility
     ansible.builtin.shell: |
-      cp -rT "{{ iso_mount_dir }}" "{{ iso_work_dir }}"
-  - name: unmount the iso
-    ansible.posix.mount:
-      path: "{{ iso_mount_dir }}"
-      state: unmounted
-  - name: inject the kickstart into iso
-    ansible.builtin.copy:
-      src: "{{ artifact_dir }}/{{ kickstart_file | basename }}"
-      dest: "{{ iso_work_dir }}/ks.cfg"
-  - name: modify the bootloader config to use the custom kickstart
-    ansible.builtin.lineinfile:
-      path: "{{ iso_work_dir }}/isolinux/isolinux.cfg"
-      regexp: "append initrd="
-      insertbefore: "^append"
-      line: " append initrd=initrd.img ks=cdrom:/ks.cfg"
-  - name: rebuild the iso
-    ansible.builtin.shell: |
-      genisoimage -o "{{ artifact_dir }}/{{ blueprint_name }}-{{ job_id }}-custom-ks.iso" \
-        -b isolinux/isolinux.bin \
-        -c isolinux/boot.cat \
-        -no-emul-boot \
-        -boot-load-size 4 \
-        -boot-info-table \
-        -J -R -V "CustomISO" \
-        "{{ iso_work_dir }}" 
-
+      mkksiso --ks "{{ artifact_dir }}/{{ kickstart_file | basename }}" \
+        --cmdline "console=ttys0,115200n8" \
+        "{{ artifact_file }}" "{{ artifact_dir }}/{{ blueprint_name }}-{{ job_id }}-ks.iso"
+    register: inject_ks_result
+    ignore_errors: yes
+  - name: check for errors and warn
+    when: inject_ks_result.rc != 0
+    ansible.builtin.warn:
+      msg: "Failed to inject kickstart into ISO image"
 - name: Upload the ISO to s3 bucket
   when:
   - check_status_result.stdout == "FINISHED"
@@ -149,7 +103,7 @@
   - check_status_result.stdout == "FINISHED"
   - not kickstart_file == ""
   ansible.builtin.shell: |
-    aws s3 cp "{{ artifact_file }}" "s3://{{ iso_bucket_name }}/{{ artifact_dir }}/{{ blueprint_name }}-{{ job_id }}-custom-ks.iso"
+    aws s3 cp "{{ artifact_file }}" "s3://{{ iso_bucket_name }}/{{ artifact_dir }}/{{ blueprint_name }}-{{ job_id }}-ks.iso"
 
 - name: cleanup
   block:
