@@ -91,8 +91,9 @@
     ignore_errors: yes
   - name: check for errors and warn
     when: inject_ks_result.rc != 0
-    ansible.builtin.warn:
+    ansible.builtin.debug:
       msg: "Failed to inject kickstart into ISO image"
+
 - name: Upload the ISO to s3 bucket
   when:
   - check_status_result.stdout == "FINISHED"
@@ -102,6 +103,7 @@
   when:
   - check_status_result.stdout == "FINISHED"
   - not kickstart_file == ""
+  - inject_ks_result.rc == 0
   ansible.builtin.shell: |
     aws s3 cp "{{ artifact_file }}" "s3://{{ iso_bucket_name }}/{{ artifact_dir }}/{{ blueprint_name }}-{{ job_id }}-ks.iso"
 
