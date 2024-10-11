@@ -2,7 +2,7 @@
 - name: check input blueprint is passed
   assert:
     that:
-    - blueprint != ""
+    - blueprint_name != ""
     fail_msg: "blueprint must be specified to build image"
 
 - name: check if output image type is passed
