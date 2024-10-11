@@ -23,7 +23,7 @@
       installer_blueprint: "{{ builder_installer_blueprint.path }}"
   - name: create the blueprint
     ansible.builtin.template:
-      src: intaller.toml.j2
+      src: installer.toml.j2
       dest: "{{ installer_blueprint }}"
   - name: push blueprint
     ansible.builtin.shell: |
