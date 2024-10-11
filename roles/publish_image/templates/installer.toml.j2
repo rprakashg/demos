@@ -6,6 +6,9 @@ modules     = []
 groups      = []
 distro      = ""
 
+[customizations]
+installation_device = "/dev/sda1"
+
 [[customizations.user]]
 name = "{{ admin_user }}"
 password = "{{ admin_password }}"
