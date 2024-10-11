@@ -140,6 +140,8 @@
         "{{ iso_work_dir }}" 
 
 - name: Upload the ISO to s3 bucket
+  when:
+  - check_status_result.stdout == "FINISHED"
   ansible.builtin.shell: |
     aws s3 cp "{{ artifact_dir }}/{{ blueprint_name }}-{{ job_id }}-custom-ks.iso" "s3://{{ iso_bucket_name }}/{{ blueprint_name }}-{{ job_id }}.iso"
 
