@@ -69,7 +69,7 @@
       artifact_dir: "{{ tempdir_result.path }}"
   - name: set full artifact filename
     ansible.builtin.set_fact:
-      artifact_file: "{{ artifact_dir }}/{{ job_id }}.iso"
+      artifact_file: "{{ artifact_dir }}/{{ blueprint_name }}-{{ job_id }}.iso"
   - name: download artifact
     ansible.builtin.shell: |
       composer-cli compose image "{{ job_id }}" --filename "{{ artifact_file }}"
@@ -143,8 +143,13 @@
   when:
   - check_status_result.stdout == "FINISHED"
   ansible.builtin.shell: |
-    aws s3 cp "{{ artifact_dir }}/{{ blueprint_name }}-{{ job_id }}-custom-ks.iso" "s3://{{ iso_bucket_name }}/{{ blueprint_name }}-{{ job_id }}.iso"
-
+    aws s3 cp "{{ artifact_file }}" "s3://{{ iso_bucket_name }}/{{ artifact_file | basename }}"
+- name: Upload the ISO with custom kickstart injected also to s3 bucket
+  when:
+  - check_status_result.stdout == "FINISHED"
+  - not kickstart_file == ""
+  ansible.builtin.shell: |
+    aws s3 cp "{{ artifact_file }}" "s3://{{ iso_bucket_name }}/{{ artifact_dir }}/{{ blueprint_name }}-{{ job_id }}-custom-ks.iso"
 - name: cleanup
   block:
   - name: delete artifact dir
