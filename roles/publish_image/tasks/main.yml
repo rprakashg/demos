@@ -1,39 +1,17 @@
 ---
-- name: check valid output image type passed
-  assert:
-    that:
-      - output_image_type in image_types
-    fail_msg: "Invalid choice: {{ output_image_type }}. Allowed values are: {{ image_types }}"
-
 - name: load secrets from ansible vault
   ansible.builtin.include_vars:
     file: "./vars/secrets.yml"
 
 - name: preflight
-  become: true
-  when:
-  - not image_name == ""
-  - not tag == ""
   ansible.builtin.import_tasks: preflight.yml
-      
-- name: build ami for bootc
-  become: true
-  when: 
-  - output_image_type == "ami"
-  - not image_name == ""
-  - not tag == ""
-  ansible.builtin.import_tasks: create_ami_bootc.yml
 
-- name: build ami for blueprint
+- name: build ami
   when:
   - output_image_type == "ami"
-  - not blueprint_name == ""
-  ansible.builtin.import_tasks: create_ami_blueprint.yml
+  ansible.builtin.import_tasks: create_ami.yml
 
-- name: build iso for bootc
-  become: true
+- name: build iso
   when:
   - output_image_type == "iso"
-  - not image_name == ""
-  - not tag == ""
-  ansible.builtin.import_tasks: create_iso_installer_bootc.yml
+  ansible.builtin.import_tasks: create_iso.yml

@@ -1,28 +1,18 @@
 ---
-- name: login to registry.redhat.io
-  ansible.builtin.shell: |
-    podman login --username="{{ rhuser }}" --password="{{ rhpassword }}" registry.redhat.io
-  register: login_result
+- name: check input blueprint is passed
+  assert:
+    that:
+    - blueprint != ""
+    fail_msg: "blueprint must be specified to build image"
 
-- name: Debug login result
-  ansible.builtin.debug:
-    var: login_result
+- name: check if output image type is passed
+  assert:
+    that:
+    - not output_image_type == ""
+    fail_msg: "Output image type is required"
 
-- name: Pull bootc image builder
-  ansible.builtin.shell: |
-    podman pull registry.redhat.io/rhel9/bootc-image-builder
-
-- name: Login to registry
-  containers.podman.podman_login:
-    username: "{{ rhuser }}"
-    password: "{{ rhpassword }}"
-    registry: "{{ registry }}"
-  register: registry_login_result
-
-- name: debug login
-  ansible.builtin.debug:
-    var: registry_login_result
-
-- name: Pull image
-  ansible.builtin.shell: |
-    podman pull {{ registry }}/{{ registry_user }}/{{ image_name }}:{{ tag }}
+- name: check valid output image type passed
+  assert:
+    that:
+      - output_image_type in image_types
+    fail_msg: "Unsupported output image type: {{ output_image_type }}. Allowed values are: {{ image_types }}"

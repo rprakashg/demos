@@ -1,12 +1,6 @@
 ---
 ### Defaults 
 blueprint: ""
-dockerfile: ""
-
-image_name: ""
-tag: "latest"
-registry: quay.io
-registry_user: rgopinat
 
 retries: 100
 delay: 60

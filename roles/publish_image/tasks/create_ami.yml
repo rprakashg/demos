@@ -3,29 +3,28 @@
   ansible.builtin.debug:
     msg: "Creating ami images for blueprint {{ blueprint_name }}"  
 
-- name: create a temp file for edge ami blueprint
-  ansible.builtin.tempfile:
-    state: file
-    suffix: toml
-  register: builder_ami_blueprint
+- name: check if blueprint is already added to osbuild
+  ansible.builtin.shell: composer-cli --json blueprints show "edge-ami-image" 
+  register: blueprint_show_result
+  ignore_errors: yes
 
-- name: Set edge ami blueprint filename
-  ansible.builtin.set_fact:
-    edge_ami_blueprint: "{{ builder_ami_blueprint.path }}"
-
-- name: Create edge ami blueprint if one doesn't exist
-  ansible.builtin.template:
-    src: edge-ami-image.toml.j2
-    dest: "{{ edge_ami_blueprint }}"
-
-- name: Push edge ami blueprint to composer if not already added
-  block:  
-  - name: check if blueprint is already added to osbuild
-    ansible.builtin.shell: composer-cli --json blueprints show "edge-ami-image" 
-    register: blueprint_show_result
-    ignore_errors: yes
+- name: create an edge ami blueprint and push it to osbuild
+  when: 
+  - blueprint_show_result.rc != 0
+  block:
+  - name: create a temp file for edge ami blueprint
+    ansible.builtin.tempfile:
+      state: file
+      suffix: toml
+    register: builder_ami_blueprint
+  - name: Set edge ami blueprint filename
+    ansible.builtin.set_fact:
+      edge_ami_blueprint: "{{ builder_ami_blueprint.path }}"
+  - name: Create edge ami blueprint
+    ansible.builtin.template:
+      src: edge-ami-image.toml.j2
+      dest: "{{ edge_ami_blueprint }}"
   - name: push blueprint
-    when: blueprint_show_result.rc != 0
     ansible.builtin.shell: composer-cli blueprints push "{{ edge_ami_blueprint }}"
   - name: depsolve
     ansible.builtin.shell: composer-cli blueprints depsolve "edge-ami-image"
@@ -40,7 +39,7 @@
     ansible.builtin.set_fact:
       ami_description: "{{ get_blueprint_desc_result.stdout }}"
 
-- name: Start compose
+- name: Start compose and wait for it to finish
   block:
   - name: set ostree url
     ansible.builtin.set_fact:
@@ -49,9 +48,6 @@
     ansible.builtin.shell: |
       composer-cli --json compose start-ostree "edge-ami-image" edge-ami --ref="{{ blueprint_rev }}" --url="{{ ostree_repo_url }}" | jq -r ".[].body.build_id"
     register: start_compose_result
-  - name: debug start
-    ansible.builtin.debug:
-      var: start_compose_result
   - name: set job id
     set_fact:
       job_id: "{{ start_compose_result.stdout }}"
@@ -63,7 +59,7 @@
     delay: "{{ delay }}"
     register: check_status_result
 
-- name: Download compose artifact and upload it to the AMI S3 bucket
+- name: Download compose artifact and upload to s3
   when: check_status_result.stdout == "FINISHED"
   block:
   - name: create a temp dir

@@ -1,11 +1,6 @@
 ---
 ### Defaults
-
 blueprint_name: ""
-image_name: ""
-tag: "ami"
-registry: quay.io
-registry_user: rgopinat
 
 iso_bucket_name: "rhde-isos"
 ami_bucket_name: "rhde-amis"
@@ -15,7 +10,8 @@ aws_region: us-west-2
 retries: 100
 delay: 60
 
-output_image_type: "iso"
+output_image_type: "iso" #default to iso
+kickstart_file: ""
 
 image_types:
 - iso

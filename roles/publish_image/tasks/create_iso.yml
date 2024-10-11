@@ -1,0 +1,159 @@
+---
+- name: Start
+  ansible.builtin.debug:
+    msg: "Starting building ISO installer for image {{ blueprint_name }}"
+
+- name: check if osbuild already has the blueprint
+  ansible.builtin.shell: |
+    composer-cli --json blueprints show "rfe-installer"
+  register: blueprint_show_result
+  ignore_errors: yes
+
+- name: Create an edge simplified installer blueprint and push it to osbuild
+  when:
+  - blueprint_show_result.rc != 0
+  block:
+  - name: Create a temp file for installer blueprint
+    ansible.builtin.tempfile:
+      state: file
+      suffix: toml
+    register: builder_installer_blueprint
+  - name: set installer blueprint file name
+    ansible.builtin.set_fact:
+      installer_blueprint: "{{ builder_installer_blueprint.path }}"
+  - name: create the blueprint
+    ansible.builtin.template:
+      src: intaller.toml.j2
+      dest: "{{ installer_blueprint }}"
+  - name: push blueprint
+    ansible.builtin.shell: |
+      composer-cli blueprints push "{{ installer_blueprint }}"
+
+- name: Start compose and wait for it to finish
+  block:
+  - name: "Set ostree url"
+    ansible.builtin.set_fact: 
+      ostree_repo_url: "http://{{ ansible_host }}/{{ blueprint_name }}/repo"
+  - name: compose
+    ansible.builtin.shell: |
+      composer-cli --json compose start-ostree rfe-installer \
+        edge-simplified-installer \
+        --ref rhel/9/x86_64 \
+        --url "{{ ostree_repo_url }}" | jq -r ".[].body.build_id"
+    register: start_compose_result
+  - name: debug result
+    ansible.builtin.debug:
+      var: start_compose_result
+  - name: set job id
+    set_fact:
+      job_id: "{{ start_compose_result.stdout }}"
+  - name: Wait for compose to finish
+    ansible.builtin.shell: |
+      composer-cli --json compose info {{ job_id }} | jq -r ".[].body.queue_status"
+    until: check_status_result.stdout not in ["RUNNING", "WAITING"]
+    retries: "{{ retries }}"
+    delay: "{{ delay }}"
+    register: check_status_result
+
+- name: Download artifact
+  when: 
+  - check_status_result.stdout == "FINISHED"
+  block:
+  - name: create a temp dir
+    ansible.builtin.tempfile:
+      state: directory
+      suffix: "{{ blueprint_name }}"
+    register: tempdir_result
+  - name: set artifact dir
+    ansible.builtin.set_fact:
+      artifact_dir: "{{ tempdir_result.path }}"
+  - name: set full artifact filename
+    ansible.builtin.set_fact:
+      artifact_file: "{{ artifact_dir }}/{{ job_id }}.iso"
+  - name: download artifact
+    ansible.builtin.shell: |
+      composer-cli compose image "{{ job_id }}" --filename "{{ artifact_file }}"
+
+- name: Inject custom kickstart and create a new ISO
+  when:
+  - not kickstart_file == ""
+  block:
+  - name: copy the kickstart file int artifact directory
+    ansible.builtin.copy:
+      src: "{{ kickstart_file }}"
+      dest: "{{ artifact_dir }}"
+  - name: create iso mount directory
+    ansible.builtin.tempfile:
+      state: directory
+      suffix: iso_mount
+    register: mount_dir
+  - name: Set iso mount directory
+    ansible.builtin.set_fact:
+      iso_mount_dir: "{{ mount_dir.path }}"
+  - name: debug the mount directory
+    ansible.builtin.debug:
+      msg: "ISO Mount directory: {{ iso_mount_dir }}"
+  - name: create iso work directory
+    ansible.builtin.tempfile:
+      state: directory
+      suffix: iso_work
+    register: work_dir
+  - name: set iso work directory
+    ansible.builtin.set_fact:
+      iso_work_dir: "{{ work_dir.path }}"
+  - name: debug the work directory
+    ansible.builtin.debug:
+      msg: "ISO work directory: {{ iso_work_dir }}"
+  - name: mount the downloaded iso
+    ansible.posix.mount:
+      path: "{{ iso_mount_dir }}"
+      src: "{{ artifact_file }}"
+      fstype: iso9660
+      opts: loop
+      state: mounted
+  - name: copy contents of the iso into iso work directory
+    ansible.builtin.shell: |
+      cp -rT "{{ iso_mount_dir }}" "{{ iso_work_dir }}"
+  - name: unmount the iso
+    ansible.posix.mount:
+      path: "{{ iso_mount_dir }}"
+      state: unmounted
+  - name: inject the kickstart into iso
+    ansible.builtin.copy:
+      src: "{{ artifact_dir }}/{{ kickstart_file | basename }}"
+      dest: "{{ iso_work_dir }}/ks.cfg"
+  - name: modify the bootloader config to use the custom kickstart
+    ansible.builtin.lineinfile:
+      path: "{{ iso_work_dir }}/isolinux/isolinux.cfg"
+      regexp: "append initrd="
+      insertbefore: "^append"
+      line: " append initrd=initrd.img ks=cdrom:/ks.cfg"
+  - name: rebuild the iso
+    ansible.builtin.shell: |
+      genisoimage -o "{{ artifact_dir }}/{{ blueprint_name }}-{{ job_id }}-custom-ks.iso" \
+        -b isolinux/isolinux.bin \
+        -c isolinux/boot.cat \
+        -no-emul-boot \
+        -boot-load-size 4 \
+        -boot-info-table \
+        -J -R -V "CustomISO" \
+        "{{ iso_work_dir }}" 
+
+- name: Upload the ISO to s3 bucket
+  ansible.builtin.shell: |
+    aws s3 cp "{{ artifact_dir }}/{{ blueprint_name }}-{{ job_id }}-custom-ks.iso" "s3://{{ iso_bucket_name }}/{{ blueprint_name }}-{{ job_id }}.iso"
+
+- name: cleanup
+  block:
+  - name: delete artifact dir
+    ansible.builtin.file:
+      path: "{{ artifact_dir }}"
+      state: absent
+  - name: delete iso mount dir
+    ansible.builtin.file:
+      path: "{{ iso_mount_dir }}"
+      state: absent
+  - name: delete iso work dir
+    ansible.builtin.file:
+      path: "{{ iso_work_dir }}"
+      tate: absent
