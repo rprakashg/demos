@@ -150,17 +150,21 @@
   - not kickstart_file == ""
   ansible.builtin.shell: |
     aws s3 cp "{{ artifact_file }}" "s3://{{ iso_bucket_name }}/{{ artifact_dir }}/{{ blueprint_name }}-{{ job_id }}-custom-ks.iso"
+
 - name: cleanup
   block:
   - name: delete artifact dir
+    when: artifact_dir is defined
     ansible.builtin.file:
       path: "{{ artifact_dir }}"
       state: absent
   - name: delete iso mount dir
+    when: iso_mount_dir is defined
     ansible.builtin.file:
       path: "{{ iso_mount_dir }}"
       state: absent
   - name: delete iso work dir
+    when: iso_work_dir is defined
     ansible.builtin.file:
       path: "{{ iso_work_dir }}"
       tate: absent
