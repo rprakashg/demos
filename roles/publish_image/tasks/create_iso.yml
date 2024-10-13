@@ -105,7 +105,7 @@
   - not kickstart_file == ""
   - inject_ks_result.rc == 0
   ansible.builtin.shell: |
-    aws s3 cp "{{ artifact_file }}" "s3://{{ iso_bucket_name }}/{{ artifact_dir }}/{{ blueprint_name }}-{{ job_id }}-ks.iso"
+    aws s3 cp "{{ artifact_file }}" "s3://{{ iso_bucket_name }}/{{ blueprint_name }}-{{ job_id }}-ks.iso"
 
 - name: cleanup
   block:
