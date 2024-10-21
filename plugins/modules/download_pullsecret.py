@@ -65,7 +65,7 @@ def run_module(module):
     if response.status_code != 200:
         module.fail_json(msg=f"Failed to download Red Hat pull secret: {response.text}")
     
-    result.pull_secret = response.json()
+    result["pull_secret"] = response.json()
     module.exit_json(msg="Successfully retrieved Red Hat pullsecret", **result)
 
 def main():
