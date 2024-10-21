@@ -45,7 +45,7 @@ def run_module(module):
     # first get access token from offline token
     payload = {
         "grant_type": GRANT_TYPE,
-        "refresh_token": params.offline_token,
+        "refresh_token": params["offline_token"],
         "client_id": CLIENT_ID
     }
     headers = {
