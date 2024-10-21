@@ -7,7 +7,7 @@ __metaclass__ = type
 
 DOCUMENTATION = r'''
 ---
-module: install openshift on aws
+module: install_openshift_on_aws
 
 short_description: Install Openshift cluster on AWS
 
@@ -68,7 +68,7 @@ notes: []
 
 EXAMPLES = r'''
 - name: install openshift on aws
-  rprakashg.automation.install_openshift_on_aws:
+  rprakashg.demos.install_openshift_on_aws:
     cluster_name: hub
     region: us-west-2
     base_domain: ocp.example.com
