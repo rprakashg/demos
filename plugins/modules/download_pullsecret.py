@@ -58,7 +58,7 @@ def run_module(module):
     access_token = response.json()["access_token"]
 
     headers = {
-        "Authorization": f"Bearer: {access_token}"
+        "Authorization": f"Bearer {access_token}"
     }
     
     response = requests.post(PULLSECRET_API, headers=headers)
