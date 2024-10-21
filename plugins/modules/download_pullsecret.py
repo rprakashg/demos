@@ -56,11 +56,10 @@ def run_module(module):
         module.fail_json(msg=f"Failed to retrieve access token: {response.text}")
 
     access_token = response.json()["access_token"]
-
     headers = {
-        "Authorization": f"Bearer {access_token}"
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
     }
-    
     response = requests.post(PULLSECRET_API, headers=headers)
     if response.status_code != 200:
         module.fail_json(msg=f"Failed to download Red Hat pull secret: {response.text}")
