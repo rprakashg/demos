@@ -70,7 +70,7 @@
     register: microshift_source
 
   - name: creating rhocp-{{ microshift_release }}.toml configuration file
-    copy:
+    ansible.builtin.copy:
       dest: "{{ microshift_source.path }}"
       content: |
         id = "rhocp-{{ microshift_release }}"
@@ -89,7 +89,7 @@
     register: fastdatapath_source
 
   - name: create fast-datapath.toml configuration file
-    copy:
+    ansible.builtin.copy:
       dest: "{{ fastdatapath_source.path }}"
       content: |
         id = "fast-datapath"
@@ -102,10 +102,58 @@
         rhsm = true
 
   - name: add sources to image builder
-    command: "sudo composer-cli sources add {{ item }}"
+    ansible.builtin.command: "sudo composer-cli sources add {{ item }}"
     loop:
       - "{{ microshift_source.path }}"
       - "{{ fastdatapath_source.path }}"
+
+- name: Create a directory for custom rpms
+  block:
+  - name: check if custom rpms directory is already created
+    ansible.builtin.stat:
+      path: ~/custom-rpms
+    register: customrpm_dir_stat
+  - name: Create customrpm dir if it doesnt exist
+    when: not customrpm_dir_stat.stat.exists
+    ansible.builtin.file:
+      path: ~/custom-rpms 
+      state: directory
+      mode: "0755"
+
+- name: Setup custom rpm repo for greenboot failing package and add to imagebuilder sources
+  block:
+  - name: create a directory to store the greenboot failing RPM package
+    ansible.builtin.file:
+      path: ~/custom-rpms/local-greenboot
+      state: directory
+      mode: "0755"
+  - name: Download the green boot failing package 
+    ansible.builtin.get_url:
+      url: https://kite-webhook-prod.s3.amazonaws.com/greenboot-failing-unit-1.0-1.el8.noarch.rpm
+      dest: ~/custom-rpms/local-greenboot
+      mode: '0755'
+  - name: createrepo
+    ansible.builtin.shell: |
+      createrepo ~/custom-rpms/local-greenboot
+  - name: create a temp toml file
+    ansible.builtin.tempfile:
+      state: file
+      suffix: toml
+    register: greenboot_local_source
+  - name: add source
+    ansible.builtin.copy:
+      dest: "{{ greenboot_local_source.path }}"
+      content: |
+        id = "local-greenboot"
+        name = "Local source for greenboot packages"
+        type = "yum-baseurl"
+        url = "file:///root/custom-rpms/local-greenboot"
+        check_gpg = false
+        check_ssl = false
+        system = false
+  - name: add source to image builder
+    ansible.builtin.shell: |
+      sudo composer-cli sources add "{{ greenboot_local_source.path }}"
 
 - name: add pull-secret to image builder
   block:
