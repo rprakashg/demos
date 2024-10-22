@@ -145,7 +145,7 @@
       dest: "{{ greenboot_local_source.path }}"
       content: |
         id = "local-greenboot"
-        name = "Local source for greenboot packages"
+        name = "local-greenboot"
         type = "yum-baseurl"
         url = "file:///root/custom-rpms/local-greenboot"
         check_gpg = false
