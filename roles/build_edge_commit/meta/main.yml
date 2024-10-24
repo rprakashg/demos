@@ -1,10 +1,10 @@
 ---
 galaxy_info:
-  role_name: "build_image"
+  role_name: "build_edge_commit"
   standalone: false
   company: ""
   description: >
-    Build image using a Blueprint file
+    Build edge commit from a blueprint file using Image Builder
   author: rprakashg
   license: "GPL-3.0-or-later"
   min_ansible_version: "2.12"
