@@ -3,6 +3,14 @@
   ansible.builtin.import_role:
     name: infra.osbuild.setup_server
 
+- name: Install additional packages
+  ansible.builtin.dnf:
+    state: latest
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - pip3
+
 - name: install aws cli
   ansible.builtin.command:
     cmd: pip3 install awscli boto3 botocore
