@@ -1,0 +1,6 @@
+---
+- name: check input blueprint is passed
+  assert:
+    that:
+    - blueprint_name != ""
+    fail_msg: "blueprint must be specified to build image"

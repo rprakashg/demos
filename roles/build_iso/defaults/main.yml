@@ -1,0 +1,10 @@
+---
+### Defaults
+blueprint_name: ""
+
+iso_bucket_name: "rhde-isos"
+
+retries: 100
+delay: 60
+
+kickstart_file: ""

@@ -1,0 +1,10 @@
+---
+### Defaults
+blueprint_name: ""
+
+ami_bucket_name: "rhde-amis"
+
+aws_region: us-west-2
+
+retries: 100
+delay: 60

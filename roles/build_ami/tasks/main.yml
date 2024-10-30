@@ -7,11 +7,5 @@
   ansible.builtin.import_tasks: preflight.yml
 
 - name: build ami
-  when:
-  - output_image_type == "ami"
   ansible.builtin.import_tasks: create_ami.yml
 
-- name: build iso
-  when:
-  - output_image_type == "iso"
-  ansible.builtin.import_tasks: create_iso.yml
