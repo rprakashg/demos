@@ -1,8 +1,4 @@
 ---
-- name: load secrets from ansible vault
-  ansible.builtin.include_vars:
-    file: "./vars/secrets.yml"
-
 - name: preflight
   ansible.builtin.import_tasks: preflight.yml
 
