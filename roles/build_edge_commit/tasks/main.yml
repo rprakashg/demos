@@ -1,0 +1,6 @@
+---
+- name: preflight
+  ansible.builtin.import_tasks: preflight.yml
+
+- name: compose
+  ansible.builtin.import_tasks: compose.yml

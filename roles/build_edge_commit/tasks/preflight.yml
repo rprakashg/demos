@@ -1,0 +1,97 @@
+---
+- name: check input blueprint is passed
+  assert:
+    that:
+    - blueprint != ""
+    fail_msg: "blueprint must be specified to build image"
+
+- name: read the contents of input blueprint
+  set_fact:
+    blueprint_data: "{{ lookup('file', blueprint) | b64encode }}"
+
+- name: parse blueprint file
+  ansible.builtin.set_fact:
+    parsed_blueprint: "{{ blueprint | from_toml }}"
+
+- name: set blueprint name and version
+  set_fact:
+    blueprint_name: "{{ parsed_blueprint.name }}"
+    blueprint_version: "{{ parsed_blueprint.version }}"
+
+- name: debug name and version
+  ansible.builtin.debug:
+    msg: "Blueprint Name: {{ blueprint_name }} and Blueprint Version: {{ blueprint_version }}"
+
+- name: create temp file to store blueprint
+  ansible.builtin.tempfile:
+    state: file
+    suffix: toml
+  register: builder_blueprint_result
+
+- name: copy blueprint content to temp file
+  ansible.builtin.copy:
+    dest: "{{ builder_blueprint_result.path }}"
+    content: |
+      {{ blueprint_data | b64decode }}
+
+- name: set builder blueprint
+  set_fact:
+    builder_blueprint: "{{ builder_blueprint_result.path }}"
+
+- name: check if blueprint is already added to osbuild composer
+  ansible.builtin.shell: composer-cli --json blueprints show "{{ blueprint_name }}" | jq -r ".[].body.blueprints[].version"
+  register: blueprint_show_result
+  ignore_errors: yes
+    
+- name: set current version in fact
+  when: 
+  - not blueprint_show_result.stdout == ""
+  set_fact:
+    blueprint_current_version: "{{ blueprint_show_result.stdout }}"
+    ostree_url: "http://{{ ansible_host }}/{{ blueprint_name }}/repo"
+
+- name: debug current blueprint version
+  when: 
+  - not blueprint_show_result.stdout == ""
+  ansible.builtin.debug:
+    msg: "Current blueprint version in osbuild composer: {{ blueprint_current_version }}"
+
+- name: debug ostree-url
+  when: 
+  - not blueprint_show_result.stdout == ""
+  ansible.builtin.debug:
+    msg: "OSTree URL: {{ ostree_url }}"
+    
+- name: push the builder blueprint to imagebuilder if doesnt exist or new version
+  when: 
+  - blueprint_current_version != blueprint_version
+  ansible.builtin.shell: composer-cli blueprints push "{{ builder_blueprint }}"
+
+- name: check if dev repo is already initialized
+  become: true
+  ansible.builtin.stat:
+    path: "/var/www/html/{{ blueprint_name }}"
+  register: blueprint_dir_stat
+
+- name: initialize ostree repos
+  become: true
+  when: 
+  - not blueprint_dir_stat.stat.exists
+  block:
+    - name: create directory
+      ansible.builtin.file:
+        path: "/var/www/html/{{ blueprint_name }}"
+        state: directory
+        mode: "0755"
+
+    - name: initialize rpm-ostree repository for blueprint
+      ansible.builtin.command:
+        chdir: "/var/www/html/{{ blueprint_name }}"
+        cmd: "ostree --repo=repo init --mode=archive"
+      args:
+        creates: "/var/www/html/{{ blueprint_name }}/repo"
+
+- name: delete temp file
+  ansible.builtin.file:
+    state: absent
+    path: "{{ builder_blueprint }}"

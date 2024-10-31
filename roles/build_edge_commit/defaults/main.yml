@@ -1,0 +1,10 @@
+---
+### Defaults 
+blueprint: ""
+
+retries: 100
+delay: 60
+
+aws_region: us-west-2
+
+ostree_url: ""
