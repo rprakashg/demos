@@ -1,7 +1,4 @@
 ---
-- name: include secrets
-  include_vars:
-    file: "./vars/secrets.yml"
 - name: register the system
   shell: |
     subscription-manager register --username={{ rhuser }} --password={{ rhpassword }} --force

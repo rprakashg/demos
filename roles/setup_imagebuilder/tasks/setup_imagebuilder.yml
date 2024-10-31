@@ -103,7 +103,7 @@
   - name: refresh repo
     ansible.builtin.shell: |
       createrepo --update /root/custom-rpms
-
+      
 - name: add pull-secret to image builder
   block:
   - name: create /etc/osbuild-worker directory
