@@ -81,7 +81,6 @@
     ansible.builtin.shell: |
       createrepo ~/custom-rpms/local-greenboot
       chmod a+rx ~
-      
   - name: create a temp toml file
     ansible.builtin.tempfile:
       state: file
@@ -107,9 +106,6 @@
 
 - name: add pull-secret to image builder
   block:
-  - name: include secrets
-    include_vars:
-      file: "./vars/secrets.yml"
   - name: create /etc/osbuild-worker directory
     ansible.builtin.file:
       path: /etc/osbuild-worker
