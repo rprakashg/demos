@@ -1,10 +1,10 @@
 ---
 galaxy_info:
-  role_name: "publish_image"
+  role_name: "build_ami"
   standalone: false
   company: ""
   description: >
-    Publish image 
+    Build Edge AMI image
   author: rprakashg
   license: "GPL-3.0-or-later"
   min_ansible_version: "2.12"
