@@ -44,9 +44,12 @@
   - name: set ostree url
     ansible.builtin.set_fact:
       ostree_repo_url: "http://{{ ansible_host }}/{{ blueprint_name }}/repo"
+  - name: debug
+    ansible.builtin.debug:
+      msg: "OSTree URL: {{ ostree_repo_url }}"
   - name: start compose
     ansible.builtin.shell: |
-      composer-cli --json compose start-ostree "edge-ami-image" edge-ami --ref="{{ blueprint_rev }}" --url="{{ ostree_repo_url }}" | jq -r ".[].body.build_id"
+      composer-cli --json compose start-ostree "edge-ami-image" edge-ami --ref="{{ ref }}" --url="{{ ostree_repo_url }}" | jq -r ".[].body.build_id"
     register: start_compose_result
   - name: set job id
     set_fact:
