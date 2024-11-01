@@ -1,7 +1,0 @@
----
-- name: preflight
-  ansible.builtin.import_tasks: preflight.yml
-
-- name: build ami
-  ansible.builtin.import_tasks: create_ami.yml
-

@@ -1,10 +1,10 @@
 ---
 galaxy_info:
-  role_name: "build_iso"
+  role_name: "create_image"
   standalone: false
   company: ""
   description: >
-    Build ISO image
+    Create Edge images
   author: rprakashg
   license: "GPL-3.0-or-later"
   min_ansible_version: "2.12"

@@ -19,8 +19,8 @@ Table below shows variables you can set when using this role
 | ssh_key | ec2 | SSH key to use for EC2 |
 | ami | ami-0f7197c592205b389 | AMI ID to use |
 | my_ip | 136.27.40.26/32 | Your default IP to allow ssh traffic |
-| image_registry | ostree-image-registry | Repository for storing container images hosting/serving ostree content |
-| iso_storage_bucket | rhdeimages | S3 Bucket for storing ISO installer images |
+| iso_storage_bucket | rhde-isos | S3 Bucket for storing ISO installer images |
+| ami_bucket_name | rhde-amis | S3 Bucket for storing Snapshot for AMIs |
 | microshift | True | Enable Microshift required if building images with Microshift bits |
 | microshift_release | 4.16 | Microsoft release |
 
@@ -51,6 +51,8 @@ rhuser: <fill>
 rhpassword: <fill>
 admin_user: <fill>
 admin_password: <fill>
+offline_token: <fill>
+admin_ssh_key: <fill>
 ```
 Store vault password in an environment variable as shown below
 
