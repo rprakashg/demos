@@ -121,7 +121,7 @@
   - name: createrepo
     ansible.builtin.shell: |
       createrepo ~/custom-rpms/local-greenboot
-      chmod a+rx ~/custom-rpms/
+      chmod a+rx ~
   - name: create a temp toml file
     ansible.builtin.tempfile:
       state: file
