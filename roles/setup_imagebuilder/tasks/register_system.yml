@@ -6,4 +6,19 @@
     subscription-manager service-level --set="Self-Support"
     subscription-manager usage --set="Development/Test"
     subscription-manager attach
-    subscription-manager config --rhsm.manage_repos=1    
+    subscription-manager config --rhsm.manage_repos=1
+- name: restart
+  block:
+  - name: rebooting system
+    ansible.builtin.reboot:
+      msg: "Reboot initiated by Ansible"
+      connect_timeout: 5
+      reboot_timeout: 300
+      pre_reboot_delay: 0
+      post_reboot_delay: 30
+      test_command: uptime
+  - name: Pinging the imagebuilder
+    ansible.builtin.ping:
+  - name: Debug 
+    ansible.builtin.debug:
+      msg: "Finished rebooting system"
