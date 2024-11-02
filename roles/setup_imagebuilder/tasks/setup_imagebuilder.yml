@@ -110,17 +110,17 @@
   block:
   - name: create a directory to store the greenboot failing RPM package
     ansible.builtin.file:
-      path: ~/custom-rpms/local-greenboot
+      path: ~/custom-rpms
       state: directory
       mode: "0755"
   - name: Download the green boot failing package 
     ansible.builtin.get_url:
       url: https://kite-webhook-prod.s3.amazonaws.com/greenboot-failing-unit-1.0-1.el8.noarch.rpm
-      dest: ~/custom-rpms/local-greenboot
+      dest: ~/custom-rpms
       mode: '0755'
   - name: createrepo
     ansible.builtin.shell: |
-      createrepo ~/custom-rpms/local-greenboot
+      createrepo ~/custom-rpms
       chmod a+rx ~
   - name: create a temp toml file
     ansible.builtin.tempfile:
@@ -131,10 +131,10 @@
     ansible.builtin.copy:
       dest: "{{ greenboot_local_source.path }}"
       content: |
-        id = "local-greenboot"
-        name = "local-greenboot"
+        id = "local-rpm-packages"
+        name = "Local RPM packages"
         type = "yum-baseurl"
-        url = "file:///root/custom-rpms/local-greenboot"
+        url = "file:///root/custom-rpms"
         check_gpg = false
         check_ssl = false
         system = false
