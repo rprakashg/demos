@@ -1,0 +1,15 @@
+name        = "rfe-installer"
+description = "Blueprint for creating edge simplified installer image"
+version     = "1.0.0"
+packages    = []
+modules     = []
+groups      = []
+distro      = ""
+
+[customizations]
+installation_device = "/dev/sda1"
+
+[[customizations.user]]
+name = "{{ admin_user }}"
+password = "{{ admin_password }}"
+groups = ["wheel"]
