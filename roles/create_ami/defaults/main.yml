@@ -1,0 +1,22 @@
+---
+### Defaults
+blueprint_name: ""
+
+ami_bucket_name: "rhde-amis"
+aws_region: us-west-2
+
+retries: 100
+delay: 60
+
+builder_blueprint_name: edge_ami_blueprint
+builder_blueprint_desc: "Edge AMI Blueprint"
+builder_blueprint_distro: ""
+builder_compose_pkgs:
+- cloud-init
+builder_compose_customizations:
+  user:
+    name: "{{ admin_user }}"
+    password: "{{ admin_password }}"
+    groups:
+    - users
+    - wheel

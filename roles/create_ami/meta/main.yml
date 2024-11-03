@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  role_name: "create_image"
+  standalone: false
+  company: ""
+  description: >
+    Create Edge images
+  author: rprakashg
+  license: "GPL-3.0-or-later"
+  min_ansible_version: "2.12"
+  platforms:
+  galaxy_tags:
+    - edge
+    - rhel
+    - os
+    - ostree
+    - immutable
+dependencies: []
