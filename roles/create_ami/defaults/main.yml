@@ -18,5 +18,4 @@ builder_compose_customizations:
     name: "{{ admin_user }}"
     password: "{{ admin_password }}"
     groups:
-    - users
     - wheel
