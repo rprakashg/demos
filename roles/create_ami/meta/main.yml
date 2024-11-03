@@ -1,10 +1,10 @@
 ---
 galaxy_info:
-  role_name: "create_image"
+  role_name: "create_ami"
   standalone: false
   company: ""
   description: >
-    Create Edge images
+    Create Edge AMI images
   author: rprakashg
   license: "GPL-3.0-or-later"
   min_ansible_version: "2.12"
