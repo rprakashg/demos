@@ -1,6 +1,5 @@
 ---
 - name: download openshift pull secret
-  when: microshift | default(true)
   rprakashg.demos.download_pullsecret:
     offline_token: "{{ offline_token }}"
   register: download_pullsecret_result
