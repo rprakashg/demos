@@ -40,7 +40,7 @@
     ansible.builtin.shell: |
       composer-cli --json compose start-ostree {{ rfe_installer_blueprint }} \
         edge-simplified-installer \
-        --ref "{{ blueprint_rev }}" \
+        --ref "{{ blueprint_ref }}" \
         --url "{{ ostree_repo_url }}" | jq -r ".[].body.build_id"
     register: start_compose_result
   - name: debug result
