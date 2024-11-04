@@ -1,6 +1,13 @@
 ---
 - name: download openshift pull secret
   when: microshift | default(true)
-  
+  rprakashg.demos.download_pullsecret:
+    offline_token: "{{ offline_token }}"
+  register: download_pullsecret_result
+
+- name: set pull secret fact
+  ansible.builtin.set_fact:
+    pull_secret: "{{ download_pullsecret_result.pull_secret }}"
+
 - name: build iso
   ansible.builtin.import_tasks: create_iso.yml
