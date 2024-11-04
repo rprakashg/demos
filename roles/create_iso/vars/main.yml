@@ -9,7 +9,7 @@ builder_kickstart_options:
 - clearpart --all --initlabel
 - part /boot/efi --fstype=efi --asprimary --size=600
 - part /boot --fstype=xfs --asprimary --size=1024
-# - part pv.01 --grow --encrypted --passphrase=WELLKN0WN
+- part pv.01 --grow --encrypted --passphrase=WELLKN0WN
 - volgroup rhel --pesize=32768 pv.01
 - logvol / --vgname=rhel --fstype=xfs --size=98304 --name=root
 - logvol /home --vgname=rhel --fstype=xfs --size=51200 --name=home

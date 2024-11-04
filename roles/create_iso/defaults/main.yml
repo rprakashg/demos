@@ -2,7 +2,6 @@
 ### Defaults
 blueprint_name: ""
 microshift: false
-
 iso_bucket_name: "rhde-isos"
 
 retries: 100
