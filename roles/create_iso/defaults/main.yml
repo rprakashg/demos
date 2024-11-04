@@ -1,19 +1,23 @@
 ---
 ### Defaults
 blueprint_name: ""
+microshift: false
 
 iso_bucket_name: "rhde-isos"
-ami_bucket_name: "rhde-amis"
-
-aws_region: us-west-2
 
 retries: 100
 delay: 60
 
-output_image_type: "iso" #default to iso
-kickstart_file: ""
-
-image_types:
-- iso
-- ami
-- qcow2
+builder_blueprint_name: rfe_installer_blueprint
+builder_blueprint_desc: "RHEL For Edge Installer Blueprint"
+builder_blueprint_distro: ""
+builder_compose_pkgs:
+- ansible-core
+- vim-enhanced
+builder_compose_customizations:
+  installation_device: "/dev/sda1"
+  user:
+    name: "{{ admin_user }}"
+    password: "{{ admin_password }}"
+    groups:
+    - wheel

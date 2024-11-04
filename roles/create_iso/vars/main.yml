@@ -1,3 +1,28 @@
 blueprint_distro_lower: "{{ 'rhel' if ansible_distribution == 'RedHat' else ansible_distribution | lower }}"
-blueprint_rev: "{{ blueprint_distro_lower }}/{{ hostvars[inventory_hostname].ansible_distribution_major_version }}/x86_64/{{ 'iot' if ansible_distribution == 'Fedora' else 'edge' }}"
-blueprints_dir: /home/blueprints
+blueprint_ref: "{{ blueprint_distro_lower }}/{{ hostvars[inventory_hostname].ansible_distribution_major_version }}/x86_64/{{ 'iot' if ansible_distribution == 'Fedora' else 'edge' }}"
+
+builder_kickstart_options:
+- lang en_US.UTF-8
+- keyboard us
+- timezone America/Los_Angeles --isUtc
+- zerombr
+- clearpart --all --initlabel
+- part /boot/efi --fstype=efi --asprimary --size=600
+- part /boot --fstype=xfs --asprimary --size=1024
+# - part pv.01 --grow --encrypted --passphrase=WELLKN0WN
+- volgroup rhel --pesize=32768 pv.01
+- logvol / --vgname=rhel --fstype=xfs --size=98304 --name=root
+- logvol /home --vgname=rhel --fstype=xfs --size=51200 --name=home
+- logvol /var --vgname=rhel --fstype=xfs --size=51200 --name=var
+- logvol /var/log --vgname=rhel --fstype=xfs --size=15360 --name=var_log
+- logvol /var/log/audit --vgname=rhel --fstype=xfs --size=15360 --name=var_log_audit
+- logvol /opt --vgname=rhel --fstype=xfs --size=51200 --name=opt
+- network --bootproto=dhcp --device=link --activate --onboot=on
+- reboot
+- text
+- services --enabled=ostree-remount
+- ostreesetup --nogpg --osname=rhel --remote=edge --url={{ ostree_repo_url }} --ref={{ blueprint_ref }}
+
+_builder_kickstart_post:
+- "{{ lookup('ansible.builtin.template', '../templates/kickstart_post.j2')}}"
+builder_kickstart_post: "{{ _builder_kickstart_post + additional_kickstart_post if additional_kickstart_post is defined else (_builder_kickstart_post if _builder_kickstart_post is defined else None) | default(None) }}"

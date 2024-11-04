@@ -1,0 +1,12 @@
+---
+- name: Setup Image Builder
+  hosts: localhost
+  tasks:
+  - name: Include ansible vault secrets
+    include_vars:
+      file: "./vars/secrets.yml"
+  - name: setup image builder
+    ansible.builtin.include_role:
+      name: rprakashg.demos.setup_imagebuilder
+    vars:
+      create_infra: true

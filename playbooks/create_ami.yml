@@ -1,0 +1,12 @@
+---
+- name: Create Edge AMI Image
+  hosts: imagebuilder
+  tasks:
+  - name: load secrets from ansible vault
+    include_vars:
+      file: "./vars/secrets.yml"
+  - name: Create Edge AMI Image
+    ansible.builtin.include_role:
+      name: rprakashg.demos.create_ami
+    vars:
+      blueprint_name: "rhde"

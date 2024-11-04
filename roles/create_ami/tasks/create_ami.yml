@@ -26,7 +26,7 @@
       description: "{{ builder_blueprint_desc }}"
       distro: "{{ builder_blueprint_distro | default(omit) }}"
       packages: "{{ builder_compose_pkgs | default(omit) }}"
-      customizations: "{{ builder_compose_customizations }}"
+      customizations: "{{ builder_compose_customizations | default(omit) }}"
   - name: push the blueprint to imagebuilder
     infra.osbuild.push_blueprint:
       src: "{{ edge_ami_blueprint }}"

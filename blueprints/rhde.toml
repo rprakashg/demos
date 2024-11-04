@@ -1,0 +1,86 @@
+name            = "rhde"
+description     = "Base Red Hat Device Edge 9.4"
+version         = "1.0.0"
+modules         = []
+groups          = []
+distro          = "rhel-94"
+
+# web console
+[[packages]]
+name = "cockpit"
+version = "*"
+
+# cockpit ui for rpm-ostree 
+[[packages]]
+name = "cockpit-ostree"
+version = "*"
+
+# cockpit component for podman containers
+[[packages]]
+name = "cockpit-podman"
+version = "*"
+
+[[packages]]
+name = "greenboot"
+version = "*"
+
+[[packages]]
+name = "greenboot-grub2"
+version = "*"
+
+[[packages]]
+name = "greenboot-default-health-checks"
+version = "*"
+
+# Tools for managing Logical Volume Manager (LVM), useful if using LVM storage.
+[[packages]]
+name = "lvm2"
+version = "*"
+
+# Greenboot failing unit to demonstrate auto rollback during failed upgrades
+#[[packages]]
+#name = "greenboot-failing-unit"
+#version = "*"
+
+[customizations.services]
+enabled = ["cockpit.socket", "podman.socket", "podman.service", "firewalld", "rpm-ostreed-automatic.timer", "podman-auto-update.timer", "applyupdate.timer"]
+
+[customizations.firewall]
+ports = ["8080:tcp", "9090:tcp"]
+
+[customizations.firewall.services]
+enabled = ["http", "https", "ssh", "cockpit"]
+disabled = ["telnet"]
+
+[[customizations.directories]]
+path = "/etc/systemd/system/podman-auto-update.timer.d"
+
+[[customizations.files]]
+path = "/etc/systemd/system/podman-auto-update.timer.d/splay.conf"
+data = """[Timer]
+RandomizedDelaySec=7200"""
+
+[[customizations.files]]
+path = "/etc/rpm-ostreed.conf"
+data = """[Daemon]
+AutomaticUpdatePolicy=stage"""
+
+[[customizations.files]]
+path = "/etc/systemd/system/applyupdate.service"
+data = """[Unit]
+Description=Apply Update Check
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'if [[ $(rpm-ostree status -v | grep "Staged: yes") ]]; then systemctl --message="Applying OTA update" reboot; else logger "Running latest available update"; fi'"""
+
+[[customizations.files]]
+path = "/etc/systemd/system/applyupdate.timer"
+data = """[Unit]
+Description=Daily Update Reboot Check.
+
+[Timer]
+OnCalendar=Sun *-*-* 00:00:00
+
+[Install]
+WantedBy=multi-user.target"""

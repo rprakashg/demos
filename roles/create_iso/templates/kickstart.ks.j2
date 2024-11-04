@@ -1,0 +1,15 @@
+{% if builder_kickstart_options | length > 0 %}
+{% for option in builder_kickstart_options %}
+{{ option }}
+{% endfor %}
+{% endif %}
+
+{% if builder_kickstart_post is defined and builder_kickstart_post | length > 0 %}
+%post --log=/var/log/anaconda/post-install.log --erroronfail
+{% for post in builder_kickstart_post %}
+{% if post != "" %}
+{{ post }}
+%end
+{% endif %}
+{% endfor %}
+{% endif %}

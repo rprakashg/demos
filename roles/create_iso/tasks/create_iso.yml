@@ -3,31 +3,33 @@
   ansible.builtin.debug:
     msg: "Starting building ISO installer for image {{ blueprint_name }}"
 
-- name: check if osbuild already has the blueprint
-  ansible.builtin.shell: |
-    composer-cli --json blueprints show "rfe-installer"
-  register: blueprint_show_result
-  ignore_errors: yes
+- name: check input blueprint is passed
+  assert:
+    that:
+    - blueprint_name != ""
+    fail_msg: "blueprint must be specified to build image"
 
-- name: Create an edge simplified installer blueprint and push it to osbuild
-  when:
-  - blueprint_show_result.rc != 0
+- name: Create the installer blueprint and push it to imagebuilder
   block:
   - name: Create a temp file for installer blueprint
     ansible.builtin.tempfile:
       state: file
       suffix: toml
     register: builder_installer_blueprint
-  - name: set installer blueprint file name
+  - name: set the blueprint file in fact
     ansible.builtin.set_fact:
-      installer_blueprint: "{{ builder_installer_blueprint.path }}"
-  - name: create the blueprint
-    ansible.builtin.template:
-      src: installer.toml.j2
-      dest: "{{ installer_blueprint }}"
-  - name: push blueprint
-    ansible.builtin.shell: |
-      composer-cli blueprints push "{{ installer_blueprint }}"
+      rfe_installer_blueprint: "{{ builder_installer_blueprint.path }}"
+  - name: Create installer blueprint
+    infra.osbuild.create_blueprint:
+      dest: "{{ rfe_installer_blueprint }}"
+      name: "{{ builder_blueprint_name }}"
+      description: "{{ builder_blueprint_desc }}"
+      distro: "{{ builder_blueprint_distro | default(omit) }}"
+      packages: "{{ builder_compose_pkgs | default(omit) }}"
+      customizations: "{{ builder_compose_customizations | default(omit) }}"
+  - name: Push the installer blueprint to imagebuilder
+    infra.osbuild.push_blueprint:
+      src: "{{ rfe_installer_blueprint }}"
 
 - name: Start compose and wait for it to finish
   block:
@@ -36,7 +38,7 @@
       ostree_repo_url: "http://{{ ansible_host }}/{{ blueprint_name }}/repo"
   - name: compose
     ansible.builtin.shell: |
-      composer-cli --json compose start-ostree rfe-installer \
+      composer-cli --json compose start-ostree {{ rfe_installer_blueprint }} \
         edge-simplified-installer \
         --ref "{{ blueprint_rev }}" \
         --url "{{ ostree_repo_url }}" | jq -r ".[].body.build_id"
@@ -74,25 +76,27 @@
     ansible.builtin.shell: |
       composer-cli compose image "{{ job_id }}" --filename "{{ artifact_file }}"
 
-- name: Inject custom kickstart and create a new ISO
-  when:
-  - not kickstart_file == ""
+- name: Create kickstart file
   block:
-  - name: copy the kickstart file into artifact directory
-    ansible.builtin.copy:
-      src: "{{ kickstart_file }}"
-      dest: "{{ artifact_dir }}"
-  - name: inject kickstart into ISO using mkksiso utility
-    ansible.builtin.shell: |
-      mkksiso --ks "{{ artifact_dir }}/{{ kickstart_file | basename }}" \
-        --cmdline "console=ttys0,115200n8" \
-        "{{ artifact_file }}" "{{ artifact_dir }}/{{ blueprint_name }}-{{ job_id }}-ks.iso"
-    register: inject_ks_result
-    ignore_errors: yes
-  - name: check for errors and warn
-    when: inject_ks_result.rc != 0
-    ansible.builtin.debug:
-      msg: "Failed to inject kickstart into ISO image"
+  - name: create a temp file for kickstart
+    ansible.builtin.tempfile:
+      state: file
+      suffix: ks
+    register: builder_kickstart
+  - name: store file in fact
+    ansible.builtin.set_fact:
+      kickstart: "{{ builder_kickstart.path }}"
+  - name: generate kickstart content
+    ansible.builtin.template:
+      src: "kickstart.ks.j2"
+      dest: "{{ kickstart }}"
+  - name: splur kickstart file to output
+
+- name: Inject kickstart into ISO
+  infra.osbuild.inject_ks:
+    kickstart: "{{ kickstart }}"
+    src_iso: "{{ artifact_file }}"
+    dest_iso: "{{ artifact_dir }}/{{ blueprint_name }}-{{ job_id }}-ks.iso"
 
 - name: Upload the ISO to s3 bucket
   when:
@@ -102,15 +106,11 @@
 - name: Upload the ISO with custom kickstart injected also to s3 bucket
   when:
   - check_status_result.stdout == "FINISHED"
-  - not kickstart_file == ""
-  - inject_ks_result.rc == 0
   ansible.builtin.shell: |
-    aws s3 cp "{{ artifact_file }}" "s3://{{ iso_bucket_name }}/{{ blueprint_name }}-{{ job_id }}-ks.iso"
+    aws s3 cp "{{ artifact_dir }}/{{ blueprint_name }}-{{ job_id }}-ks.iso" "s3://{{ iso_bucket_name }}/{{ blueprint_name }}-{{ job_id }}-ks.iso"
 
 - name: cleanup
-  block:
-  - name: delete artifact dir
-    when: artifact_dir is defined
-    ansible.builtin.file:
-      path: "{{ artifact_dir }}"
-      state: absent
+  when: artifact_dir is defined
+  ansible.builtin.file:
+    path: "{{ artifact_dir }}"
+    state: absent
