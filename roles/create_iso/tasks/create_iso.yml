@@ -90,7 +90,13 @@
     ansible.builtin.template:
       src: "kickstart.ks.j2"
       dest: "{{ kickstart }}"
-  - name: splur kickstart file to output
+  - name: slurp kickstart file to output
+    ansible.builtin.slurp:
+      src: "{{ kickstart }}"
+    register: kickstart_content
+  - name: display kickstart contents
+    ansible.builtin.debug:
+      msg: "{{ kickstart_content['content'] | b64decode }}" 
 
 - name: Inject kickstart into ISO
   infra.osbuild.inject_ks:
