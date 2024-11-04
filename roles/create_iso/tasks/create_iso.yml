@@ -38,7 +38,7 @@
       ostree_repo_url: "http://{{ ansible_host }}/{{ blueprint_name }}/repo"
   - name: compose
     ansible.builtin.shell: |
-      composer-cli --json compose start-ostree {{ rfe_installer_blueprint }} \
+      composer-cli --json compose start-ostree {{ builder_blueprint_name }} \
         edge-simplified-installer \
         --ref "{{ blueprint_ref }}" \
         --url "{{ ostree_repo_url }}" | jq -r ".[].body.build_id"
