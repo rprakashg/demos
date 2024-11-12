@@ -3,12 +3,13 @@ mkdir -p /var/log/journal
 echo -e "{{ admin_user }}\tALL=(ALL)\tNOPASSWD: ALL" >> /etc/sudoers
 echo -e "url={{ ostree_repo_url }}" >> /etc/ostree/remotes.d/edge.conf
 
+firewall-offline-cmd --zone=public --add-port=80/tcp
+firewall-offline-cmd --zone=public --add-port=443/tcp
+
 {% if microshift %}
 firewall-offline-cmd --zone=trusted --add-source=10.42.0.0/16
 firewall-offline-cmd --zone=trusted --add-source=169.254.169.1
 firewall-offline-cmd --zone=public --add-port=6443/tcp
-firewall-offline-cmd --zone=public --add-port=80/tcp
-firewall-offline-cmd --zone=public --add-port=443/tcp
 
 cat > /etc/crio/openshift-pull-secret << EOF
 {{ pull_secret }}

@@ -1,0 +1,9 @@
+# CPU, Memory, and Disk checks
+if [ "$(grep -c ^processor /proc/cpuinfo)" -lt 2 ]; then
+    echo "Insufficient CPU cores; requires at least 2"
+    exit 1
+fi
+if [ "$(free -m | awk '/^Mem:/{print $2}')" -lt 2048 ]; then
+    echo "Insufficient memory; requires at least 2GB"
+    exit 1
+fi

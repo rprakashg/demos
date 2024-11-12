@@ -1,6 +1,10 @@
 blueprint_distro_lower: "{{ 'rhel' if ansible_distribution == 'RedHat' else ansible_distribution | lower }}"
 blueprint_ref: "{{ blueprint_distro_lower }}/{{ hostvars[inventory_hostname].ansible_distribution_major_version }}/x86_64/{{ 'iot' if ansible_distribution == 'Fedora' else 'edge' }}"
 
+_builder_kickstart_pre:
+- "{{ lookup('ansible.builtin.template', '../templates/kickstart_pre.j2')}}"
+builder_kickstart_pre: "{{ _builder_kickstart_pre + additional_kickstart_pre if additional_kickstart_pre is defined else (_builder_kickstart_pre if _builder_kickstart_pre is defined else None) | default(None) }}"
+
 builder_kickstart_options:
 - lang en_US.UTF-8
 - keyboard us
@@ -26,3 +30,4 @@ builder_kickstart_options:
 _builder_kickstart_post:
 - "{{ lookup('ansible.builtin.template', '../templates/kickstart_post.j2')}}"
 builder_kickstart_post: "{{ _builder_kickstart_post + additional_kickstart_post if additional_kickstart_post is defined else (_builder_kickstart_post if _builder_kickstart_post is defined else None) | default(None) }}"
+
