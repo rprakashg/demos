@@ -149,3 +149,4 @@ changelogs/.plugin-cache.yaml
 /.vscode/settings.json
 
 playbooks/vars/
+playbooks/inventory
