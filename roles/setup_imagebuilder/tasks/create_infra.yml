@@ -1,4 +1,14 @@
 ---
+- name: get ami for region
+  block:
+  - name: get latest ami for region
+    ansible.builtin.shell: |
+      aws ec2 describe-images --region {{ region }} --filters 'Name=name,Values=RHEL-9.0.0_HVM-*' 'Name=architecture,Values=x86_64' 'Name=is-public,Values=true' --query 'reverse(sort_by(Images, &CreationDate))[*].{name: Name, id: ImageId, architecture: Architecture}' | jq -r '.[0].id'
+    register: get_ami_output
+  - name: set ami in fact
+    set_fact:
+      ami: "{{ get_ami_output.stdout }}"
+      
 - name: generate tf scripts
   block:
   - name: create temp directory to store terraform scripts
