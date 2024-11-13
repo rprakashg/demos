@@ -147,3 +147,5 @@ changelogs/.plugin-cache.yaml
 
 # VSCode settings file
 /.vscode/settings.json
+
+./playbooks/vars/
