@@ -11,7 +11,7 @@
     vars:
       builder_blueprint_name: rhde
       builder_blueprint_description: "Base Red Hat Device Edge 9.4 blueprint"
-      builder_blueprint_distro: "rhel-94"
+      builder_blueprint_distro: "rhel-9"
       builder_compose_pkgs:
       - cockpit
       - cockpit-ostree
