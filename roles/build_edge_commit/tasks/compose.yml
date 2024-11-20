@@ -55,7 +55,7 @@
 
   - name: download artifact
     ansible.builtin.shell: |
-      composer-cli compose image {{ job_id }} --filename {{ artifact_dir }}/{{ blueprint_name }}_{{ blueprint_version }}.tar
+      composer-cli compose image {{ job_id }} --filename {{ artifact_dir }}/{{ builder_blueprint_name }}_{{ blueprint_version }}.tar
 
   - name: untar artifact
     ansible.builtin.unarchive:

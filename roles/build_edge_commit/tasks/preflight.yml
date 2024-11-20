@@ -45,6 +45,14 @@
   infra.osbuild.push_blueprint:
     src: "{{ builder_blueprint_file }}"
 
+- name: Get new blueprint version
+  ansible.builtin.shell: composer-cli --json blueprints show "{{ builder_blueprint_name }}" | jq -r ".[].body.blueprints[].version"
+  register: new_blueprint_version_result
+
+- name: Setting current blueprint version
+  ansible.builtin.set_fact:
+    blueprint_version: "{{ new_blueprint_version_result.stdout }}"
+
 - name: check if dev repo is already initialized
   become: true
   ansible.builtin.stat:
