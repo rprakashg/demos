@@ -1,0 +1,28 @@
+---
+- name: start
+  ansible.builtin.debug:
+    msg: "Start: Configure self hosted github actions runner"
+
+- name: create directory to install the github actions runner
+  ansible.builtin.file:
+    path: ./actions-runner
+    state: directory
+    mode: '0755'
+
+- name: download the latest runner package
+  ansible.builtin.get_url:
+    url: "{{ runner_package_download_url }}"
+    dest: ./actions-runner
+    mode: '0755'
+
+- name: extract the installer
+  ansible.builtin.unarchive:
+    src: ./actions-runner/actions-runner-linux-x64-2.320.0.tar.gz
+    dest: ./actions-runner
+    remote_src: yes
+
+- name: alias docker
+  ansible.builtin.lineinfile:
+    dest: "~/.bash_profile"
+    line: |
+      alias docker=podman

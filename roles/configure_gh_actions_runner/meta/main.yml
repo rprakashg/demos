@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  role_name: "configure_gh_actions_runner"
+  standalone: false
+  company: ""
+  description: >
+    Configures the imagebuilder host as the self hosted GitHub actions runner
+  author: rprakashg
+  license: "GPL-3.0-or-later"
+  min_ansible_version: "2.12"
+  platforms:
+  galaxy_tags:
+    - edge
+    - rhel
+    - os
+    - ostree
+    - immutable
+dependencies: []
