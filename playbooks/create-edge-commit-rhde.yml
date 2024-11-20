@@ -1,0 +1,58 @@
+---
+- name: Create edge commit
+  hosts: imagebuilder
+  tasks:
+  - name: load secrets from ansible vault
+    include_vars:
+      file: "./vars/secrets.yml"
+  - name: build edge commit
+    ansible.builtin.include_role:
+      name: rprakashg.demos.build_edge_commit
+    vars:
+      builder_blueprint_name: rhde
+      builder_blueprint_description: "Base Red Hat Device Edge 9.4 blueprint"
+      builder_blueprint_distro: "rhel-94"
+      builder_compose_pkgs:
+      - cockpit
+      - cockpit-ostree
+      - cockpit-podman
+      - greenboot
+      - greenboot-grub2
+      - greenboot-default-health-checks
+      builder_compose_customizations:
+        services:
+          enabled: ["cockpit.socket", "podman.socket", "podman.service", "firewalld", "rpm-ostreed-automatic.timer", "podman-auto-update.timer", "applyupdate.timer"]
+        firewall:
+          services:
+            enabled: ["http", "https", "ssh", "cockpit"]
+            disabled: ["telnet"]
+          ports: ["8080:tcp", "9090:tcp"]
+        directories:
+        - path: "/etc/systemd/system/podman-auto-update.timer.d"
+        files:
+        - path: "/etc/systemd/system/podman-auto-update.timer.d/splay.conf"
+          contents: |
+            [Timer]
+            RandomizedDelaySec=7200
+        - path: "/etc/rpm-ostreed.conf"
+          contents: |
+            [Daemon]
+            AutomaticUpdatePolicy=stage
+        - path: "/etc/systemd/system/applyupdate.service"
+          contents: |
+            [Unit]
+            Description=Apply Update Check
+
+            [Service]
+            Type=oneshot
+            ExecStart=/bin/sh -c 'if [[ $(rpm-ostree status -v | grep "Staged: yes") ]]; then systemctl --message="Applying OTA update" reboot; else logger "Running latest available update"; fi
+        - path: "/etc/systemd/system/applyupdate.timer"
+          contents: |
+            [Unit]
+            Description=Daily Update Reboot Check
+
+            [Timer]
+            OnCalendar=Sun *-*-* 00:00:00
+
+            [Install]
+            WantedBy=multi-user.target
