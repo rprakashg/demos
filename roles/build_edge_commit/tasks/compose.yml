@@ -81,19 +81,19 @@
     - name: extract commit from artifact
       ansible.builtin.command:
         cmd: "ostree --repo=repo pull-local {{ artifact_dir }}/repo {{ checksum }}"
-        chdir: "/var/www/html/{{ blueprint_name }}"
+        chdir: "/var/www/html/{{ builder_blueprint_name }}"
       changed_when: true
 
     - name: commit changes
       ansible.builtin.command:
         cmd: ostree --repo=repo commit -b "{{ blueprint_rev }}" -s "Release {{ blueprint_version }}" --add-metadata-string="blueprint={{ blueprint_name }}" --add-metadata-string="version={{ blueprint_version }}" --tree=ref={{ checksum }}
-        chdir: "/var/www/html/{{ blueprint_name }}"
+        chdir: "/var/www/html/{{ builder_blueprint_name }}"
       changed_when: true 
 
     - name: copy compose.json
       ansible.builtin.copy:
         src: "{{ artifact_dir }}/compose.json"
-        dest: "/var/www/html/{{ blueprint_name }}/{{ checksum }}-compose.json"
+        dest: "/var/www/html/{{ builder_blueprint_name }}/{{ checksum }}-compose.json"
         remote_src: yes
 
 - name: Delete artifacts dir
