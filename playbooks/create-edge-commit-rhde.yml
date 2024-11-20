@@ -31,15 +31,15 @@
         - path: "/etc/systemd/system/podman-auto-update.timer.d"
         files:
         - path: "/etc/systemd/system/podman-auto-update.timer.d/splay.conf"
-          contents: |
+          data: |
             [Timer]
             RandomizedDelaySec=7200
         - path: "/etc/rpm-ostreed.conf"
-          contents: |
+          data: |
             [Daemon]
             AutomaticUpdatePolicy=stage
         - path: "/etc/systemd/system/applyupdate.service"
-          contents: |
+          data: |
             [Unit]
             Description=Apply Update Check
 
@@ -47,7 +47,7 @@
             Type=oneshot
             ExecStart=/bin/sh -c 'if [[ $(rpm-ostree status -v | grep "Staged: yes") ]]; then systemctl --message="Applying OTA update" reboot; else logger "Running latest available update"; fi
         - path: "/etc/systemd/system/applyupdate.timer"
-          contents: |
+          data: |
             [Unit]
             Description=Daily Update Reboot Check
 

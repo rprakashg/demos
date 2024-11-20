@@ -1,7 +1,7 @@
 ---
 - name: Check whether components listed in blueprint and dependencies are valid
   ansible.builtin.shell: |
-    composer-cli --json blueprints depsolve {{ blueprint_name }} | jq -r ".[].body.errors | length"
+    composer-cli --json blueprints depsolve {{ builder_blueprint_name }} | jq -r ".[].body.errors | length"
   register: depsolve_result
 
 - name: fail when errors
@@ -15,7 +15,7 @@
   block:
   - name: create edge commit
     ansible.builtin.shell: |
-      composer-cli --json compose start-ostree {{ blueprint_name }} edge-commit | jq -r ".[].body.build_id"
+      composer-cli --json compose start-ostree {{ builder_blueprint_name }} edge-commit | jq -r ".[].body.build_id"
     register: edge_commit_result
   - name: set job id
     set_fact:
@@ -26,7 +26,7 @@
   block:
   - name: create update commit    
     ansible.builtin.shell: |
-      composer-cli --json compose start-ostree {{ blueprint_name }} edge-commit --url="{{ ostree_url }}" --ref="{{ blueprint_rev }}" | jq -r ".[].body.build_id"
+      composer-cli --json compose start-ostree {{ builder_blueprint_name }} edge-commit --url="{{ ostree_url }}" --ref="{{ blueprint_rev }}" | jq -r ".[].body.build_id"
     register: update_commit_result
   - name: set job id
     set_fact:
@@ -46,7 +46,7 @@
   - name: create a temp dir
     ansible.builtin.tempfile:
       state: directory
-      suffix: "{{ blueprint_name }}"
+      suffix: "{{ builder_blueprint_name }}"
     register: tempdir_result
 
   - name: set artifact dir
@@ -59,7 +59,7 @@
 
   - name: untar artifact
     ansible.builtin.unarchive:
-      src: "{{ artifact_dir }}/{{ blueprint_name }}_{{ blueprint_version }}.tar"
+      src: "{{ artifact_dir }}/{{ builder_blueprint_name }}_{{ blueprint_version }}.tar"
       dest: "{{ artifact_dir }}"
       remote_src: true
 
