@@ -1,0 +1,10 @@
+---
+- name: Configure image builder host as a self hosted github actions runner
+  hosts: imagebuilder
+  tasks:
+  - name: load secrets from ansible vault
+    include_vars:
+      file: "./vars/secrets.yml"
+  - name: Configure as Self hosted GH actions runner
+    nsible.builtin.include_role:
+      name: rprakashg.demos.configure_gh_actions_runner
