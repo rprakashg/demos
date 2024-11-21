@@ -27,8 +27,29 @@
       content: | 
         provider "aws" {
           region = var.region
+
+          # Make it faster by skipping something
+          skip_metadata_api_check     = true
+          skip_region_validation      = true
+          skip_credentials_validation = true
+
+          # skip_requesting_account_id should be disabled to generate valid ARN in apigatewayv2_api_execution_arn
+          skip_requesting_account_id = false
         }
         
+        provider "aws" {
+          region = us-east-1
+          alias = acm
+    
+          # Make it faster by skipping something
+          skip_metadata_api_check     = true
+          skip_region_validation      = true
+          skip_credentials_validation = true
+
+          # skip_requesting_account_id should be disabled to generate valid ARN in apigatewayv2_api_execution_arn
+          skip_requesting_account_id = false
+        }
+
         data "aws_availability_zones" "available" {}
         data "aws_caller_identity" "current" {}
         data "aws_route53_zone" "this" {
@@ -617,7 +638,11 @@
         module "acm" {
           source  = "terraform-aws-modules/acm/aws"
           version = "~> 4.0"
-            
+
+          providers = {
+            aws = aws.acm
+          }  
+
           domain_name               = var.base_domain
           zone_id                   = data.aws_route53_zone.this.id
           subject_alternative_names = ["*.${var.base_domain}"]
