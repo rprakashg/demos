@@ -2,7 +2,7 @@
 - name: Install rhc
   ansible.builtin.dnf:
     state: latest
-    name: "dhc"
+    name: "rhc"
 
 - name: register the system
   ansible.builtin.shell: |
