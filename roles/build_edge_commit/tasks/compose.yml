@@ -97,10 +97,10 @@
         remote_src: yes
 
     - name: sync folder to s3
-      community.aws.aws_s3:
+      community.aws.s3_sync:
         bucket: "{{ ostree_bucket_name }}"
-        src: "/var/www/html/{{ builder_blueprint_name }}"
-        mode: synchronize
+        file_root: "/var/www/html/{{ builder_blueprint_name }}"
+        mode: push
       register: sync_result
     - name: display sync result
       ansible.builtin.debug:
