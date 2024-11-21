@@ -31,7 +31,9 @@
         
         data "aws_availability_zones" "available" {}
         data "aws_caller_identity" "current" {}
-
+        data "aws_route53_zone" "this" {
+          name = var.base_domain
+        }
         data "aws_canonical_user_id" "current" {}
         data "aws_cloudfront_log_delivery_canonical_user_id" "cloudfront" {}
 
