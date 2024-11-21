@@ -32,6 +32,9 @@
         data "aws_availability_zones" "available" {}
         data "aws_caller_identity" "current" {}
 
+        data "aws_canonical_user_id" "current" {}
+        data "aws_cloudfront_log_delivery_canonical_user_id" "cloudfront" {}
+
         resource "aws_key_pair" "sshkeypair" {
           key_name   = var.ssh_key
           public_key = file("~/.ssh/${var.ssh_key}.pub")
@@ -103,6 +106,21 @@
           type = string
         }
         
+        variable "ostree_bucket_name" {
+          description = "S3 bucket to storing OSTree content"
+          type = string
+        }
+
+        variable "base_domain" {
+          description = "Base Route53 domain"
+          type = string
+        }
+
+        variable "subdomain" {
+          description = "OSTree subdomain"
+          type = string
+        }
+
         # Imagebuilder server
         module "ec2" {
           source  = "terraform-aws-modules/ec2-instance/aws"
@@ -533,24 +551,6 @@
           versioning = {
             enabled = true
           }
-          
-          policy = <<EOF
-          {
-            "Version": "2012-10-17",
-            "Statement": [
-              {
-                "Effect": "Allow",
-                "Principal": "*",
-                "Action": "s3:GetObject",
-                "Resource": [
-                  "arn:aws:s3:::${var.iso_bucket_name}",
-                  "arn:aws:s3:::${var.iso_bucket_name}/*"
-                ]
-              }
-            ]
-          }
-          EOF
-
           tags = local.tags
         }
 
@@ -572,6 +572,160 @@
             enabled = true
           }
           tags = local.tags
+        }
+
+        #S3 bucket to store ostree content
+        module "ostree-repos" {
+            source  = "terraform-aws-modules/s3-bucket/aws"
+            version = "4.1.2"
+
+            bucket      = var.ostree_bucket_name
+
+            # For example only
+            force_destroy = true
+
+            tags = local.tags     
+        }
+
+        #log bucket for cdn
+        module "log_bucket" {
+          source  = "terraform-aws-modules/s3-bucket/aws"
+          version = "4.1.2"
+
+          bucket = "cdnlogs-${var.stack}"
+
+          control_object_ownership = true
+          object_ownership         = "ObjectWriter"
+
+          grant = [{
+            type       = "CanonicalUser"
+            permission = "FULL_CONTROL"
+            id         = data.aws_canonical_user_id.current.id
+            }, {
+            type       = "CanonicalUser"
+            permission = "FULL_CONTROL"
+            id         = data.aws_cloudfront_log_delivery_canonical_user_id.cloudfront.id
+            # Ref. https://github.com/terraform-providers/terraform-provider-aws/issues/12512
+            # Ref. https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/AccessLogs.html
+          }]
+          force_destroy = true
+        }
+
+        #cert
+        module "acm" {
+          source  = "terraform-aws-modules/acm/aws"
+          version = "~> 4.0"
+            
+          domain_name               = var.domain
+          zone_id                   = data.aws_route53_zone.this.id
+          subject_alternative_names = ["*.${var.base_domain}"]
+        }
+
+        # CDN for serving ostree content
+        module "cloudfront" {
+          source  = "terraform-aws-modules/cloudfront/aws"
+          version = "3.4.1"
+          
+          enabled             = true
+          aliases             = ["${var.subdomain}.${var.base_domain}"]
+          staging             = false
+          http_version        = "http2and3"     
+          is_ipv6_enabled     = false
+          price_class         = "PriceClass_All"
+          retain_on_delete    = false
+          wait_for_deployment = false
+
+          continuous_deployment_policy_id = null
+
+          create_origin_access_identity = true
+          origin_access_identities = {
+              s3_oai = "S3 Origin Access Identity for Cloudfront"
+          }
+
+          origin = {
+              s3 = {
+                  domain_name = module.ostree-repos.s3_bucket_bucket_regional_domain_name
+                  s3_origin_config = {
+                      origin_access_identity = "s3_oai" # key in `origin_access_identities`
+                  }
+              }
+          }
+
+          default_cache_behavior = {
+              path_pattern           = "/*"
+              target_origin_id       = "s3"
+              viewer_protocol_policy = "allow-all"
+              allowed_methods        = ["GET", "HEAD", "OPTIONS"]
+              cached_methods         = ["GET", "HEAD"]
+          }
+
+          viewer_certificate = {
+              acm_certificate_arn = module.acm.acm_certificate_arn
+              ssl_support_method  = "sni-only"
+          }
+
+          logging_config = {
+            bucket = module.log_bucket.s3_bucket_bucket_domain_name
+            prefix = "cloudfront"
+          }
+        }
+
+        # IAM Role and Policy definitions for CDN
+        data "aws_iam_policy_document" "s3_policy" {
+          # Origin Access Identities
+          statement {
+            actions   = ["s3:GetObject", "s3:ListBucket"]
+            resources = [
+                "${module.ostree-repos.s3_bucket_arn}", "${module.ostree-repos.s3_bucket_arn}/*"
+            ]
+            principals {
+              type        = "AWS"
+              identifiers = module.cloudfront.cloudfront_origin_access_identity_iam_arns
+            }
+          }
+
+          # Origin Access Controls
+          statement {
+            actions   = ["s3:GetObject", "s3:ListBucket"]
+            resources = [
+                "${module.ostree-repos.s3_bucket_arn}",
+                "${module.ostree-repos.s3_bucket_arn}/*"
+            ]
+            principals {
+              type        = "Service"
+              identifiers = ["cloudfront.amazonaws.com"]
+            }
+            condition {
+              test     = "StringEquals"
+              variable = "aws:SourceArn"
+              values   = [module.cloudfront.cloudfront_distribution_arn]
+            }
+          }
+        }
+
+        # Attach policy to bucket
+        resource "aws_s3_bucket_policy" "bucket_policy" {
+          bucket = module.ostree-repos.s3_bucket_id
+          policy = data.aws_iam_policy_document.s3_policy.json
+        }
+
+        #R53 record for ostree subdomain
+        module "records" {
+          source  = "terraform-aws-modules/route53/aws//modules/records"
+          version = "~> 2.0"
+
+          zone_id = data.aws_route53_zone.this.zone_id
+
+          records = [
+            {
+              name = var.subdomain
+              type = "A"
+              alias = {
+                name    = module.cloudfront.cloudfront_distribution_domain_name
+                zone_id = module.cloudfront.cloudfront_distribution_hosted_zone_id
+              }
+            },
+          ]
         }
 
   - name: generate tfvars
