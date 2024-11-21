@@ -99,7 +99,7 @@
     - name: sync folder to s3
       community.aws.s3_sync:
         bucket: "{{ ostree_bucket_name }}"
-        key-prefix: "{{ builder_blueprint_name }}"
+        key_prefix: "{{ builder_blueprint_name }}"
         file_root: "/var/www/html/{{ builder_blueprint_name }}"
         storage_class: "STANDARD"
       register: sync_result
