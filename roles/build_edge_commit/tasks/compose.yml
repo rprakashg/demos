@@ -102,10 +102,7 @@
         key_prefix: "{{ builder_blueprint_name }}"
         file_root: "/var/www/html/{{ builder_blueprint_name }}"
         storage_class: "STANDARD"
-      register: sync_result
-    - name: display sync result
-      ansible.builtin.debug:
-        var: sync_result
+
 - name: Delete artifacts dir
   ansible.builtin.file:
     path: "{{ artifact_dir }}"
