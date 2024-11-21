@@ -83,7 +83,7 @@
         ansible.builtin.shell: |
           ostree --repo="/var/www/html/{{ builder_blueprint_name }}/repo" config set core.gpg-verify true
       #- name: create a new GPG key for signed commits
-
+      
 - name: delete temp file
   ansible.builtin.file:
     state: absent

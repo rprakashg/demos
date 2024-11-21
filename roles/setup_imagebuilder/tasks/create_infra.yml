@@ -236,7 +236,9 @@
                   "arn:aws:s3:::${var.iso_bucket_name}",
                   "arn:aws:s3:::${var.iso_bucket_name}/*",
                   "arn:aws:s3:::${var.ami_bucket_name}",
-                  "arn:aws:s3:::${var.ami_bucket_name}/*"
+                  "arn:aws:s3:::${var.ami_bucket_name}/*",
+                  "arn:aws:s3:::${var.ostree_bucket_name}",
+                  "arn:aws:s3:::${var.ostree_bucket_name}/*",
                 ]
               },
               {

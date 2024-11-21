@@ -6,3 +6,5 @@ retries: 100
 delay: 60
 
 ostree_url: ""
+
+ostree_bucket_name: "rhde-repos"

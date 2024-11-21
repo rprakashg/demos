@@ -96,6 +96,15 @@
         dest: "/var/www/html/{{ builder_blueprint_name }}/{{ checksum }}-compose.json"
         remote_src: yes
 
+    - name: sync folder to s3
+      community.aws.aws_s3:
+        bucket: "{{ ostree_bucket_name }}"
+        src: "/var/www/html/{{ builder_blueprint_name }}"
+        mode: synchronize
+      register: sync_result
+    - name: display sync result
+      ansible.builtin.debug:
+        var: sync_result
 - name: Delete artifacts dir
   ansible.builtin.file:
     path: "{{ artifact_dir }}"
