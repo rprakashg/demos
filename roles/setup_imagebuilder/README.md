@@ -29,19 +29,6 @@ Table below shows variables you can set when using this role
 | microshift | True | Enable Microshift required if building images with Microshift bits |
 | microshift_release | 4.16 | Microsoft release |
 
-## Create an inventory file
-This step is only required if you run this role with create_infra=false and provisioned the infra ahead of time.
-
-```yaml
----
-all:
-  hosts:
-    imagebuilder:
-      ansible_host: <replace with imagebuilder host>
-      ansible_port: 22
-      ansible_user: admin
-```
-
 ## Clone this repo
 Clone this repo to your local machine and switch to `demos` directory as shown below
 
@@ -51,23 +38,37 @@ git clone git@github.com:rprakashg/demos.git
 cd demos
 ```
 
-## Create ansible vault
+## Store secrets in ansible vault
+Role requires some secret values set. Table below describes what they are
+
+| Name        | Purpose | 
+|------       | ------- | 
+| rhuser | Red Hat User Account |
+| rhpassword | Red Hat User Account Password |
+| admin_user | Admin user to create on device |
+| admin_password | Admin user password on the device |
+| offline_token | Red Hat Offline token, this is used to download redhat pullsecret |
+| admin_ssh_key | SSH key for admin user on device |
+
 Create ansible vault secrets file by running command below
 
 ```sh
 ansible-vault create playbooks/vars/secrets.yml
 ```
 
-and store red hat user name and password
+and include snippet below
 
 ```
-rhuser: <fill>
-rhpassword: <fill>
-admin_user: <fill>
-admin_password: <fill>
-offline_token: <fill>
-admin_ssh_key: <fill>
+rhuser: <redacted>
+rhpassword: <redacted>
+admin_user: <redacted>
+admin_password: <redacted>
+offline_token: <redacted>
+admin_ssh_key: <redacted>
 ```
+
+Table below describes that the above secrets
+
 
 Store vault password in an environment variable as shown below
 
