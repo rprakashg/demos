@@ -51,9 +51,9 @@
 
 - name: Configure the runner
   ansible.builtin.shell: |
-    ./config --url https://github.com/{{ github_org }}/{{ github_repo }}
-    --token {{ actions_runner_token }}
-    --unattended
+    ./config.sh --url https://github.com/{{ github_org }}/{{ github_repo }} \
+    --token {{ actions_runner_token }} \
+    --unattended \
     --replace
   args:
     chdir: "{{ _runner_dir }}"

@@ -1,5 +1,5 @@
 ---
 # internals
-_runner_dir: "/opt/actions-runner/"
+_runner_dir: "/opt/actions-runner"
 _runner_package_download_url: "https://github.com/actions/runner/releases/download/v{{ runner_version }}/actions-runner-linux-x64-{{ runner_version }}.tar.gz"
 
