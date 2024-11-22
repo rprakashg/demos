@@ -41,6 +41,7 @@
     headers:
       Authorization: "token {{ github_token }}"
       Accept: "application/vnd.github.v3+json"
+    status_code: 201
     return_content: yes
   register: get_runner_token_result
 
