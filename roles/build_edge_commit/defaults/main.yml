@@ -8,5 +8,3 @@ delay: 60
 ostree_url: ""
 
 ostree_bucket_name: "rhde-repos"
-base_domain: "sandbox2873.opentlc.com"
-subdomain: "ostree"
