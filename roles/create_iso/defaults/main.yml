@@ -3,6 +3,8 @@
 blueprint_name: ""
 microshift: false
 iso_bucket_name: "rhde-isos"
+base_domain: "sandbox2873.opentlc.com"
+subdomain: "ostree"
 
 retries: 100
 delay: 60
