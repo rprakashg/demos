@@ -36,7 +36,7 @@
 
 - name: get the runner registration token
   ansible.builtin.uri:
-    url: "https://api.github.com/repos/{{ github_repo }}/actions/runners/registration-token"
+    url: "https://api.github.com/repos/{{ github_org }}/{{ github_repo }}/actions/runners/registration-token"
     method: POST
     headers:
       Authorization: "token {{ github_token }}"
