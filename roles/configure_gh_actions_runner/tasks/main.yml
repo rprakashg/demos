@@ -50,7 +50,7 @@
     actions_runner_token: "{{ get_runner_token_result.json.token }}"
 
 - name: Configure the runner
-  ansible.builtin.command: >
+  ansible.builtin.shell: |
     ./config --url https://github.com/{{ github_org }}/{{ github_repo }}
     --token {{ actions_runner_token }}
     --unattended
