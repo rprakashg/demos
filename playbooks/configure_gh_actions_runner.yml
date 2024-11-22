@@ -1,6 +1,7 @@
 ---
 - name: Configure image builder host as a self hosted github actions runner
   hosts: imagebuilder
+  become: true
   tasks:
   - name: load secrets from ansible vault
     include_vars:
