@@ -1,3 +1,6 @@
 ---
 # defaults
-runner_package_download_url: "https://github.com/actions/runner/releases/download/v2.320.0/actions-runner-linux-x64-2.320.0.tar.gz"
+runner_version: "2.320.0"
+
+github_repo: rhde-gitops-demo
+github_org: rprakashg-redhat

@@ -3,23 +3,85 @@
   ansible.builtin.debug:
     msg: "Start: Configure self hosted github actions runner"
 
+- name: Install runner dependencies
+  ansible.builtin.dnf:
+    state: latest
+    name: "{{ packages }}"
+    vars:
+      packages:
+      - curl
+
 - name: create directory to install the github actions runner
   ansible.builtin.file:
-    path: ./actions-runner
+    path: "{{ _runner_dir }}"
     state: directory
     mode: '0755'
 
 - name: download the latest runner package
   ansible.builtin.get_url:
-    url: "{{ runner_package_download_url }}"
-    dest: ./actions-runner
+    url: "{{ _runner_package_download_url }}"
+    dest: "{{ _runner_dir }}/actions-runner.tar.gz"
     mode: '0755'
 
 - name: extract the installer
   ansible.builtin.unarchive:
-    src: ./actions-runner/actions-runner-linux-x64-2.320.0.tar.gz
-    dest: ./actions-runner
+    src: "{{ _runner_dir}}/actions-runner.tar.gz"
+    dest: "{{ _runner_dir }}"
     remote_src: yes
+
+- name: delete the tar file
+  ansible.builtin.file:
+    state: absent
+    path: "{{ _runner_dir }}/actions-runner.tar.gz"
+
+- name: get the runner registration token
+  ansible.builtin.uri:
+    url: "https://api.github.com/repos/{{ github_repo }}/actions/runners/registration-token"
+    method: POST
+    headers:
+      Authorization: "token {{ github_token }}"
+      Accept: "application/vnd.github.v3+json"
+    return_content: yes
+  register: get_runner_token_result
+
+- name: Parse the token
+  set_fact:
+    actions_runner_token: "{{ get_runner_token_result.json.token }}"
+
+- name: Configure the runner
+  ansible.builtin.command: >
+    ./config --url https://github.com/{{ github_org }}/{{ github_repo }}
+    --token {{ actions_runner_token }}
+    --unattended
+    --replace
+  args:
+    chdir: "{{ _runner_dir }}"
+
+- name: Create a systemd service for actions runner
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/actions-runner.service
+    content: |
+      [Unit]
+      Description=Github Actions Runner Service
+      After=network.target
+
+      [Service]
+      ExecStart={{ _runner_dir }}/run.sh
+      WorkingDirectory={{ _runner_dir }}
+      Restart=Always
+      RestartSec=5
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: Reload systemd
+  ansible.builtin.command: systemctm daemon-reload
+
+- name: Start the actions runner service
+  systemd:
+    name: actions-runner
+    enabled: True
+    state: started
 
 - name: alias docker
   ansible.builtin.lineinfile:
