@@ -19,7 +19,6 @@ Table below shows variables you can set when using this role
 | instance_name | imagebuilder | Name of EC2 instance |
 | instance_type | m5.xlarge | EC2 instance type to use |
 | ssh_key | ec2 | SSH key to use for EC2 |
-| ami | ami-0f7197c592205b389 | AMI ID to use |
 | my_ip | 136.27.40.26/32 | Your default IP to allow ssh traffic |
 | iso_storage_bucket | rhde-isos | S3 Bucket for storing ISO installer images |
 | ami_bucket_name | rhde-amis | S3 Bucket for storing Snapshot for AMIs |
