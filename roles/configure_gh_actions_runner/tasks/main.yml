@@ -7,9 +7,9 @@
   ansible.builtin.dnf:
     state: latest
     name: "{{ packages }}"
-    vars:
-      packages:
-      - curl
+  vars:
+    packages:
+    - curl
 
 - name: create directory to install the github actions runner
   ansible.builtin.file:
