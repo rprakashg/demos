@@ -5,6 +5,9 @@ blueprint_name: ""
 ami_bucket_name: "rhde-amis"
 aws_region: us-west-2
 
+base_domain: "sandbox2873.opentlc.com"
+subdomain: "ostree"
+
 retries: 100
 delay: 60
 

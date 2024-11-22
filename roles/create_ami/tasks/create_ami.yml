@@ -45,7 +45,7 @@
   block:
   - name: set ostree url
     ansible.builtin.set_fact:
-      ostree_repo_url: "http://{{ ansible_host }}/{{ blueprint_name }}/repo"
+      ostree_repo_url: "http://{{ subdomain }}.{{ base_domain }}/{{ blueprint_name }}/repo"
   - name: start compose
     ansible.builtin.shell: |
       composer-cli --json compose start-ostree {{ builder_blueprint_name }} edge-ami --ref="{{ blueprint_ref }}" --url="{{ ostree_repo_url }}" | jq -r ".[].body.build_id"
