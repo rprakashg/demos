@@ -72,12 +72,14 @@
       WorkingDirectory={{ _runner_dir }}
       Restart=Always
       RestartSec=5
+      User=admin
+      Group=weldr
 
       [Install]
       WantedBy=multi-user.target
 
 - name: Reload systemd
-  ansible.builtin.command: systemctm daemon-reload
+  ansible.builtin.command: systemctl daemon-reload
 
 - name: Start the actions runner service
   systemd:
