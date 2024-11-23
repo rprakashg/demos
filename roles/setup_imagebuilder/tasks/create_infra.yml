@@ -279,6 +279,16 @@
                   "s3:ListAllMyBuckets"
                 ],
                 Resource = "*"
+              },
+              {
+                Effect = "Allow",
+                Action = [
+                  "cloudfront:CreateInvalidation",
+                  "cloudfront:GetDistribution",
+                  "cloudfront:GetInvalidation",
+                  "cloudfront:ListDistributions"
+                ],
+                "Resource": module.cloudfront.cloudfront_distribution_arn
               }
             ]
           })
@@ -706,7 +716,8 @@
           statement {
             actions   = ["s3:GetObject", "s3:ListBucket"]
             resources = [
-                "${module.ostree-repos.s3_bucket_arn}", "${module.ostree-repos.s3_bucket_arn}/*"
+                "${module.ostree-repos.s3_bucket_arn}", 
+                "${module.ostree-repos.s3_bucket_arn}/*"
             ]
             principals {
               type        = "AWS"

@@ -9,6 +9,21 @@
     - blueprint_name != ""
     fail_msg: "blueprint must be specified to build image"
 
+- name: Get blueprint version
+  ansible.builtin.shell: composer-cli --json blueprints show "{{ builder_blueprint_name }}" | jq -r ".[].body.blueprints[].version"
+  register: blueprint_show_result
+  ignore_errors: yes
+
+- name: check a blueprint version was retrieved
+  assert:
+    that:
+    - blueprint_show_result != ""
+    fail_msg: "Blueprint {{ blueprint_name }} doesnt exist, build edge commit first"
+
+- name: set version in fact
+  ansible.builtin.set_fact:
+    blueprint_version: "{{ blueprint_show_result.stdout }}"
+
 - name: create blueprint to build edge ami
   block:
   - name: create a temp file for edge ami blueprint
@@ -146,9 +161,9 @@
   - name: register
     ansible.builtin.shell: |
       aws ec2 register-image \
-        --name "{{ blueprint_name }}-ami-x86" \
+        --name "{{ blueprint_name }}-{{ blueprint_version }}-ami-x86" \
         --architecture x86_64 \
-        --tag-specifications 'ResourceType=image,Tags=[{Key=Name,Value={{ blueprint_name }}-ami-x86}]' \
+        --tag-specifications 'ResourceType=image,Tags=[{Key=Name,Value={{ blueprint_name }}-{{ blueprint_version }}-ami-x86}]' \
         --root-device-name /dev/sda1 \
         --block-device-mappings DeviceName=/dev/sda1,Ebs={SnapshotId={{ snapshot_id }}} DeviceName=/dev/sdh,Ebs={VolumeSize=100} \
         --boot-mode uefi-preferred --query="ImageId" --output=text \
