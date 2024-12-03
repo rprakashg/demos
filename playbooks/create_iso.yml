@@ -10,3 +10,5 @@
       name: rprakashg.demos.create_iso
     vars:
       blueprint_name: "rhde"
+      base_domain: "sandbox2873.opentlc.com"
+      subdomain: "ostree"
