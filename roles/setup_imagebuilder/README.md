@@ -64,6 +64,7 @@ admin_user: <redacted>
 admin_password: <redacted>
 offline_token: <redacted>
 admin_ssh_key: <redacted>
+signing_key_passphrase: <redacted>
 ```
 
 Table below describes that the above secrets

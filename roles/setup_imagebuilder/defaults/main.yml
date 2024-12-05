@@ -17,4 +17,8 @@ subdomain: "ostree"
 
 microshift: true
 microshift_release: 4.16
-    
+
+create_gpg_key: true    
+build_user: "buildsystem"
+build_user_email: "buildsystem@no-reply.com"
+key_expiration: "1y"

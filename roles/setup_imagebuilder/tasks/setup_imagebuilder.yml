@@ -34,7 +34,8 @@
       - createrepo
       - tree
       - python3-pip
-      - python3-toml     
+      - python3-toml
+      - gnupg    
   - name: enable cockpit/composer/firewalld/podman
     ansible.builtin.systemd:
       state: started
@@ -161,6 +162,35 @@
         [containers]
         auth_file_path = "/etc/osbuild-worker/pull-secret.json"
       dest: /etc/osbuild-worker/osbuild-worker.toml
+
+- name: generate a GPG key for signing commits built
+  when: create_gpg_key | default(true)
+  block:
+  - name: generate the key
+    ansible.builtin.shell: |
+      gpg --batch --generate-key <<EOF
+        %echo Generating a GPG key
+        Key-Type: RSA
+        Key-Length: 2048
+        Subkey-Type: RSA
+        Subkey-Length: 2048
+        Name-Real: "{{ build_user }}"
+        Name-Email: "{{ build_user_email }}"
+        Expire-Date: "{{ key_expiration }}"
+        Passphrase: "{{ signing_key_passphrase }}"
+        %commit
+        %echo Done
+      EOF
+  - name: List keys
+    ansible.builtin.shell: |
+      gpg --list-keys
+    register: list_keys_result
+  - name: Extract the Key ID
+    ansible.builtin.set_fact:
+      gpg_key_id: "{{ list_keys_result.stdout | regex_search('pub\\s+\\S+\\s+\\S+\\s+\\[(\\S+)\\n\\s+([A-F0-9])', '\\2') }}"
+  - name: Debug key id
+    ansible.builtin.debug:
+      msg: "GPG Key ID: {{ gpg_key_id }}"
 
 - name: Add user to weldr
   ansible.builtin.user:

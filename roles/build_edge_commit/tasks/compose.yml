@@ -84,11 +84,19 @@
         chdir: "/var/www/html/{{ builder_blueprint_name }}"
       changed_when: true
 
-    - name: commit changes
+    - name: commit changes when signed commits == false
+      when: signed_commits | default(false)
       ansible.builtin.command:
         cmd: ostree --repo=repo commit -b "{{ blueprint_rev }}" -s "Release {{ blueprint_version }}" --add-metadata-string="blueprint={{ builder_blueprint_name }}" --add-metadata-string="version={{ blueprint_version }}" --tree=ref={{ checksum }}
         chdir: "/var/www/html/{{ builder_blueprint_name }}"
       changed_when: true 
+    
+    - name: commit changes when signed commits == true
+      when: signed_commits | default(true)
+      ansible.builtin.command:
+        cmd: ostree --repo=repo commit -b "{{ blueprint_rev }}" --gpg-sign="{{ gpg_key_id }}" -s "Release {{ blueprint_version }}" --add-metadata-string="blueprint={{ builder_blueprint_name }}" --add-metadata-string="version={{ blueprint_version }}" --tree=ref={{ checksum }}
+        chdir: "/var/www/html/{{ builder_blueprint_name }}"
+      changed_when: true
 
     - name: copy compose.json
       ansible.builtin.copy:

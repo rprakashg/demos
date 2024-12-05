@@ -69,7 +69,6 @@
         path: "/var/www/html/{{ builder_blueprint_name }}"
         state: directory
         mode: "0755"
-
     - name: initialize rpm-ostree repository for blueprint
       ansible.builtin.command:
         chdir: "/var/www/html/{{ builder_blueprint_name }}"
@@ -82,8 +81,32 @@
       - name: set gpg verify in repo config
         ansible.builtin.shell: |
           ostree --repo="/var/www/html/{{ builder_blueprint_name }}/repo" config set core.gpg-verify true
-      #- name: create a new GPG key for signed commits
-      
+      - name: create a temp dir to export the gpg pub key
+        ansible.builtin.
+      - name: get key id
+        ansible.builtin.shell: |
+          gpg --list-keys 
+        register: list_keys_result
+      - name: Extract the Key ID
+        ansible.builtin.set_fact:
+          gpg_key_id: "{{ list_keys_result.stdout | regex_search('pub\\s+\\S+\\s+\\S+\\s+\\[(\\S+)\\n\\s+([A-F0-9])', '\\2') }}"
+      - name: Debug key id
+        ansible.builtin.debug:
+          msg: "GPG Key ID: {{ gpg_key_id }}"
+      - name: create a temp dir to store exported pub key
+        ansible.builtin.tempfile:
+          state: file
+          suffix: asc
+        register: gpg_pub_key_result
+      - name: Set pub key file 
+        ansible.builtin.set_fact:
+          gpg_pub_key: "{{ gpg_pub_key_result.path}}"
+      - name: export the pub key
+        ansible.builtin.shell: |
+          gpg --armor --export {{ gpg_key_id }} > {{ gpg_pub_key }}
+      - name: Import the signing pub key into repo
+        ansible.builtin.shell: |
+          ostree --repo="/var/www/html/{{ builder_blueprint_name }}/repo" gpg-import {{ gpg_pub_key }}
 - name: delete temp file
   ansible.builtin.file:
     state: absent
