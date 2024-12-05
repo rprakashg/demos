@@ -107,6 +107,11 @@
       - name: Import the signing pub key into repo
         ansible.builtin.shell: |
           ostree --repo="/var/www/html/{{ builder_blueprint_name }}/repo" gpg-import {{ gpg_pub_key }}
+      - name: Delete the pub key file
+        ansible.builtin.tempfile:
+          path: "{{ gpg_pub_key }}"
+          state: absent
+
 - name: delete temp file
   ansible.builtin.file:
     state: absent
