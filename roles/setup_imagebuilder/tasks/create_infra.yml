@@ -72,6 +72,9 @@
             azs                     = slice(data.aws_availability_zones.available.names, 0, 2)
             vpc_cidr                = "10.0.0.0/16" 
             account_id              = data.aws_caller_identity.current.account_id
+            iso_bucket              = "${var.iso_bucket_name}-${random_uuid.unique_guid.result}"
+            ami_bucket              = ${var.ami_bucket_name}-${random_uuid.unique_guid.result}
+            ostree_bucket           = ${var.ostree_bucket_name}-${random_uuid.unique_guid.result}
 
             tags = {
                 stack: var.stack
@@ -237,12 +240,12 @@
                 Effect   = "Allow"
                 Action   = "s3:*"
                 Resource = [
-                  "arn:aws:s3:::${var.iso_bucket_name}-${random_uuid.unique_guid.result}",
-                  "arn:aws:s3:::${var.iso_bucket_name}-${random_uuid.unique_guid.result}/*",
-                  "arn:aws:s3:::${var.ami_bucket_name}-${random_uuid.unique_guid.result}",
-                  "arn:aws:s3:::${var.ami_bucket_name}-${random_uuid.unique_guid.result}/*",
-                  "arn:aws:s3:::${var.ostree_bucket_name}-${random_uuid.unique_guid.result}",
-                  "arn:aws:s3:::${var.ostree_bucket_name}-${random_uuid.unique_guid.result}/*",
+                  "arn:aws:s3:::${locals.iso_bucket}",
+                  "arn:aws:s3:::${locals.iso_bucket}/*",
+                  "arn:aws:s3:::${locals.ami_bucket}",
+                  "arn:aws:s3:::${locals.ami_bucket}/*",
+                  "arn:aws:s3:::${locals.ostree_bucket}",
+                  "arn:aws:s3:::${locals.ostree_bucket}/*",
                 ]
               },
               {
@@ -349,8 +352,8 @@
                   "s3:PutObject"
                 ],
                 Resource: [
-                  "arn:aws:s3:::${var.ami_bucket_name}-${random_uuid.unique_guid.result}",
-                  "arn:aws:s3:::${var.ami_bucket_name}-${random_uuid.unique_guid.result}/*"
+                  "arn:aws:s3:::${locals.ami_bucket}",
+                  "arn:aws:s3:::${locals.ami_bucket}/*"
                 ]
               },
               {
@@ -363,8 +366,8 @@
                   "s3:GetBucketAcl"
                 ],
                 Resource: [
-                  "arn:aws:s3:::${var.ami_bucket_name}",
-                  "arn:aws:s3:::${var.ami_bucket_name}/*"
+                  "arn:aws:s3:::${locals.ami_bucket}",
+                  "arn:aws:s3:::${locals.ami_bucket}/*"
                 ]
               },
               {
@@ -574,7 +577,7 @@
           source  = "terraform-aws-modules/s3-bucket/aws"
           version = "4.1.2"
 
-          bucket     = "${var.iso_bucket_name}-${random_uuid.unique_guid.result}"
+          bucket     = "${locals.iso_bucket}"
           acl        = "public-read"
 
           # For example only
@@ -599,7 +602,7 @@
           source  = "terraform-aws-modules/s3-bucket/aws"
           version = "4.1.2"
 
-          bucket = "${var.ami_bucket_name}-${random_uuid.unique_guid.result}"
+          bucket = "${locals.ami_bucket}"
           acl    = "private"
 
           # For example only
@@ -619,7 +622,7 @@
             source  = "terraform-aws-modules/s3-bucket/aws"
             version = "4.1.2"
 
-            bucket  = "${var.ostree_bucket_name}-${random_uuid.unique_guid.result}"
+            bucket  = "${locals.ostree_bucket}"
 
             # For example only
             force_destroy = true
