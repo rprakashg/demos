@@ -10,5 +10,7 @@
       name: rprakashg.demos.create_ami
     vars:
       blueprint_name: "rhde"
+      ami_bucket_name: "rhde-amis"
+      aws_region: us-west-2
       base_domain: "sandbox2873.opentlc.com"
       subdomain: "ostree"

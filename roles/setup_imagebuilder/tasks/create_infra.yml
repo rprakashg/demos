@@ -51,6 +51,10 @@
           skip_requesting_account_id = false
         }
 
+        provider "random" {}
+
+        resource "random_uuid" "unique_guid" {}
+
         data "aws_availability_zones" "available" {}
         data "aws_caller_identity" "current" {}
         data "aws_route53_zone" "this" {
@@ -233,12 +237,12 @@
                 Effect   = "Allow"
                 Action   = "s3:*"
                 Resource = [
-                  "arn:aws:s3:::${var.iso_bucket_name}",
-                  "arn:aws:s3:::${var.iso_bucket_name}/*",
-                  "arn:aws:s3:::${var.ami_bucket_name}",
-                  "arn:aws:s3:::${var.ami_bucket_name}/*",
-                  "arn:aws:s3:::${var.ostree_bucket_name}",
-                  "arn:aws:s3:::${var.ostree_bucket_name}/*",
+                  "arn:aws:s3:::${var.iso_bucket_name}-${random_uuid.unique_guid.result}",
+                  "arn:aws:s3:::${var.iso_bucket_name}-${random_uuid.unique_guid.result}/*",
+                  "arn:aws:s3:::${var.ami_bucket_name}-${random_uuid.unique_guid.result}",
+                  "arn:aws:s3:::${var.ami_bucket_name}-${random_uuid.unique_guid.result}/*",
+                  "arn:aws:s3:::${var.ostree_bucket_name}-${random_uuid.unique_guid.result}",
+                  "arn:aws:s3:::${var.ostree_bucket_name}-${random_uuid.unique_guid.result}/*",
                 ]
               },
               {
@@ -345,8 +349,8 @@
                   "s3:PutObject"
                 ],
                 Resource: [
-                  "arn:aws:s3:::${var.ami_bucket_name}",
-                  "arn:aws:s3:::${var.ami_bucket_name}/*"
+                  "arn:aws:s3:::${var.ami_bucket_name}-${random_uuid.unique_guid.result}",
+                  "arn:aws:s3:::${var.ami_bucket_name}-${random_uuid.unique_guid.result}/*"
                 ]
               },
               {
@@ -570,7 +574,7 @@
           source  = "terraform-aws-modules/s3-bucket/aws"
           version = "4.1.2"
 
-          bucket     = var.iso_bucket_name
+          bucket     = "${var.iso_bucket_name}-${random_uuid.unique_guid.result}"
           acl        = "public-read"
 
           # For example only
@@ -595,7 +599,7 @@
           source  = "terraform-aws-modules/s3-bucket/aws"
           version = "4.1.2"
 
-          bucket = var.ami_bucket_name
+          bucket = "${var.ami_bucket_name}-${random_uuid.unique_guid.result}"
           acl    = "private"
 
           # For example only
@@ -615,7 +619,7 @@
             source  = "terraform-aws-modules/s3-bucket/aws"
             version = "4.1.2"
 
-            bucket      = var.ostree_bucket_name
+            bucket  = "${var.ostree_bucket_name}-${random_uuid.unique_guid.result}"
 
             # For example only
             force_destroy = true

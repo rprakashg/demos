@@ -9,6 +9,9 @@
     ansible.builtin.include_role:
       name: rprakashg.demos.build_edge_commit
     vars:
+      ostree_bucket_name: "rhde-repos"
+      base_domain: "sandbox2873.opentlc.com"
+      subdomain: "ostree"
       builder_blueprint_name: rhde
       builder_blueprint_description: "Base Red Hat Device Edge 9.4 blueprint"
       builder_blueprint_distro: "rhel-9"

@@ -14,7 +14,7 @@
   when: 
   - not blueprint_show_result.stdout == ""
   set_fact:
-    ostree_url: "http://{{ ansible_host }}/{{ builder_blueprint_name }}/repo"
+    ostree_url: "http://{{ subdomain }}.{{ base_domain }}/{{ blueprint_name }}/repo"
 
 - name: debug ostree-url
   when: 

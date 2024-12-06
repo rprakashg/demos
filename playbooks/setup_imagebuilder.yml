@@ -12,3 +12,4 @@
       create_infra: true
       base_domain: sandbox2873.opentlc.com
       subdomain: ostree
+      region: "us-west-2"
