@@ -1,8 +1,8 @@
 ---
 - name: create infrastructure resources
   ansible.builtin.import_tasks: create_infra.yml
-  when: create_infra | default(true)
-
+  when: create_infra == true
+  
 - name: download pull secret
   ansible.builtin.import_tasks: download_pullsecret.yml
   when: offline_token != ""
