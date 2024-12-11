@@ -176,7 +176,7 @@
         Subkey-Length: 2048
         Name-Real: "{{ build_user }}"
         Name-Email: "{{ build_user_email }}"
-        Expire-Date: "{{ key_expiration }}"
+        Expire-Date: {{ key_expiration }}
         Passphrase: "{{ signing_key_passphrase }}"
         %commit
         %echo Done
