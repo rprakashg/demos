@@ -240,12 +240,12 @@
                 Effect   = "Allow"
                 Action   = "s3:*"
                 Resource = [
-                  "arn:aws:s3:::${locals.iso_bucket}",
-                  "arn:aws:s3:::${locals.iso_bucket}/*",
-                  "arn:aws:s3:::${locals.ami_bucket}",
-                  "arn:aws:s3:::${locals.ami_bucket}/*",
-                  "arn:aws:s3:::${locals.ostree_bucket}",
-                  "arn:aws:s3:::${locals.ostree_bucket}/*",
+                  "arn:aws:s3:::${local.iso_bucket}",
+                  "arn:aws:s3:::${local.iso_bucket}/*",
+                  "arn:aws:s3:::${local.ami_bucket}",
+                  "arn:aws:s3:::${local.ami_bucket}/*",
+                  "arn:aws:s3:::${local.ostree_bucket}",
+                  "arn:aws:s3:::${local.ostree_bucket}/*",
                 ]
               },
               {
@@ -352,8 +352,8 @@
                   "s3:PutObject"
                 ],
                 Resource: [
-                  "arn:aws:s3:::${locals.ami_bucket}",
-                  "arn:aws:s3:::${locals.ami_bucket}/*"
+                  "arn:aws:s3:::${local.ami_bucket}",
+                  "arn:aws:s3:::${local.ami_bucket}/*"
                 ]
               },
               {
@@ -366,8 +366,8 @@
                   "s3:GetBucketAcl"
                 ],
                 Resource: [
-                  "arn:aws:s3:::${locals.ami_bucket}",
-                  "arn:aws:s3:::${locals.ami_bucket}/*"
+                  "arn:aws:s3:::${local.ami_bucket}",
+                  "arn:aws:s3:::${local.ami_bucket}/*"
                 ]
               },
               {
@@ -577,7 +577,7 @@
           source  = "terraform-aws-modules/s3-bucket/aws"
           version = "4.1.2"
 
-          bucket     = "${locals.iso_bucket}"
+          bucket     = "${local.iso_bucket}"
           acl        = "public-read"
 
           # For example only
@@ -602,7 +602,7 @@
           source  = "terraform-aws-modules/s3-bucket/aws"
           version = "4.1.2"
 
-          bucket = "${locals.ami_bucket}"
+          bucket = "${local.ami_bucket}"
           acl    = "private"
 
           # For example only
@@ -622,7 +622,7 @@
             source  = "terraform-aws-modules/s3-bucket/aws"
             version = "4.1.2"
 
-            bucket  = "${locals.ostree_bucket}"
+            bucket  = "${local.ostree_bucket}"
 
             # For example only
             force_destroy = true
