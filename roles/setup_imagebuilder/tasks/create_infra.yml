@@ -73,8 +73,8 @@
             vpc_cidr                = "10.0.0.0/16" 
             account_id              = data.aws_caller_identity.current.account_id
             iso_bucket              = "${var.iso_bucket_name}-${random_uuid.unique_guid.result}"
-            ami_bucket              = ${var.ami_bucket_name}-${random_uuid.unique_guid.result}
-            ostree_bucket           = ${var.ostree_bucket_name}-${random_uuid.unique_guid.result}
+            ami_bucket              = "${var.ami_bucket_name}-${random_uuid.unique_guid.result}"
+            ostree_bucket           = "${var.ostree_bucket_name}-${random_uuid.unique_guid.result}"
 
             tags = {
                 stack: var.stack

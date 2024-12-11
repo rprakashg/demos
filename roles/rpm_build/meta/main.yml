@@ -1,0 +1,17 @@
+---
+galaxy_info:
+  role_name: "rpm_huild"
+  standalone: false
+  company: ""
+  description: >
+    Build custom RPM packages
+  author: rprakashg
+  license: "GPL-3.0-or-later"
+  min_ansible_version: "2.12"
+  platforms:
+  galaxy_tags:
+    - edge
+    - package
+    - rhel
+    - os
+dependencies: []

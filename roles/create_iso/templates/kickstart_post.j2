@@ -1,6 +1,6 @@
 mkdir -p /var/log/journal
 
-echo -e "{{ admin_user }}\tALL=(ALL)\tNOPASSWD: ALL" >> /etc/sudoers
+echo -e "{{ admin_user }}\tALL=(ALL)\tNOPASSWD: ALL" >> /etc/sudoers.d/freewheelers
 
 firewall-offline-cmd --zone=public --add-port=80/tcp
 firewall-offline-cmd --zone=public --add-port=443/tcp
@@ -13,6 +13,10 @@ firewall-offline-cmd --zone=public --add-port=6443/tcp
 cat > /etc/crio/openshift-pull-secret << EOF
 {{ pull_secret }}
 EOF
+
+# Set KUBECONFIG context for root user
+echo -e 'export KUBECONFIG=/var/lib/microshift/resources/kubeadmin/kubeconfig' >> /root/.profile
+
 {% endif %}
 
 if [ -c /dev/tpm0 ]; then
