@@ -2,3 +2,4 @@
 - name: Begin RPM build
   ansible.builtin.debug:
     msg: "Starting RPM build"
+    

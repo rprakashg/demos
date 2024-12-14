@@ -81,8 +81,6 @@
       - name: set gpg verify in repo config
         ansible.builtin.shell: |
           ostree --repo="/var/www/html/{{ builder_blueprint_name }}/repo" config set core.gpg-verify true
-      - name: create a temp dir to export the gpg pub key
-        ansible.builtin.
       - name: get key id
         ansible.builtin.shell: |
           gpg --list-keys 
@@ -93,7 +91,7 @@
       - name: Debug key id
         ansible.builtin.debug:
           msg: "GPG Key ID: {{ gpg_key_id }}"
-      - name: create a temp dir to store exported pub key
+      - name: create a temp file to store exported pub key
         ansible.builtin.tempfile:
           state: file
           suffix: asc
