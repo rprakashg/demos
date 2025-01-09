@@ -1,0 +1,25 @@
+---
+- name: make directory to store podman quadlet files
+  ansible.builtin.file:
+    path: /etc/containers/systemd
+    state: directory
+    mode: 755
+- name: make a drop in directory for manufacturing server config
+  ansible.builtin.file:
+    path: /etc/fdo/manufacturing-server.conf.d
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+- name: Install FDO admin tool
+  ansible.builtin.dnf:
+    name: "fdo_admin_cli"
+    state: present
+- name: generate keys and certs
+  ansible.builtin.command: |
+    fdo-admin-tool generate-key-and-cert --destination-dir {{ fdo_keys_dir }} {{ item }}
+  with_items:
+  - diun
+  - manufacturer
+  - device-ca
+  - owner

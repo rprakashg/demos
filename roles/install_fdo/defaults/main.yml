@@ -1,0 +1,14 @@
+---
+# default variables
+fdo_keys_dir: "/etc/fdo/keys"
+
+manufacturing:
+  image: "registry.redhat.io/rhel9/fdo-manufacturing-server"
+  port: 
+    host_port: 8080
+    container_port: 8080
+  volumes:
+  - localpath: "/etc/fdo/keys"
+    containerpath: "/etc/fdo/keys"
+  - localpath: "/etc/fdo/manufacturing-server.conf.d"
+    containerpath: "/etc/fdo/manufacturing-server.conf.d"

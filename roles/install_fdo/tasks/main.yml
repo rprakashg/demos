@@ -1,0 +1,5 @@
+---
+- name: preflight
+  ansible.builtin.import_tasks: preflight.yml
+- name: install fdo manufacturing server
+  ansible.builtin.import_tasks: fdo_manufacturing.yml

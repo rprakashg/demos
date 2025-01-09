@@ -789,11 +789,7 @@
       chdir: "{{ tfdir.path }}"
     register: tf_init_result
     ignore_errors: yes
-  
-  - name: debug init result
-    ansible.builtin.debug:
-      var: tf_init_result.stdout
-    
+      
   - name: plan
     ansible.builtin.command:
       cmd: terraform plan -var-file=input.tfvars
@@ -802,11 +798,6 @@
     register: tf_plan_result
     ignore_errors: yes
   
-  - name: debug plan result
-    ansible.builtin.debug:
-      var: tf_plan_result.stdout
-    when: tf_init_result.rc == 0
-    
   - name: apply
     ansible.builtin.command:
       cmd: terraform apply -auto-approve -var-file=input.tfvars
@@ -815,11 +806,6 @@
     register: tf_apply_result
     ignore_errors: yes
   
-  - name: debug apply result
-    ansible.builtin.debug:
-      var: tf_apply_result.stdout
-    when: tf_plan_result.rc == 0
-
   - name: fail if errors provisioning
     ansible.builtin.fail:
       msg: "Failed to create infrastructure: \n {{ tf_apply_result.stderr }}"

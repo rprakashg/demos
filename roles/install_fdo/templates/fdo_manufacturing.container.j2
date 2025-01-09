@@ -1,0 +1,9 @@
+
+[Container]
+Image={{ image }}
+Name=fdo_manufacturing
+Restart=always
+Port={{ port.host_port }}:{{ port.container_port }}
+{% for v in manufacturing.volumes %}
+Volume={{ localpath }}:{{ container_path }}Z
+{% endfor %}
