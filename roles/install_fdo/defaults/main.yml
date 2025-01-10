@@ -37,6 +37,8 @@ owner_onboarding:
     host_port: 8081
     container_port: 8081
   volumes:
+  - local_path: "/etc/fdo/stores"
+    container_path: "/etc/fdo/stores"
   - local_path: "/etc/fdo/keys"
     container_path: "/etc/fdo/keys"
   - local_path: "/etc/fdo/owner-onboarding-server.conf.d"
