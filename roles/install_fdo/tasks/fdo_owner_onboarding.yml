@@ -3,24 +3,29 @@
   ansible.builtin.template:
     src: "fdo_owner_onboarding.container.j2"
     dest: /etc/containers/systemd/fdo_owner_onboarding.container
+
 - name: Create config file for owner onboarding server container
   ansible.builtin.template:
     src: "owner-onboarding-server.yml.j2"
     dest: /etc/fdo/owner-onboarding-server.conf.d/owner-onboarding-server.yml
     mode: 0644
+
 - name: configure firewall rules
   ansible.builtin.firewalld:
     port: "{{ owner_onboarding.port.host_port | default('8081') }}/tcp"
     state: enabled
     permanent: yes
+
 - name: configure SELinux rules
   ansible.builtin.shell: |
     semanage port -a -t http_port_t -p tcp {{ owner_onboarding.port.host_port | default('8081') }}
   ignore_errors: true
+
 - name: reload firewall
   ansible.builtin.systemd:
     name: firewalld
     state: reloaded
+    
 - name: enable and start owner onboarding server container
   ansible.builtin.systemd:
     name: "{{ owner_onboarding.name }}"
