@@ -4,8 +4,11 @@
     src: "fdo_serviceinfo_api_server.container.j2"
     dest: "/etc/containers/systemd/fdo_serviceinfo_api_server.container"
 - name: Save files 
-
-  
+  ansible.builtin.copy:
+    dest: "{{ item.path }}"
+    content: |
+      {{ item.data }}
+  loop: "{{ serviceinfo.files | list }}"
 - name: create serviceinfo api server config file
   ansible.builtin.template:
     src: "serviceinfo-api-server.yml.j2"

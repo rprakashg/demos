@@ -79,7 +79,6 @@ serviceinfo:
 
       # Ignore dynamic updates if resolv.conf is managed manually
       options no-dynamic
-
   volumes:
   - local_path: "/etc/fdo/stores"
     container_path: "/etc/fdo/stores"  
