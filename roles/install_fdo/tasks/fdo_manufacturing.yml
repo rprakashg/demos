@@ -28,6 +28,6 @@
 
 - name: enable and start manufacturing server container
   ansible.builtin.systemd:
-    name: "fdo_manufacturing.container"
+    name: "{{ manufacturing.name }}"
     state: started
     enabled: yes

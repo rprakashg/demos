@@ -23,6 +23,6 @@
     state: reloaded
 - name: enable and start owner onboarding server container
   ansible.builtin.systemd:
-    name: fdo_owner_onboarding.container
+    name: "{{ owner_onboarding.name }}"
     state: started
     enabled: yes

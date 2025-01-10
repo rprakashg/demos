@@ -28,6 +28,6 @@
     state: reloaded
 - name: enable and start serviceinfo api server container
   ansible.builtin.systemd:
-    name: fdo_serviceinfo_api_server.container
+    name: "{{ serviceinfo.name }}"
     state: started
     enabled: yes

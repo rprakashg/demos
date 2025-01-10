@@ -23,6 +23,6 @@
     state: reloaded
 - name: Start and enable the rendezvous server container
   ansible.builtin.systemd:
-    name: fdo_rendezvous.container
+    name: "{{ rendezvous.name }}"
     state: started
     enabled: yes
