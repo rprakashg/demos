@@ -15,7 +15,7 @@
     dest: /etc/fdo/serviceinfo-api-server.conf.d/serviceinfo-api-server.yml 
 - name: configure firewall rules
   ansible.builtin.firewalld:
-    port: "{{ serviceinfo.port.host_port | default('8083') }}"
+    port: "{{ serviceinfo.port.host_port | default('8083') }}/tcp"
     state: enabled
     permanent: yes
 - name: configure SELinux rules

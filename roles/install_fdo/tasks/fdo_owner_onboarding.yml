@@ -10,7 +10,7 @@
     mode: 0644
 - name: configure firewall rules
   ansible.builtin.firewalld:
-    port: "{{ owner_onboarding.port.host_port | default('8081') }}"
+    port: "{{ owner_onboarding.port.host_port | default('8081') }}/tcp"
     state: enabled
     permanent: yes
 - name: configure SELinux rules

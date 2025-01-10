@@ -10,7 +10,7 @@
     mode: 0644
 - name: configure firewall rules
   ansible.builtin.firewalld:
-    port: "{{ rendezvous.port.host_port | default('8082') }}"
+    port: "{{ rendezvous.port.host_port | default('8082') }}/tcp"
     state: enabled
     permanent: yes
 - name: Set SELinux
