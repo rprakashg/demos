@@ -11,10 +11,14 @@
     mode: '0755'
     owner: root
     group: root
-- name: Install FDO admin tool
+- name: Install FDO tools
   ansible.builtin.dnf:
-    name: "fdo_admin_cli"
+    name: "{{ packages }}"
     state: present
+  vars:
+    packages:
+    - fdo-admin-cli
+    - fdo-owner-cli
 - name: generate keys and certs
   ansible.builtin.command: |
     fdo-admin-tool generate-key-and-cert --destination-dir {{ fdo_keys_dir }} {{ item }}

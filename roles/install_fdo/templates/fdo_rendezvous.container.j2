@@ -1,0 +1,8 @@
+[Container]
+Image={{ rendezvous.image }}
+Name={{ rendezvous.name }}
+Restart=always
+Port={{ rendezvous.port.host_port }}:{{ rendezvous.port.container_port }}
+{% for v in rendezvous.volumes %}
+Volume={{ v.local_path }}:{{ v.container_path }}Z
+{% endfor %}

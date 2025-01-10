@@ -12,11 +12,11 @@
 
 - name: configure firewall rules
   ansible.builtin.firewalld:
-    port: "{{ port.host_port | default('8080')}}/tcp"
+    port: "{{ manufacturing.port.host_port | default('8080')}}/tcp"
     state: enabled
     permanent: yes
 
-- name: Set SELinux port type
+- name: Configure SELinux
   ansible.builtin.shell: |
     semanage port -a -t http_port_t -p tcp {{ manufacturing.port.host_port | default('8080')}}
   ignore_errors: true
@@ -26,7 +26,7 @@
     name: firewalld
     state: reloaded
 
-- name: enable and start manufacturing server
+- name: enable and start manufacturing server container
   ansible.builtin.systemd:
     name: "fdo_manufacturing.container"
     state: started

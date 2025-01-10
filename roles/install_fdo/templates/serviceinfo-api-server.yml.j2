@@ -1,0 +1,30 @@
+---
+service_info:
+  initial_user:
+    username: {{ admin_user }}
+    sshkeys:
+    - "{{ admin_ssh_key }}"
+  files:
+  - path: /etc/resolv.conf
+    permissions: 644
+    source_path: /etc/resolv.conf
+  commands:
+  - command: touch
+    args:
+    - /etc/command-test
+    may_fail: true
+    return_stdout: true
+    return_stderr: true
+  diskencryption_clevis:
+  - disk_label: /dev/vda4
+    binding:
+      pin: tpm2
+      config: "{}"
+    reencrypt: true
+  additional_serviceinfo: ~
+bind: "0.0.0.0:{{ serviceinfo.port.host_port | default('8083') }}"
+device_specific_store_driver:
+  Directory:
+    path: /etc/fdo/stores/serviceinfo_api_devices
+service_info_auth_token: Kpt5P/5flBkaiNSvDYS3cEdBQXJn2Zv9n1D50431/lo=
+admin_auth_token: zJNoErq7aa0RusJ1w0tkTjdITdMCWYkndzVv7F0V42Q=

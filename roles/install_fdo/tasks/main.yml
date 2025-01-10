@@ -3,3 +3,9 @@
   ansible.builtin.import_tasks: preflight.yml
 - name: install fdo manufacturing server
   ansible.builtin.import_tasks: fdo_manufacturing.yml
+- name: install fdo rendezvous server
+  ansible.builtin.import_tasks: fdo_rendezvous.yml
+- name: install serviceinfo api server
+  ansible.builtin.import_tasks: fdo_serviceinfo_api.yml
+- name: install owner onboarding server
+  ansible.builtin.import_tasks: fdo_owner_onboarding.yml

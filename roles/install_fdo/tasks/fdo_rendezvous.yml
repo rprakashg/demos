@@ -1,0 +1,28 @@
+---
+- name: create quadlet for rendezvous server container
+  ansible.builtin.template:
+    src: "fdo_rendezvous.container.j2"
+    dest: /etc/containers/systemd/fdo_rendezvous.container
+- name: create rendezvous server config file
+  ansible.builtin.template:
+    src: "rendezvous-server.yml.j2"
+    dest: /etc/fdo/rendezvous-server.conf.d/rendezvous-server.yml
+    mode: 0644
+- name: configure firewall rules
+  ansible.builtin.firewalld:
+    port: "{{ rendezvous.port.host_port | default('8082') }}"
+    state: enabled
+    permanent: yes
+- name: Set SELinux
+  ansible.builtin.shell: |
+    semanage port -a -t http_port_t -p tcp {{ rendezvous.port.host_port | default('8082') }}
+  ignore_errors: true
+- name: Reload firewall
+  ansible.builtin.systemd:
+    name: firewalld
+    state: reloaded
+- name: Start and enable the rendezvous server container
+  ansible.builtin.systemd:
+    name: fdo_rendezvous.container
+    state: started
+    enabled: yes
