@@ -5,5 +5,5 @@ Name={{ manufacturing.name }}
 Restart=always
 Port={{ manufacturing.port.host_port }}:{{ manufacturing.port.container_port }}
 {% for v in manufacturing.volumes %}
-Volume={{ v.localpath }}:{{ v.container_path }}Z
+Volume={{ v.local_path }}:{{ v.container_path }}Z
 {% endfor %}
