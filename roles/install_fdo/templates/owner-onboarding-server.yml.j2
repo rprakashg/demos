@@ -17,5 +17,5 @@ service_info_api_authentication:
 owner_addresses:
   - transport: http
     addresses:
-      - ip_address: {{ ansible_host }}
+      - ip_address: {{ ansible_default_ipv4.address }}
     port: {{ owner_onboarding.port.host_port | default('8081') }}
