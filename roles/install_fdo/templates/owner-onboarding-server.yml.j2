@@ -17,3 +17,4 @@ owner_addresses:
   - transport: http
     addresses:
       - ip_address: {{ ansible_host }}
+    port: {{ owner_onboarding.port.host_port | default('8081') }}
