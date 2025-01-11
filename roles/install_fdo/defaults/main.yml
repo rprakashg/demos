@@ -31,7 +31,7 @@ rendezvous:
     container_path: "/etc/fdo/rendezvous-server.conf.d"
 
 owner_onboarding:
-  name: owner-onboarding-server
+  name: fdo-owner-onboarding-server
   image: "registry.redhat.io/rhel9/fdo-owner-onboarding-server"
   port: 
     host_port: 8081
