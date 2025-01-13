@@ -16,7 +16,6 @@ builder_compose_pkgs:
 - ansible-core
 - vim-enhanced
 builder_compose_customizations:
-  installation_device: "/dev/sda1"
   user:
     name: "{{ admin_user }}"
     password: "{{ admin_password }}"
