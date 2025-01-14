@@ -97,6 +97,9 @@
   - name: display kickstart contents
     ansible.builtin.debug:
       msg: "{{ kickstart_content['content'] | b64decode }}" 
+  - name: Validate kickstart
+    ansible.builtin.command: "/usr/bin/ksvalidator {{ kickstart }}"
+    changed_when: false
 
 - name: Inject kickstart into ISO
   infra.osbuild.inject_ks:
