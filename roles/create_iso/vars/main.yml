@@ -8,7 +8,7 @@ builder_kickstart_pre: "{{ _builder_kickstart_pre + additional_kickstart_pre if 
 builder_kickstart_options:
 - lang en_US.UTF-8
 - keyboard us
-- timezone America/Los_Angeles --isUtc
+- timezone America/Los_Angeles --utc
 - zerombr
 - clearpart --all --initlabel
 - part /boot/efi --fstype=efi --asprimary --size=600
