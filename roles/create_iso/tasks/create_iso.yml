@@ -103,7 +103,7 @@
 
 - name: Inject kickstart into ISO
   ansible.builtin.shell: |
-    mkksiso "{{ kickstart }}" "{{ artifact_file }}/{{ blueprint_name }}-{{ job_id }}-ks.iso"
+    mkksiso "{{ kickstart }}" {{ artifact_file }} "{{ artifact_dir }}/{{ blueprint_name }}-{{ job_id }}-ks.iso"
   #infra.osbuild.inject_ks:
   #  kickstart: "{{ kickstart }}"
   #  src_iso: "{{ artifact_file }}"
