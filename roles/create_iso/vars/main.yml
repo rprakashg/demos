@@ -12,11 +12,11 @@ builder_kickstart_options:
 - zerombr
 - clearpart --all --initlabel
 - # Create physical volumes
-- part pv.01 --grow --size=20988 
-- part pv.02 --grow --size=20988
+- part pv.01 --fstype=lvmpv --ondisk=sda --grow --size=20988
+- part pv.02 --fstype=lvmpv --ondisk=sdb --grow --size=20988
 - # create volume group for disk 1
-- part /boot/efi --fstype=efi --size=572
-- part /boot --fstype=xfs --size=953
+- part /boot/efi --fstype=efi --ondisk=sda --size=572
+- part /boot --fstype=xfs --ondisk=sda --size=953
 - # create volume groups
 - volgroup rhel --pesize=4096 pv.01
 - volgroup data --pesize=4096 pv.02
