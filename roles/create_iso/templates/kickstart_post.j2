@@ -18,22 +18,3 @@ EOF
 echo -e 'export KUBECONFIG=/var/lib/microshift/resources/kubeadmin/kubeconfig' >> /root/.profile
 
 {% endif %}
-
-if [ -c /dev/tpm0 ]; then
-    echo "Found a TPM Chip. Applying full disk encryption..."
-    BLKDS=$(lsblk --noheadings -o NAME, FSTYPE -r | grep crypto_LUKS | cut -d ' ' -f 1)
-    for blkd in ${BLKDS}; do
-        echo "Binding LUKS partition /dev/$blkd to the TPM pin..."
-        dev="/dev/$blkd"
-        if ["`clevis luks list -d $dev`" == "" ]; then
-            clevis luks bind -f -k - -d $dev tpm2 '{"pcr_ids": "7", "pcr_bank": "sha256"}' <<< "WELKN0WN"
-            cryptsetup luksRemoveKey $dev <<< "WELKN0WN"
-        else
-            echo "$dev already pinned using clevis"
-        fi
-    done
-else
-    echo "No TPM chip found"
-    echo "!!! Use WELLKN0WN to decrypt partition at each boot !!!"
-    echo "TODO: Create a no-password token in LUKS"
-fi
