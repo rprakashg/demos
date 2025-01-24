@@ -58,10 +58,6 @@ options:
         description: Red Hat pull secret
         type: str
         required: false
-    offline_token:
-        description: Offline token, this is only required if a pull secret is not specified. This token is used to automatically download pull secret from cloud.redhat.com. If an offline token and pull secret is not specified as inputs the module will try to read token from environment variable 'RH_OFFLINE_TOKEN'
-        type: str
-        required: false
 notes: []
 
 '''
@@ -78,7 +74,6 @@ EXAMPLES = r'''
     master_replicas: 3
     ssh_pubkey: 'ssh-rsa AAA ... user@email.com'
     pull_secret: ''
-    offline_token: ''
 '''
 
 import boto3
@@ -119,8 +114,8 @@ def generate_installconfig(params, template_dir, install_config_file):
         'worker_replicas': params["worker_replicas"],
         'master_instance_type': params["master_instance_type"],
         'master_replicas': params["master_replicas"],
-        'pullsecret': params["pull_secret"],
         'ssh_pub_key': params["ssh_pubkey"],
+        'pullsecret': params["pull_secret"],
     }
 
     # Render template with provided variables
