@@ -18,3 +18,6 @@ EOF
 echo -e 'export KUBECONFIG=/var/lib/microshift/resources/kubeadmin/kubeconfig' >> /root/.profile
 
 {% endif %}
+
+systemctl set-default graphical.target
+systemctl enable cockpit.socket

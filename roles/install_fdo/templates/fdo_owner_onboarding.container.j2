@@ -1,3 +1,6 @@
+[Unit]
+Description=FDO Owner Onboarding Server
+
 [Container]
 Image={{ owner_onboarding.image }}
 Name={{ owner_onboarding.name }}
@@ -6,3 +9,6 @@ Port={{ owner_onboarding.port.host_port }}:{{ owner_onboarding.port.container_po
 {% for v in owner_onboarding.volumes %}
 Volume={{ v.local_path }}:{{ v.container_path }}Z
 {% endfor %}
+
+[Install]
+WantedBy=multi-user.target default.target

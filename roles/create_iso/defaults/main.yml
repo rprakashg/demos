@@ -23,21 +23,21 @@ builder_kickstart_options:
 - keyboard us
 - timezone America/Los_Angeles --utc
 - zerombr
+- bootloader --location=mbr --boot-drive=sda
 - clearpart --all --initlabel
-- # Create physical volumes
-- part pv.01 --fstype=lvmpv --ondisk=sda --grow --size=20988
-- part pv.02 --fstype=lvmpv --ondisk=sdb --grow --size=20988
-- # create create boot and efi partitions
-- part /boot/efi --fstype=efi --ondisk=sda --size=572
-- part /boot --fstype=xfs --ondisk=sda --size=953
-- # create volume groups
+- ignoredisk --only-use=sda,sdb
+- part pv.01 --size=20480 --grow --ondisk=sda
+- part /boot --fstype=ext4 --ondisk=sda --size=1024
+- part /boot/efi --fstype=efi --ondisk=sda --size=600
 - volgroup rhel --pesize=4096 pv.01
-- volgroup data --pesize=4096 pv.02
-- logvol / --vgname=rhel --fstype=xfs --size=19073 --name=root
-- logvol swap --vgname=rhel --fstype=swap --size=1907 --name=swap
+- logvol / --vgname=rhel --fstype=xfs --size=15360 --name=root
+- logvol swap --vgname=rhel --fstype=swap size=4096 --name=swap
+- part pv.02 --size=51200 --grow --ondisk=sdb
+- volgroup microshift --pesize=4096 pv.02
+- logvol /data --vgname=data --fstype= --size= --name= 
 - # Network information
-- network --bootproto=dhcp --device=enp0s31f6 --ipv6=auto --activate --onboot=on
-- network --bootproto=dhcp --device=enp2s0 --ipv6=auto --onboot=off
+- network --bootproto=dhcp --device=eth0 --ipv6=auto --activate --onboot=on
+- network --bootproto=dhcp --device=eth1 --ipv6=auto --activate
 - reboot
 - text
 - services --enabled=ostree-remount
