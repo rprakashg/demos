@@ -3,9 +3,9 @@ Description=FDO ServiceInfo API Server
 
 [Container]
 Image={{ serviceinfo.image }}
-Name={{ serviceinfo.name }}
+ContainerName={{ serviceinfo.name }}
 Restart=always
-Port={{ serviceinfo.port.host_port }}:{{ serviceinfo.port.container_port }}
+PublishPort={{ serviceinfo.port.host_port }}:{{ serviceinfo.port.container_port }}
 {% for v in serviceinfo.volumes %}
 Volume={{ v.local_path }}:{{ v.container_path }}Z
 {% endfor %}

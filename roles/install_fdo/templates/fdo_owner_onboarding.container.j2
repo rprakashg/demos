@@ -3,9 +3,9 @@ Description=FDO Owner Onboarding Server
 
 [Container]
 Image={{ owner_onboarding.image }}
-Name={{ owner_onboarding.name }}
+ContainerName={{ owner_onboarding.name }}
 Restart=always
-Port={{ owner_onboarding.port.host_port }}:{{ owner_onboarding.port.container_port }}
+PublishPort={{ owner_onboarding.port.host_port }}:{{ owner_onboarding.port.container_port }}
 {% for v in owner_onboarding.volumes %}
 Volume={{ v.local_path }}:{{ v.container_path }}Z
 {% endfor %}

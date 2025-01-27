@@ -3,9 +3,9 @@ Description=FDO Manufacturing Server
 
 [Container]
 Image={{ manufacturing.image }}
-Name={{ manufacturing.name }}
+ContainerName={{ manufacturing.name }}
 Restart=always
-Port={{ manufacturing.port.host_port }}:{{ manufacturing.port.container_port }}
+PublishPort={{ manufacturing.port.host_port }}:{{ manufacturing.port.container_port }}
 {% for v in manufacturing.volumes %}
 Volume={{ v.local_path }}:{{ v.container_path }}Z
 {% endfor %}
