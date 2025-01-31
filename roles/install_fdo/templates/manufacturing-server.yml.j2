@@ -21,7 +21,7 @@ protocols:
     cert_path: /etc/fdo/keys/diun_cert.pem
 rendezvous_info:
   - deviceport: {{ rv.port.host_port | default('8082') }}
-    ip_address: {{ rv.ip | default(ansible_default_ipv4.address) }}
+    ip_address: {{ rv.ip | default(ansible_host) }}
     ownerport: {{ rv.port.host_port | default('8082') }}
     protocol: http
 manufacturing:

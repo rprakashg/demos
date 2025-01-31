@@ -81,6 +81,26 @@ serviceinfo:
 
       # Ignore dynamic updates if resolv.conf is managed manually
       options no-dynamic
+  commands:
+  - command: flightctl
+    args: 
+    - login
+    - "--insecure-skip-tls-verify"
+    - "{{ flightctl_service_url }}"
+    - "-t"
+    - "{{ bearer_token }}"
+    return_stdout: true
+    return_stderr: true
+  - command: flightctl
+    args:
+    - certificate
+    - request
+    - "--signer=enrollment"
+    - "--expiration=365d"
+    - "--output=embedded"
+    - "> /etc/flightctl"
+    return_stdout: true
+    return_stderr: true
   volumes:
   - local_path: "/etc/fdo/stores"
     container_path: "/etc/fdo/stores"  

@@ -9,11 +9,22 @@ service_info:
     permissions: 644
     source_path: /etc/resolv.conf
   commands:
+  {%- for c in serviceinfo.commands -%}
+  - command: "{{ c.command }}"
+    {%- if c.args | length > 0 -%}
+    args:
+    {%- for arg in c.args -%}
+    - "{{ arg }}"
+    {%- endfor -%}
+    {%- endif -%}
+    may_fail: true
+    return_stdout: "{{}}"
+  {%- endfor -%}
   - command: touch
     args:
     - /etc/command-test
     may_fail: true
-    return_stdout: true
+     true
     return_stderr: true
   diskencryption_clevis:
   - disk_label: /dev/vda4
