@@ -1,6 +1,7 @@
 storage_driver:
-  Directory:
-    path: /etc/fdo/stores/rendezvous_registered
+  Postgres:
+    server: "{{ rendezvous_db }}" 
+    url: "{{ rendezvous_db_url }}"
 session_store_driver:
   Directory:
     path: /etc/fdo/stores/rendezvous_sessions

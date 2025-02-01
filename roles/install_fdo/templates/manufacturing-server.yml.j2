@@ -3,8 +3,9 @@ session_store_driver:
   Directory:
     path: /etc/fdo/stores/manufacturing_sessions/
 ownership_voucher_store_driver:
-  Directory:
-    path: /etc/fdo/stores/owner_vouchers
+  Postgres:
+    server: "{{ manufacturing_db }}"
+    url: "{{ manufacturing_db_url }}"
 public_key_store_driver:
   Directory:
     path: /etc/fdo/stores/manufacturer_keys
@@ -20,8 +21,7 @@ protocols:
     key_path: /etc/fdo/keys/diun_key.der
     cert_path: /etc/fdo/keys/diun_cert.pem
 rendezvous_info:
-  - deviceport: {{ rv.port.host_port | default('8082') }}
-    ip_address: {{ rv.ip | default(ansible_host) }}
+  - dns: "rendezvous.{{ base_domain }}"
     ownerport: {{ rv.port.host_port | default('8082') }}
     protocol: http
 manufacturing:

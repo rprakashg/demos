@@ -2,6 +2,8 @@
 # default variables
 fdo_keys_dir: "/etc/fdo/keys"
 
+base_domain: sandbox2519.opentlc.com
+
 manufacturing:
   name: fdo-manufacturing-server
   image: "registry.redhat.io/rhel9/fdo-manufacturing-server"
