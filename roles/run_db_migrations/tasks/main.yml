@@ -1,6 +1,3 @@
-- name: Install Diesel
-  ansible.builtin.shell: |
-    cargo install --force diesel_cli --no-default-features --features "postgres"
 - name: Run DB migrations
   block:
   - name: Create a temp directory to clone repo
