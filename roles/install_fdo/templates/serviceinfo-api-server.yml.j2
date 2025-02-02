@@ -1,32 +1,32 @@
 ---
 service_info:
   initial_user:
-    username: {{ admin_user }}
+    username: "{{ admin_user }}"
     sshkeys:
-    - "{{ admin_ssh_key }}"
+      - "{{ admin_ssh_key }}"
   files:
-  - path: /etc/resolv.conf
-    permissions: 644
-    source_path: /etc/resolv.conf
+    - path: /etc/resolv.conf
+      permissions: 644
+      source_path: /etc/resolv.conf
   commands:
-  {% for c in serviceinfo.commands %}
-  - command: "{{ c.command }}"
-    {% if c.args | length > 0 %}
-    args:
-    {% for arg in c.args %}
-    - "{{ arg }}"
+    {% for c in serviceinfo.commands %}
+    - command: "{{ c.command }}"
+      {% if c.args | length > 0 %}
+      args:
+        {% for arg in c.args %}
+        - "{{ arg }}"
+        {% endfor %}
+      {% endif %}
+      may_fail: true
+      return_stdout: "{{ c.return_stdout }}"
+      return_stderr: "{{ c.return_stderr }}"
     {% endfor %}
-    {% endif %}
-    may_fail: true
-    return_stdout: "{{ c.return_stdout }}"
-    return_stderr: "{{ c.return_stderr }}"
-  {% endfor %}
   diskencryption_clevis:
-  - disk_label: /dev/vda4
-    binding:
-      pin: tpm2
-      config: "{}"
-    reencrypt: true
+    - disk_label: /dev/vda4
+      binding:
+        pin: tpm2
+        config: "{}"
+      reencrypt: true
   additional_serviceinfo: ~
 bind: "0.0.0.0:{{ serviceinfo.port.host_port | default('8083') }}"
 device_specific_store_driver:
