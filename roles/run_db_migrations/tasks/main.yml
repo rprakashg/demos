@@ -1,11 +1,3 @@
-- name: Install packages
-  ansible.builtin.dnf:
-    name: "{{ packages }}"
-    state: present
-  vars:
-    packages:
-    - git
-    - cargo
 - name: Install Diesel
   ansible.builtin.shell: |
     cargo install --force diesel_cli --no-default-features --features "postgres"
