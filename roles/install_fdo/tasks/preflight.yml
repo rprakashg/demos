@@ -24,6 +24,7 @@
     packages:
     - fdo-admin-cli
     - fdo-owner-cli
+    - firewalld
 - name: generate keys and certs
   ansible.builtin.command: |
     fdo-admin-tool generate-key-and-cert --destination-dir {{ fdo_keys_dir }} {{ item }}
