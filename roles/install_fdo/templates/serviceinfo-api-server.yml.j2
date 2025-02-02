@@ -18,8 +18,8 @@ service_info:
     {%- endfor -%}
     {%- endif -%}
     may_fail: true
-    return_stdout: "{{ return_stdout }}"
-    return_stderr: "{{ return_stderr }}"
+    return_stdout: "{{ c.return_stdout }}"
+    return_stderr: "{{ c.return_stderr }}"
   {%- endfor -%}
   diskencryption_clevis:
   - disk_label: /dev/vda4
