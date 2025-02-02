@@ -1,0 +1,34 @@
+- name: Install packages
+  ansible.builtin.dnf:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+    - git
+    - cargo
+- name: Install Diesel
+  ansible.builtin.shell: |
+    cargo install --force diesel_cli --no-default-features --features "postgres"
+- name: Run DB migrations
+  block:
+  - name: Create a temp directory to clone repo
+    ansible.builtin.tempfile:
+      state: directory
+      suffix: migration
+    register: tempdir
+  - name: Set directory 
+    ansible.builtin.set_fact:
+      repodir: "{{ tempdir.path }}"
+  - name: Debug repodir
+    ansible.builtin.debug:
+      msg: "Directory where repo will be clone: {{ repodir }}"  
+  - name: Clone fido-device-onboard-rs repository
+    ansible.builtin.git:
+      repo: "{{ fido_device_onboard_rs_repo }}"
+      dest: "{{ repodir }}"
+      version: main
+      update: yes
+  - name: run db migrations
+    ansible.builtin.shell: |
+      diesel migration run --migration-dir "{{ repodir }}/{{ item.path }}" --database-url "{{ item.db_url }}"
+    loop: "{{ migrations }}"

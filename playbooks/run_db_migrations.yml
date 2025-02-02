@@ -1,0 +1,10 @@
+---
+- name: Run database migrations using diesel
+  hosts: localhost
+  tasks:
+  - name: Include ansible vault secrets
+    include_vars:
+      file: "./vars/secrets.yml"
+  - name: Run migrations
+    ansible.builtin.include_role:
+      name: rprakashg.demos.run_db_migrations
