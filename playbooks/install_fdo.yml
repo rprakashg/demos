@@ -1,6 +1,6 @@
 ---
 - name: Installl FDO playbook
-  hosts: imagebuilder
+  hosts: fdo
   tasks:
   - name: load secrets from ansible vault
     include_vars:
