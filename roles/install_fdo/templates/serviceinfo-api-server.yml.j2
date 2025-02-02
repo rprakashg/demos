@@ -37,5 +37,5 @@ bind: "0.0.0.0:{{ serviceinfo.port.host_port | default('8083') }}"
 device_specific_store_driver:
   Directory:
     path: /etc/fdo/stores/serviceinfo_api_devices
-service_info_auth_token: "{{ serviceinfo_api_server_auth_token }}"
-admin_auth_token: "{{ serviceinfo_api_server_admin_auth_token }}"
+service_info_auth_token: "{{ service_info_auth_token }}"
+admin_auth_token: "{{ admin_auth_token }}"

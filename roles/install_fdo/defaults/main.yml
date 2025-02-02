@@ -3,6 +3,7 @@
 fdo_keys_dir: "/etc/fdo/keys"
 
 base_domain: sandbox2519.opentlc.com
+flightctl_api: "https://api.apps.rhem-demo.sandbox2519.opentlc.com"
 
 manufacturing:
   name: fdo-manufacturing-server
@@ -89,7 +90,7 @@ serviceinfo:
     args: 
     - login
     - "--insecure-skip-tls-verify"
-    - "{{ flightctl_service_url }}"
+    - "{{ flightctl_api }}"
     - "-t"
     - "{{ bearer_token }}"
     return_stdout: true
