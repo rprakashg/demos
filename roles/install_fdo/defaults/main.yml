@@ -62,7 +62,8 @@ serviceinfo:
       nameserver 1.1.1.1       # Cloudflare DNS
       nameserver 8.8.8.8       # Google Public DNS
       nameserver 9.9.9.9       # Quad9 DNS
-
+      nameserver 192.168.1.1   # local router 
+       
       # Optional: Define a domain for unqualified hostnames
       domain edge.local
 
