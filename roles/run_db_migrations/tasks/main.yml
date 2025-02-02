@@ -16,7 +16,7 @@
       msg: "Directory where repo will be clone: {{ repodir }}"  
   - name: Clone fido-device-onboard-rs repository
     ansible.builtin.git:
-      repo: "{{ fido_device_onboard_rs_repo }}"
+      repo: "{{ repo }}"
       dest: "{{ repodir }}"
       version: main
       update: yes
