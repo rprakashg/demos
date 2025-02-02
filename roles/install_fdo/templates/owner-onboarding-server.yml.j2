@@ -1,7 +1,7 @@
 ---
 ownership_voucher_store_driver:
   Postgres:
-    server: "{{ owneronboarding_db_server }}"
+    server: Owner
     url: "{{ owneronboarding_db_url }}"
 session_store_driver:
   Directory:
@@ -14,7 +14,7 @@ report_to_rendezvous_endpoint_enabled: true
 service_info_api_url: "http://serviceinfo.{{ base_domain }}:{{ serviceinfo.port.host_port | default('8083') }}/device_info"
 service_info_api_authentication:
   BearerToken:
-    token: "{{ service_info_auth_token }}"
+    token: "{{ service_info_api_server_auth_token }}"
 owner_addresses:
   - transport: http
     addresses:
