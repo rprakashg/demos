@@ -1,0 +1,28 @@
+- name: Install packages
+  ansible.builtin.dnf:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+    - git
+    - cargo
+- name: Install Diesel
+  ansible.builtin.shell: |
+    cargo install --force diesel_cli --no-default-features --features "postgres"
+- name: Run DB migrations
+  block:
+  - name: Clone fido-device-onboard-rs repository
+    ansible.builtin.git:
+      repo: "{{ fido_device_onboard_rs_repo }}"
+      dest: "{{ root_dir }}"
+      version: main
+      update: yes
+  - name: Run manufacturing db migrations
+    ansible.builtin.shell: |
+      diesel migration run --migration-dir "{{ manufacturing_db_migrations_dir }}" --database-url "{{ manufacturing_db_url }}"
+  - name: Run rendezvous db migrations
+    ansible.builtin.shell: |
+      diesel migration run --migration-dir "{{ rendezvous_db_migrations_dir }}" --database-url "{{ rendezvous_db_url }}"
+  - name: Run owneronboarding db migrations
+    ansible.builtin.shell: |
+      diesel migration run --migration-dir "{{ owneronboarding_db_migrations_dir }}" --database-url "{{ owneronboarding_db_url }}"

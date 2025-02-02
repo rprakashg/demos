@@ -1,0 +1,7 @@
+---
+## internals
+fido_device_onboard_rs_repo: https://github.com/fdo-rs/fido-device-onboard-rs.git
+root_dir: "/opt/fdo-rs/fido-device-onboard-rs"
+manufacturing_db_migrations_dir: "{{ root_dir }}/migrations/migrations_manufacturing_server_postgres/2023-10-03-152801_create_db"
+rendezvous_db_migrations_dir: "{{ root_dir }}/migrations/migrations_rendezvous_server_postgres/2023-10-03-152801_create_db"
+owneronboarding_db_migrations_dir: "{{ root_dir }}/migrations/migrations_owner_onboarding_server_postgres/2023-10-03-152801_create_db"

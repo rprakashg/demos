@@ -2,6 +2,9 @@
 - name: preflight
   become: true
   ansible.builtin.import_tasks: preflight.yml
+- name: initialize_db.yml
+  become: true
+  ansible.builtin.import_tasks: initialize_db.yml
 - name: install fdo manufacturing server
   become: true
   ansible.builtin.import_tasks: fdo_manufacturing.yml
