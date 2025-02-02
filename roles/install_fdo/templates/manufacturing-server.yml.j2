@@ -4,7 +4,7 @@ session_store_driver:
     path: /etc/fdo/stores/manufacturing_sessions/
 ownership_voucher_store_driver:
   Postgres:
-    server: "{{ manufacturing_db }}"
+    server: "{{ manufacturing_db_server }}"
     url: "{{ manufacturing_db_url }}"
 public_key_store_driver:
   Directory:
