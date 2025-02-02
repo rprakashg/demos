@@ -1,6 +1,6 @@
 ---
 - name: Run database migrations using diesel
-  hosts: localhost
+  hosts: fdo
   tasks:
   - name: Include ansible vault secrets
     include_vars:
