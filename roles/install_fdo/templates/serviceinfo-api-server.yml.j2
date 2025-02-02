@@ -18,14 +18,9 @@ service_info:
     {%- endfor -%}
     {%- endif -%}
     may_fail: true
-    return_stdout: "{{}}"
+    return_stdout: "{{ return_stdout }}"
+    return_stderr: "{{ return_stderr }}"
   {%- endfor -%}
-  - command: touch
-    args:
-    - /etc/command-test
-    may_fail: true
-     true
-    return_stderr: true
   diskencryption_clevis:
   - disk_label: /dev/vda4
     binding:
