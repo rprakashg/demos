@@ -3,14 +3,14 @@ session_store_driver:
   Directory:
     path: /etc/fdo/stores/manufacturing_sessions/
 ownership_voucher_store_driver:
-  {%- if use_postgresql %}
+  {% if use_postgresql %}
   Postgres:
     server: Manufacturer
     url: "{{ manufacturing_db_url }}"
-  {%- else %}
+  {% else %}
   Directory:
     path: /etc/fdo/stores/owner_vouchers
-  {%-endif %}
+  {% endif %}
 public_key_store_driver:
   Directory:
     path: /etc/fdo/stores/manufacturer_keys
