@@ -5,7 +5,7 @@ storage_driver:
     url: "{{ rendezvous_db_url }}"
 {% else %}
   Directory:
-    path: /path/to/stores/rendezvous_registered
+    path: /etc/fdo/stores/rendezvous_registered
 {% endif %}
 session_store_driver:
   Directory:
