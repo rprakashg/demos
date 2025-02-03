@@ -1,7 +1,12 @@
 storage_driver:
+  {%- if use_postgresql %}
   Postgres:
     server: Rendezvous 
     url: "{{ rendezvous_db_url }}"
+  {%- else %}
+  Directory:
+    path: /path/to/stores/rendezvous_registered
+  {%- endif %}
 session_store_driver:
   Directory:
     path: /etc/fdo/stores/rendezvous_sessions

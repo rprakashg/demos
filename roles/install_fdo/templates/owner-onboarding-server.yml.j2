@@ -1,8 +1,13 @@
 ---
 ownership_voucher_store_driver:
+  {%- use_postgresql %}
   Postgres:
     server: Owner
     url: "{{ owneronboarding_db_url }}"
+  {%- else %}
+  Directory:
+    path: /etc/fdo/stores/owner_vouchers
+  {%- endif %}
 session_store_driver:
   Directory:
     path: /etc/fdo/stores/owner_onboarding_sessions
