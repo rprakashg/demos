@@ -3,10 +3,8 @@
   hosts: localhost
   gather_facts: no
   tasks:
-  - name: Install
-    ansible.builtin.include_role:
-      name: rprakashg.demos.install_openshift_on_aws
-    vars:
+  - name: Install cluster
+    rprakashg.demos.install_openshift_on_aws:
       cluster_name: demo
       region: us-west-2
       base_domain: sandbox2519.opentlc.com
@@ -14,4 +12,7 @@
       worker_replicas: 1
       master_instance_type: c5.4xlarge
       master_replicas: 1
-      
+    register: install_result
+  - name: Debug result
+    ansible.builtin.debug:
+      var: install_result
