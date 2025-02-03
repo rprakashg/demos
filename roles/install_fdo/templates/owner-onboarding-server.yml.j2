@@ -1,6 +1,6 @@
 ---
 ownership_voucher_store_driver:
-  {%- use_postgresql %}
+  {%- if use_postgresql %}
   Postgres:
     server: Owner
     url: "{{ owneronboarding_db_url }}"
