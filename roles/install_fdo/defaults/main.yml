@@ -69,8 +69,3 @@ serviceinfo:
 
       # Ignore dynamic updates if resolv.conf is managed manually
       options no-dynamic
-  commands:
-  - command: flightctl
-    args: ["login", "--insecure-skip-tls-verify", "{{ flightctl_api }}", "-t", "{{ bearer_token }}"]
-  - command: flightctl
-    args: ["certificate", "request", "--signer=enrollment", "--expiration=365d", "--output=embedded", "> /etc/flightctl"]
