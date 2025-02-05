@@ -8,7 +8,7 @@ service_info:
   - path: /etc/resolv.conf
     permissions: 644
     source_path: /etc/resolv.conf
-  {{ commands | to_yaml }}    
+  {{ serviceinfo.commands | to_yaml }}    
   diskencryption_clevis:
     - disk_label: /dev/vda4
       binding:
