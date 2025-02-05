@@ -40,9 +40,9 @@
   - name: Create volume for config directories
     ansible.builtin.template:
       src: "server.volume.j2"
-      dest: "{{ item }}-server.conf.d.volume"
+      dest: "/etc/containers/systemd/{{ item }}-server.conf.d.volume"
     vars:
-      volume_description: ""
+      volume_description: "{{ item }} volume"
       volume_label: "app=fdo-server"
       volume_src: "/etc/fdo/{{ item }}-server.conf.d"
       volume_dst: "/etc/fdo/{{ item }}-server.conf.d"
