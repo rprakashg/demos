@@ -6,7 +6,7 @@
   vars:
     description: "{{ owner_onboarding.desc }}"
     image: "{{ owner_onboarding.image }}"
-    ContainerName: "{{ owner_onboarding.name }}"
+    name: "{{ owner_onboarding.name }}"
     host_port: "{{ owner_onboarding.port.host_port }}"
     container_port: "{{ owner_onboarding.port.container_port }}"
     config_volume: "owner-onboarding-server.conf.d.volume"
