@@ -71,21 +71,10 @@ serviceinfo:
       options no-dynamic
   commands:
   - command: flightctl
-    args: 
-    - login
-    - "--insecure-skip-tls-verify"
-    - "{{ flightctl_api }}"
-    - "-t"
-    - "{{ bearer_token }}"
+    args: ["login", "--insecure-skip-tls-verify", "{{ flightctl_api }}", "-t", "{{ bearer_token }}"]
     return_stdout: true
     return_stderr: true
   - command: flightctl
-    args:
-    - certificate
-    - request
-    - "--signer=enrollment"
-    - "--expiration=365d"
-    - "--output=embedded"
-    - "> /etc/flightctl"
+    args: ["certificate", "request", "--signer=enrollment", "--expiration=365d", "--output=embedded", "> /etc/flightctl"]
     return_stdout: true
     return_stderr: true
