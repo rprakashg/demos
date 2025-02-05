@@ -9,7 +9,7 @@
     name: "{{ rendezvous.name }}"
     host_port: "{{ rendezvous.port.host_port }}"
     container_port: "{{ rendezvous.port.container_port }}"
-    config_volume: "rendezvous-server.conf.d.volume"
+    config_volume: "rendezvous"
     dest: "/etc/fdo/rendezvous-server.conf.d"
 
 - name: create rendezvous server config file

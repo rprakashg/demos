@@ -24,6 +24,7 @@
       src: "server.volume.j2"
       dest: "/etc/containers/systemd/fdo-stores.volume"
     vars:
+      volume_name: "fdo-stores"
       volume_description: "FDO Stores volume"
       volume_label: "app=fdo-server"
       volume_src: "/etc/fdo/stores"
@@ -33,6 +34,7 @@
       src: "server.volume.j2"
       dest: "/etc/containers/systemd/fdo-keys.volume"
     vars:
+      volume_name: "fdo-keys"
       volume_description: "FDO Keys volume"
       volume_label: "app=fdo-server"
       volume_src: "/etc/fdo/keys"
@@ -42,6 +44,7 @@
       src: "server.volume.j2"
       dest: "/etc/containers/systemd/{{ item }}-server.conf.d.volume"
     vars:
+      volume_name: "{{ item }}"
       volume_description: "{{ item }} volume"
       volume_label: "app=fdo-server"
       volume_src: "/etc/fdo/{{ item }}-server.conf.d"

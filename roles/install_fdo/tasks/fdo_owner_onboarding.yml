@@ -9,7 +9,7 @@
     name: "{{ owner_onboarding.name }}"
     host_port: "{{ owner_onboarding.port.host_port }}"
     container_port: "{{ owner_onboarding.port.container_port }}"
-    config_volume: "owner-onboarding-server.conf.d.volume"
+    config_volume: "owner-onboarding"
     dest: "/etc/fdo/owner-onboarding-server.conf.d"
 
 - name: Create config file for owner onboarding server container
