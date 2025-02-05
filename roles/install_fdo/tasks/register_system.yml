@@ -1,9 +1,4 @@
 ---
-- name: Install rhc
-  ansible.builtin.dnf:
-    state: latest
-    name: "rhc"
-
 - name: register the system
   ansible.builtin.shell: |
     subscription-manager register --username={{ rhuser }} --password={{ rhpassword }} --force

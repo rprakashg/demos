@@ -1,4 +1,12 @@
 ---
+- name: Install packages
+  ansible.builtin.dnf:
+    state: latest
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - podman
+    - rhc
 - name: make directory to store podman quadlet files
   ansible.builtin.file:
     path: /etc/containers/systemd
