@@ -14,4 +14,36 @@ defaults
 
 frontend http_redirect
     bind *:80
-    
+    mode http
+
+    acl is_ping path_beg /ping
+    acl ping_manufacturing_server query -m str app=manufacturing
+    acl ping_rendezvous_server query -m str app=rendezvous
+    acl ping_owner_server query -m str app=owneronboarding
+    acl ping_serviceinfo_api_server query -m str app=serviceinfo
+
+    # route to backend based on app name passed in querystring
+    use_backend manufacturing if ping_manufacturing_server
+    use_backend rendezvous if ping_rendezvous_server
+    use_backend owner if ping_owner_server
+    use_backend serviceinfo if ping_serviceinfo_api_server
+
+backend manufacturing
+    mode http
+    http-request set-method POST
+    server manufacturing_server 127.0.0.1:8080/ping
+
+backend rendezvous
+    mode http
+    http-request set-method POST
+    server rendezvous_server 127.0.0.1:8082/ping
+
+backend owner
+    mode http
+    http-request set-method POST
+    server owner_server 127.0.0.1:8081/ping
+
+backend serviceinfo
+    mode http
+    http-request set-method POST
+    server serviceinfo 127.0.0.1:8083/ping

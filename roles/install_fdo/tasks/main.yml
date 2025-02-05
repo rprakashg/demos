@@ -14,3 +14,6 @@
 - name: install owner onboarding server
   become: true
   ansible.builtin.import_tasks: fdo_owner_onboarding.yml
+- name: install health monitoring ping proxy forwarder
+  become: true
+  ansible.builtin.import_tasks: ping_proxy.yml
