@@ -9,7 +9,8 @@
     name: "{{ manufacturing.name }}"
     host_port: "{{ manufacturing.port.host_port }}"
     container_port: "{{ manufacturing.port.container_port }}"
-    config_volume: "manufacturing-server.conf.d.volume"
+    host_path: "/etc/fdo/manufacturing-server.conf.d"
+    container_path: "/etc/fdo/manufacturing-server.conf.d"
     dest: "/etc/fdo/manufacturing-server.conf.d"
 
 - name: Create fdo manufacturing server config file

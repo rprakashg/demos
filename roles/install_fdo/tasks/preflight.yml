@@ -7,6 +7,7 @@
     packages:
     - podman
     - rhc
+    - firewalld
 - name: make directory to store podman quadlet files
   ansible.builtin.file:
     path: /etc/containers/systemd
@@ -24,39 +25,6 @@
   - rendezvous
   - serviceinfo-api
   - owner-onboarding
-
-- name: create quadlet volume files for container storage
-  block:
-  - name: Create quadlet volume for stores
-    ansible.builtin.template:
-      src: "server.volume.j2"
-      dest: "/etc/containers/systemd/fdo-stores.volume"
-    vars:
-      volume_name: "fdo-stores"
-      volume_description: "FDO Stores volume"
-      volume_label: "app=fdo-server"
-  - name: Create quadlet volume for keys
-    ansible.builtin.template:
-      src: "server.volume.j2"
-      dest: "/etc/containers/systemd/fdo-keys.volume"
-    vars:
-      volume_name: "fdo-keys"
-      volume_description: "FDO Keys volume"
-      volume_label: "app=fdo-server"
-  - name: Create volume for config directories
-    ansible.builtin.template:
-      src: "server.volume.j2"
-      dest: "/etc/containers/systemd/{{ item }}-server.conf.d.volume"
-    vars:
-      volume_name: "{{ item }}"
-      volume_description: "{{ item }} volume"
-      volume_label: "app=fdo-server"
-    loop:
-    - manufacturing
-    - rendezvous
-    - serviceinfo-api
-    - owner-onboarding
-
 - name: Install FDO tools
   ansible.builtin.dnf:
     name: "{{ packages }}"
@@ -65,7 +33,6 @@
     packages:
     - fdo-admin-cli
     - fdo-owner-cli
-    - firewalld
 - name: generate keys and certs
   ansible.builtin.command: |
     fdo-admin-tool generate-key-and-cert --destination-dir {{ fdo_keys_dir }} {{ item }}
