@@ -12,7 +12,7 @@
 
 - name: Create HAProxy container quadlet file
   ansible.builtin.template:
-    src: "haproxy.container.j2"
+    src: "haproxy-app.container.j2"
     dest: "/etc/containers/systemd/haproxy.container"
 
 - name: configure firewall rules
