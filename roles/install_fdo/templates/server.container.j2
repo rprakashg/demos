@@ -6,8 +6,8 @@ Image={{ image }}
 ContainerName={{ name }}
 
 PublishPort={{ host_port }}:{{ container_port }}
-Volume=fdo-stores:/etc/fdo/stores:z
-Volume=fdo-keys:/etc/fdo/keys:z
+Volume=fdo-stores.volume:/etc/fdo/stores:z
+Volume=fdo-keys.volume:/etc/fdo/keys:z
 Volume={{ config_volume }}:{{ dest }}:z
 
 [Install]

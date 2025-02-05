@@ -9,7 +9,7 @@
     name: "{{ serviceinfo.name }}"
     host_port: "{{ serviceinfo.port.host_port }}"
     container_port: "{{ serviceinfo.port.container_port }}"
-    config_volume: "serviceinfo-api"
+    config_volume: "serviceinfo-api-server.conf.d.volume"
     dest: "/etc/fdo/serviceinfo-api-server.conf.d"
 
 - name: Save files 

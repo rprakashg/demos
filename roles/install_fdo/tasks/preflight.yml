@@ -35,9 +35,7 @@
       volume_name: "fdo-stores"
       volume_description: "FDO Stores volume"
       volume_label: "app=fdo-server"
-      volume_src: "/etc/fdo/stores"
-      volume_dst: "/etc/fdo/stores"
-  - name: Create quadlet volume for stores
+  - name: Create quadlet volume for keys
     ansible.builtin.template:
       src: "server.volume.j2"
       dest: "/etc/containers/systemd/fdo-keys.volume"
@@ -45,8 +43,6 @@
       volume_name: "fdo-keys"
       volume_description: "FDO Keys volume"
       volume_label: "app=fdo-server"
-      volume_src: "/etc/fdo/keys"
-      volume_dst: "/etc/fdo/keys"
   - name: Create volume for config directories
     ansible.builtin.template:
       src: "server.volume.j2"
@@ -55,8 +51,6 @@
       volume_name: "{{ item }}"
       volume_description: "{{ item }} volume"
       volume_label: "app=fdo-server"
-      volume_src: "/etc/fdo/{{ item }}-server.conf.d"
-      volume_dst: "/etc/fdo/{{ item }}-server.conf.d"
     loop:
     - manufacturing
     - rendezvous

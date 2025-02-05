@@ -4,7 +4,6 @@ Description=Proxy container to redirect health monitoring ping requests to POST
 [Container]
 Image=docker.io/library/haproxy:3.1
 ContainerName=haproxy-app
-Restart=always
 PublishPort=80:80
 Volume=/usr/local/etc/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:z
 
