@@ -1,8 +1,17 @@
 ---
 - name: create quadlet for rendezvous server container
   ansible.builtin.template:
-    src: "fdo_rendezvous.container.j2"
+    src: "server.container.j2"
     dest: /etc/containers/systemd/fdo_rendezvous.container
+  vars:
+    description: "{{ rendezvous.desc }}"
+    image: "{{ rendezvous.image }}"
+    ContainerName: "{{ rendezvous.name }}"
+    host_port: "{{ rendezvous.port.host_port }}"
+    container_port: "{{ rendezvous.port.container_port }}"
+    config_volume: "rendezvous-server.conf.d.volume"
+    dest: "/etc/fdo/rendezvous-server.conf.d"
+
 - name: create rendezvous server config file
   ansible.builtin.template:
     src: "rendezvous-server.yml.j2"

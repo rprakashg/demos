@@ -3,6 +3,15 @@
   ansible.builtin.template:
     src: "fdo_serviceinfo_api_server.container.j2"
     dest: "/etc/containers/systemd/fdo_serviceinfo_api_server.container"
+  vars:
+    description: "{{ serviceinfo.desc }}"
+    image: "{{ serviceinfo.image }}"
+    ContainerName: "{{ serviceinfo.name }}"
+    host_port: "{{ serviceinfo.port.host_port }}"
+    container_port: "{{ serviceinfo.port.container_port }}"
+    config_volume: "serviceinfo-api-server.conf.d.volume"
+    dest: "/etc/fdo/serviceinfo-api-server.conf.d"
+
 - name: Save files 
   ansible.builtin.copy:
     dest: "{{ item.path }}"

@@ -1,0 +1,12 @@
+[Unit]
+Description=Proxy container to redirect health monitoring ping requests to POST
+
+[Container]
+Image=
+ContainerName=proxy-app
+Restart=always
+PublishPort=80:80
+Volume={{ config_volume }}:{{ dest }}:z
+
+[Install]
+WantedBy=multi-user.target default.target

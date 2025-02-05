@@ -1,8 +1,16 @@
 ---
 - name: Create quadlet file for fdo manufacturing server container
   ansible.builtin.template:
-    src: "fdo_manufacturing.container.j2"
+    src: "server.container.j2"
     dest: /etc/containers/systemd/fdo_manufacturing.container
+  vars:
+    description: "{{ manufacturing.desc }}"
+    image: "{{ manufacturing.image }}"
+    ContainerName: "{{ manufacturing.name }}"
+    host_port: "{{ manufacturing.port.host_port }}"
+    container_port: "{{ manufacturing.port.container_port }}"
+    config_volume: "manufacturing-server.conf.d.volume"
+    dest: "/etc/fdo/manufacturing-server.conf.d"
 
 - name: Create fdo manufacturing server config file
   ansible.builtin.template:

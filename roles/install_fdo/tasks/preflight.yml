@@ -16,6 +16,42 @@
   - rendezvous
   - serviceinfo-api
   - owner-onboarding
+
+- name: create quadlet volume files for container storage
+  block:
+  - name: Create quadlet volume for stores
+    ansible.builtin.template:
+      src: "server.volume.j2"
+      dest: "/etc/containers/systemd/fdo-stores.volume"
+    vars:
+      volume_description: "FDO Stores volume"
+      volume_label: "app=fdo-server"
+      volume_src: "/etc/fdo/stores"
+      volume_dst: "/etc/fdo/stores"
+  - name: Create quadlet volume for stores
+    ansible.builtin.template:
+      src: "server.volume.j2"
+      dest: "/etc/containers/systemd/fdo-keys.volume"
+    vars:
+      volume_description: "FDO Keys volume"
+      volume_label: "app=fdo-server"
+      volume_src: "/etc/fdo/keys"
+      volume_dst: "/etc/fdo/keys"
+  - name: Create volume for config directories
+    ansible.builtin.template:
+      src: "server.volume.j2"
+      dest: "{{ item }}-server.conf.d.volume"
+    vars:
+      volume_description: ""
+      volume_label: "app=fdo-server"
+      volume_src: "/etc/fdo/{{ item }}-server.conf.d"
+      volume_dst: "/etc/fdo/{{ item }}-server.conf.d"
+    loop:
+    - manufacturing
+    - rendezvous
+    - serviceinfo-api
+    - owner-onboarding
+
 - name: Install FDO tools
   ansible.builtin.dnf:
     name: "{{ packages }}"

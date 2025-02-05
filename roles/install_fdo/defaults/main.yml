@@ -7,48 +7,31 @@ flightctl_api: "https://api.apps.rhem-demo.sandbox2519.opentlc.com"
 use_postgresql: false
 
 manufacturing:
+  desc: "FDO Manufacturing Server"
   name: fdo-manufacturing-server
   image: "registry.redhat.io/rhel9/fdo-manufacturing-server"
   port: 
     host_port: 8080
     container_port: 8080
-  volumes:
-  - local_path: "/etc/fdo/stores"
-    container_path: "/etc/fdo/stores"
-  - local_path: "/etc/fdo/keys"
-    container_path: "/etc/fdo/keys"
-  - local_path: "/etc/fdo/manufacturing-server.conf.d"
-    container_path: "/etc/fdo/manufacturing-server.conf.d"
 
 rendezvous:
+  desc: "FDO Rendezvous Server"
   name: fdo-rendezvous-server
   image: "registry.redhat.io/rhel9/fdo-rendezvous-server"
   port:
     host_port: 8082
     container_port: 8082
-  volumes:
-  - local_path: "/etc/fdo/stores"
-    container_path: "/etc/fdo/stores"
-  - local_path: "/etc/fdo/keys"
-    container_path: "/etc/fdo/keys"
-  - local_path: "/etc/fdo/rendezvous-server.conf.d"
-    container_path: "/etc/fdo/rendezvous-server.conf.d"
 
 owner_onboarding:
+  desc: "FDO Owner Onboarding Server"
   name: fdo-owner-onboarding-server
   image: "registry.redhat.io/rhel9/fdo-owner-onboarding-server"
   port: 
     host_port: 8081
     container_port: 8081
-  volumes:
-  - local_path: "/etc/fdo/stores"
-    container_path: "/etc/fdo/stores"
-  - local_path: "/etc/fdo/keys"
-    container_path: "/etc/fdo/keys"
-  - local_path: "/etc/fdo/owner-onboarding-server.conf.d"
-    container_path: "/etc/fdo/owner-onboarding-server.conf.d"
 
 serviceinfo:
+  desc: "FDO ServiceInfo API Server"
   name: fdo-serviceinfo-api-server
   image: "registry.redhat.io/rhel9/fdo-serviceinfo-api-server"
   port:
@@ -106,10 +89,3 @@ serviceinfo:
     - "> /etc/flightctl"
     return_stdout: true
     return_stderr: true
-  volumes:
-  - local_path: "/etc/fdo/stores"
-    container_path: "/etc/fdo/stores"  
-  - local_path: "/etc/fdo/keys"
-    container_path: "/etc/fdo/keys"
-  - local_path: "/etc/fdo/serviceinfo-api-server.conf.d"
-    container_path: "/etc/fdo/serviceinfo-api-server.conf.d"

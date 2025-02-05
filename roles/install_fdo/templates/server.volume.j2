@@ -1,0 +1,7 @@
+[Unit]
+Description={{ volume_description }}
+
+[Volume]
+Label="{{ volume_label }}"
+Driver=local
+Options=type=none,src={{ volume_src }},dst={{ volume_dst }},bind
