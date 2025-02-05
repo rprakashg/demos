@@ -1,4 +1,12 @@
 ---
+- name: check if system is registered
+  ansible.builtin.stat:
+    path: /etc/insights-client/.registered
+  register: registered
+- name: register system if not already registered
+  when: not registered.stat.exists
+  become: true
+  ansible.builtin.import_tasks: register_system.yml
 - name: preflight
   become: true
   ansible.builtin.import_tasks: preflight.yml
