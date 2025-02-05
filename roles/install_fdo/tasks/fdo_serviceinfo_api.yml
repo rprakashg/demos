@@ -1,7 +1,7 @@
 ---
 - name: create quadlet for serviceinfo api server container
   ansible.builtin.template:
-    src: "fdo_serviceinfo_api_server.container.j2"
+    src: "server.container.j2"
     dest: "/etc/containers/systemd/fdo_serviceinfo_api_server.container"
   vars:
     description: "{{ serviceinfo.desc }}"
