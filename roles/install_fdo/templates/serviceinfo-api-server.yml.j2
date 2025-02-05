@@ -9,18 +9,18 @@ service_info:
     permissions: 644
     source_path: /etc/resolv.conf
   commands:
-    {% for c in serviceinfo.commands %}
+    {%- for c in serviceinfo.commands %}
     - command: "{{ c.command }}"
-      {% if c.args | length > 0 %}
+      {%- if c.args | length > 0 %}
       args:
-        {% for arg in c.args %}
+        {%- for arg in c.args %}
         - "{{ arg }}"
-        {% endfor %}
-      {% endif %}
+        {%- endfor %}
+      {%- endif %}
       may_fail: true
       return_stdout: "{{ c.return_stdout }}"
       return_stderr: "{{ c.return_stderr }}"
-    {% endfor %}
+    {%- endfor %}
     
   diskencryption_clevis:
     - disk_label: /dev/vda4
@@ -35,3 +35,4 @@ device_specific_store_driver:
     path: /etc/fdo/stores/serviceinfo_api_devices
 service_info_auth_token: "{{ service_info_api_server_auth_token }}"
 admin_auth_token: "{{ service_info_api_server_admin_auth_token }}"
+...
