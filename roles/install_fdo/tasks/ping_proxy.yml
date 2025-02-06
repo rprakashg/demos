@@ -31,7 +31,7 @@
     name: firewalld
     state: reloaded
 
-- name: enable and start manufacturing server container
+- name: enable and start proxy server container
   ansible.builtin.systemd:
     name: "haproxy-app"
     state: started
