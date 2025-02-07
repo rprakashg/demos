@@ -27,7 +27,7 @@ protocols:
     cert_path: /etc/fdo/keys/diun_cert.pem
 rendezvous_info:
   - dns: "rendezvous.{{ base_domain }}"
-    ownerport: {{ rv.port.host_port | default('8082') }}
+    ownerport: 80
     protocol: http
 manufacturing:
   manufacturer_cert_path: /etc/fdo/keys/manufacturer_cert.pem
