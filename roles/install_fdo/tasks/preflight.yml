@@ -33,6 +33,9 @@
     packages:
     - fdo-admin-cli
     - fdo-owner-cli
+- name: reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
 - name: generate keys and certs
   ansible.builtin.command: |
     fdo-admin-tool generate-key-and-cert --destination-dir {{ fdo_keys_dir }} {{ item }}
@@ -41,3 +44,6 @@
   - manufacturer
   - device-ca
   - owner
+- name: login to registry.redhat.io
+  ansible.builtin.shell: |
+    podman login -u "{{ rhuser }}" -p "{{ rhpassword }}" registry.redhat.io

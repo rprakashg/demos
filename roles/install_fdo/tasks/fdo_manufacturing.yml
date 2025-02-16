@@ -35,8 +35,34 @@
     name: firewalld
     state: reloaded
 
+# due to a bug when installing fdo tools fdo server RPM packages gets installed
+- name: stop and disable the systemd service for manufacturing server RPM 
+  block:
+  - name: stop the service
+    ansible.builtin.systemd:
+      name: "fdo-manufacturing-server"
+      state: stopped
+  - name: disable the service
+    ansible.builtin.systemd:
+      name: "fdo-manufacturing-server"
+      enabled: false
+
+- name: perform a systemd daemon reload
+  ansible.builtin.systemd:
+    daemon_reload: true
+
 - name: enable and start manufacturing server container
   ansible.builtin.systemd:
     name: "{{ manufacturing.name }}"
     state: started
-    enabled: yes
+    enabled: true
+
+- name: check service started successfully
+  ansible.builtin.systemd:
+    name: "{{ manufacturing.name }}"
+  register: service_status
+  failed_when: false
+
+- name: debug service status
+  ansible.builtin.debug:
+    var: service_status

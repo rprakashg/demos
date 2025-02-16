@@ -36,8 +36,35 @@
   ansible.builtin.systemd:
     name: firewalld
     state: reloaded
+
+ # due to a bug when installing fdo tools fdo server RPM packages gets installed
+- name: stop and disable the systemd service for owner onboarding server RPM 
+  block:
+  - name: stop the service
+    ansible.builtin.systemd:
+      name: "fdo-serviceinfo-api-server"
+      state: stopped
+  - name: disable the service
+    ansible.builtin.systemd:
+      name: "fdo-serviceinfo-api-server"
+      enabled: false
+
+- name: perform a systemd daemon reload
+  ansible.builtin.systemd:
+    daemon_reload: true
+
 - name: enable and start serviceinfo api server container
   ansible.builtin.systemd:
     name: "{{ serviceinfo.name }}"
     state: started
     enabled: yes
+
+- name: check service started successfully
+  ansible.builtin.systemd:
+    name: "{{ serviceinfo.name }}"
+  register: service_status
+  failed_when: false
+
+- name: debug service status
+  ansible.builtin.debug:
+    var: service_status
