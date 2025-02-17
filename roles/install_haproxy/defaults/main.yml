@@ -1,0 +1,27 @@
+---
+# defaults
+name: ec2-health-proxy
+desc: ec2 health proxy app
+container_port: 8085
+image: docker.io/library/haproxy:3.1
+haproxy.cfg: | 
+  #global settings
+  global
+      log stdout format raw local0
+      maxconn 4096
+
+  #default settings
+  defaults
+      mode    http
+      log     global
+      option  httplog
+      timeout connect 5s
+      timeout client 50s
+      timeout server 50s
+
+  frontend http_redirect
+      bind *:8085
+      mode http
+
+      # Return HTTP 200 OK with a custom message
+      http-request return status 200 content-type "text/plain" string "OK"

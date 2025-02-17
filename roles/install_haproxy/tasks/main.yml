@@ -6,14 +6,15 @@
     mode: 755
 
 - name: Create the HA Proxy config file
-  ansible.builtin.template:
-    src: "haproxy.cfg.j2"
+  ansible.builtin.copy:
+    content: |
+      {{ haproxy.cfg }}
     dest: /usr/local/etc/haproxy/haproxy.cfg
 
 - name: Create HAProxy container quadlet file
   ansible.builtin.template:
-    src: "haproxy-app.container.j2"
-    dest: "/etc/containers/systemd/haproxy-app.container"
+    src: "haproxy.container.j2"
+    dest: "/etc/containers/systemd/{{ name }}.container"
 
 - name: configure firewall rules
   ansible.builtin.firewalld:
@@ -31,8 +32,23 @@
     name: firewalld
     state: reloaded
 
+- name: perform a systemd daemon reload
+  ansible.builtin.systemd:
+    daemon_reload: true
+
 - name: enable and start proxy server container
   ansible.builtin.systemd:
-    name: "haproxy-app"
+    name: "{{ name }}"
     state: started
     enabled: yes
+
+- name: check service started successfully
+  ansible.builtin.systemd:
+    name: "{{ name }}"
+  register: service_status
+  failed_when: false
+
+- name: debug service status
+  ansible.builtin.debug:
+    var: service_status
+

@@ -1,0 +1,11 @@
+[Unit]
+Description={{ desc }}
+
+[Container]
+Image={{ image }}
+ContainerName={{ name }}
+PublishPort=80:{{ container_port }}
+Volume=/usr/local/etc/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:z
+
+[Install]
+WantedBy=multi-user.target default.target

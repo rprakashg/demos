@@ -1,0 +1,9 @@
+- name: Installl HAProxy playbook
+  hosts: fdo
+  tasks:
+  - name: load secrets from ansible vault
+    include_vars:
+      file: "./vars/secrets.yml"
+  - name: install haproxy
+    ansible.builtin.include_role:
+      name: rprakashg.demos.install_haproxy
