@@ -1,0 +1,54 @@
+---
+- name: Create directory to store haproxy config
+  ansible.builtin.file:
+    path: /usr/local/etc/haproxy
+    state: directory
+    mode: 755
+
+- name: Create the HA Proxy config file
+  ansible.builtin.copy:
+    content: |
+      {{ cfg }}
+    dest: /usr/local/etc/haproxy/haproxy.cfg
+
+- name: Create HAProxy container quadlet file
+  ansible.builtin.template:
+    src: "haproxy.container.j2"
+    dest: "/etc/containers/systemd/{{ name }}.container"
+
+- name: configure firewall rules
+  ansible.builtin.firewalld:
+    port: "80/tcp"
+    state: enabled
+    permanent: yes
+
+- name: Configure SELinux
+  ansible.builtin.shell: |
+    semanage port -a -t http_port_t -p tcp 80
+  ignore_errors: true
+
+- name: Reload firewall
+  ansible.builtin.systemd:
+    name: firewalld
+    state: reloaded
+
+- name: perform a systemd daemon reload
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: enable and start proxy server container
+  ansible.builtin.systemd:
+    name: "{{ name }}"
+    state: started
+    enabled: yes
+
+- name: check service started successfully
+  ansible.builtin.systemd:
+    name: "{{ name }}"
+  register: service_status
+  failed_when: false
+
+- name: debug service status
+  ansible.builtin.debug:
+    var: service_status
+
