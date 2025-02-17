@@ -13,6 +13,13 @@
       {{ cfg }}
     dest: /usr/local/etc/haproxy/haproxy.cfg
 
+- name: make directory to store podman quadlet files
+  become: true
+  ansible.builtin.file:
+    path: /etc/containers/systemd
+    state: directory
+    mode: 755
+
 - name: Create HAProxy container quadlet file
   become: true
   ansible.builtin.template:
