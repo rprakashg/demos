@@ -4,7 +4,7 @@ name: ec2-health-proxy
 desc: ec2 health proxy app
 container_port: 8085
 image: docker.io/library/haproxy:3.1
-haproxy.cfg: | 
+cfg: | 
   #global settings
   global
       log stdout format raw local0

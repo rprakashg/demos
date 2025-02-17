@@ -10,7 +10,7 @@
   become: true
   ansible.builtin.copy:
     content: |
-      {{ haproxy.cfg }}
+      {{ cfg }}
     dest: /usr/local/etc/haproxy/haproxy.cfg
 
 - name: Create HAProxy container quadlet file
