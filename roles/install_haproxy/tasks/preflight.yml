@@ -13,3 +13,14 @@
     path: /etc/containers/systemd
     state: directory
     mode: 755
+    
+- name: Stop and disable httpd
+  block:
+  - name: stop the service
+    ansible.builtin.systemd:
+      name: "httpd"
+      state: stopped
+  - name: disable the service
+    ansible.builtin.systemd:
+      name: "httpd"
+      enabled: false
