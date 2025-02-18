@@ -14,8 +14,10 @@ service_info:
     - "login"
     - "--insecure-skip-tls-verify"
     - "{{ flightctl_api }}"
-    - "-t"
-    - "{{ bearer_token }}"
+    - "-u"
+    - "{{ fc_user }}"
+    - "-p"
+    - "{{ fc_user_password }}"
   - command: flightctl
     args:
     - "certificate"
