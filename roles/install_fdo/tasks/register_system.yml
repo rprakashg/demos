@@ -8,6 +8,6 @@
     subscription-manager attach
     subscription-manager config --rhsm.manage_repos=1
 
-#- name: Connect systemt to Red Hat
-#  ansible.builtin.shell: |
-#    rhc connect --username={{ rhuser }} --password={{ rhpassword }}
+- name: Connect systemt to Red Hat
+  ansible.builtin.shell: |
+    rhc connect --username={{ rhuser }} --password={{ rhpassword }}
