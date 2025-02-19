@@ -63,6 +63,21 @@
         data "aws_canonical_user_id" "current" {}
         data "aws_cloudfront_log_delivery_canonical_user_id" "cloudfront" {}
 
+        data "aws_ami" "latest_rhel9_ami" {
+          most_recent = true
+          owners      = ["309956199498"] # Red Hat owner ID
+
+          filter {
+            name   = "name"
+            values = ["RHEL-9.0.0_HVM-*"]
+          }
+
+          filter {
+            name   = "architecture"
+            values = ["x86_64"]
+          }
+        }
+
         resource "aws_key_pair" "sshkeypair" {
           key_name   = var.ssh_key
           public_key = file("~/.ssh/${var.ssh_key}.pub")
@@ -161,7 +176,7 @@
           instance_count                = 1
           
           instance_type                 = var.instance_type
-          ami                           = var.ami
+          ami                           = data.aws_ami.latest_rhel9_ami.id
           subnet_id                     = tolist(module.vpc.public_subnets)[0]
           key_name                      = var.ssh_key
           vpc_security_group_ids        = [module.public_subnet_sg.security_group_id]
