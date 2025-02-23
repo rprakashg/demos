@@ -8,18 +8,19 @@
   when: offline_token != ""
       
 - name: check if system is registered
-  delegate_to: imagebuilder
+  hosts: imagebuilder
+  become: yes
   ansible.builtin.stat:
     path: /etc/insights-client/.registered
   register: registered
 
 - name: register system if not already registered
   when: not registered.stat.exists
-  delegate_to: imagebuilder
+  hosts: imagebuilder
   become: true
   ansible.builtin.import_tasks: register_system.yml
 
 - name: setup imagebuilder
-  delegate_to: imagebuilder
+  hosts: imagebuilder
   become: true
   ansible.builtin.import_tasks: setup_imagebuilder.yml
