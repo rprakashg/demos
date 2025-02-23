@@ -828,7 +828,7 @@
       delay: 10
       timeout: 300
       state: started
-      
+
   - name: create inventory file
     ansible.builtin.copy:
       dest: ./inventory
@@ -847,4 +847,5 @@
       ansible_host: "{{ imagebuilder_dns }}"
       ansible_port: 22
       ansible_user: "ec2-user"
+      ansible_ssh_private_key_file: "~/.ssh/{{ ssh_key }}"
     
