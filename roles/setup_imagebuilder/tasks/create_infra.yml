@@ -838,7 +838,7 @@
         ---
         all:
           hosts:
-            imagebuilder:
+            {{ instance_name }}:
               ansible_host: "{{ imagebuilder_dns }}"
               ansible_port: 22
               ansible_user: "{{ admin_user }}"
@@ -846,10 +846,10 @@
   - name: add imagebuilder host to inventory
     ansible.builtin.add_host:
       name: "{{ instance_name }}"
-      groups: "imagebuilder"
+      hostname: "{{ instance_name }}"
       ansible_host: "{{ imagebuilder_dns }}"
       ansible_port: 22
-      ansible_user: "ec2-user"
+      ansible_user: "{{ admin_user }}"
 
   - name: wait for image builder host to be ready
     wait_for:
