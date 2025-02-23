@@ -16,7 +16,7 @@ base_domain: "sandbox2873.opentlc.com"
 subdomain: "ostree"
 
 microshift: true
-microshift_release: 4.16
+microshift_release: 4.17
 
 create_gpg_key: true    
 build_user: "buildsystem"
