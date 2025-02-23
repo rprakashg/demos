@@ -1,2 +1,24 @@
 ---
 ### Defaults 
+create_infra: false
+region: "us-west-2"
+stack: "imagebuilder-stack"
+instance_name: "imagebuilder"
+instance_type: "m5.2xlarge"
+ssh_key: "ec2"
+my_ip: "136.27.40.26/32"
+
+iso_bucket_name: "rhde-isos"
+ami_bucket_name: "rhde-amis"
+ostree_bucket_name: "rhde-repos"
+
+base_domain: "sandbox2873.opentlc.com"
+subdomain: "ostree"
+
+microshift: true
+microshift_release: 4.16
+
+create_gpg_key: true    
+build_user: "buildsystem"
+build_user_email: "buildsystem@no-reply.com"
+key_expiration: "1y"
