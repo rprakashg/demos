@@ -821,7 +821,7 @@
     set_fact:
       imagebuilder_dns: "{{ tf_output_imagebuilder_dns.stdout }}"
 
-  - name: fetch public dns from output
+  - name: fetch public IP from output
     ansible.builtin.command:
       cmd: terraform output -raw imagebuilder_ip
       chdir: "{{ tfdir.path }}"
@@ -850,22 +850,17 @@
               ansible_host: "{{ imagebuilder_dns }}"
               ansible_port: 22
               ansible_user: "{{ admin_user }}"
-
+              ansible_ssh_private_key_file: "~/.ssh/{{ ssh_key }}"
+              
   - name: add imagebuilder host to inventory
     ansible.builtin.add_host:
       hostname: "{{ instance_name }}"
       ansible_host: "{{ imagebuilder_dns }}"
       ansible_port: 22
       ansible_user: "ec2-user"
-
-- name: add imagebuilder host to ssh known hosts
-  block:
-  - name: Fetch ssh key
-    ansible.builtin.shell: |
-      ssh-keyscan -H "{{ imagebuilder_dns }}"
-    changed_when: false
-  - name: Add host to known_hosts
-    ansible.builtin.lineinfile:
-      path: ~/.ssh/known_hosts
-      line: "{{ ssh_key.stdout }}"
-      create: yes
+      ansible_ssh_private_key_file: "~/.ssh/{{ ssh_key }}"
+- name: Add EC2 instance to known_hosts
+  ansible.builtin.known_hosts:
+    name: "{{ imagebuilder_ip }}"  # Replace with the actual host
+    key: "{{ lookup('pipe', 'ssh-keyscan -H ' ~ imagebuilder_ip) }}"
+    path: ~/.ssh/known_hosts
