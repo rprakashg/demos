@@ -845,8 +845,9 @@
 
   - name: add imagebuilder host to inventory
     ansible.builtin.add_host:
-      name: "{{ instance_name }}"
-      hostname: "{{ instance_name }}"
+      hostname: "{{ imagebuilder_dns }}"
+      groups:
+      - "{{ instance_name }}"
       ansible_host: "{{ imagebuilder_dns }}"
       ansible_port: 22
       ansible_user: "{{ admin_user }}"
