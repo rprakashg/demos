@@ -849,7 +849,7 @@
       hostname: "{{ instance_name }}"
       ansible_host: "{{ imagebuilder_dns }}"
       ansible_port: 22
-      ansible_user: "{{ admin_user }}"
+      ansible_user: "ec2-user"
 
   - name: wait for image builder host to be ready
     wait_for:
