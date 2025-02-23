@@ -6,7 +6,7 @@
 - name: download pull secret
   ansible.builtin.import_tasks: download_pullsecret.yml
   when: offline_token != ""
-  
+      
 - name: check if system is registered
   delegate_to: imagebuilder
   ansible.builtin.stat:

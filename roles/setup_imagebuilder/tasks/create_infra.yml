@@ -821,7 +821,15 @@
     set_fact:
       imagebuilder_dns: "{{ tf_output_imagebuilder_dns.stdout }}"
 
-  - name: update inventory file
+  - name: wait for image builder host to be ready
+    wait_for:
+      host: "{{ imagebuilder_dns }}"
+      port: 22
+      delay: 10
+      timeout: 300
+      state: started
+      
+  - name: create inventory file
     ansible.builtin.copy:
       dest: ./inventory
       content: |
@@ -832,8 +840,8 @@
               ansible_host: "{{ imagebuilder_dns }}"
               ansible_port: 22
               ansible_user: "{{ admin_user }}"
-              
-  - name: add imagebuilder host
+
+  - name: add imagebuilder host to inventory
     ansible.builtin.add_host:
       hostname: "{{ instance_name }}"
       ansible_host: "{{ imagebuilder_dns }}"
