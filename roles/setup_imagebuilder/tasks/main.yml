@@ -1,7 +1,7 @@
 ---
 - name: create infrastructure resources
   ansible.builtin.import_tasks: create_infra.yml
-  when: create_infra == true
+  when: create_infra | bool
   
 - name: download pull secret
   ansible.builtin.import_tasks: download_pullsecret.yml
