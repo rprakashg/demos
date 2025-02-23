@@ -847,7 +847,9 @@
       ansible_host: "{{ imagebuilder_dns }}"
       ansible_port: 22
       ansible_user: "ec2-user"
-      
-- name: add ssh private key to ssh agent
-  ansible.builtin.command: |
-    ssh-add "~/.ssh/{{ ssh_key }}"
+
+- name: add imagebuilder host to ssh known hosts
+  ansible.builtin.known_hosts:
+    name: "{{ imagebuilder_dns }}"
+    key: "{{ lookup('pipe', 'ssh-keyscan -H ' imagebuilder_dns )}}"
+    path: ~/.ssh/known_hosts
