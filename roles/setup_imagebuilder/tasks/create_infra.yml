@@ -842,15 +842,18 @@
               ansible_host: "{{ imagebuilder_dns }}"
               ansible_port: 22
               ansible_user: "{{ admin_user }}"
+              ansible_ssh_private_key_file: "{{ ansible_user_dir }}/.ssh/{{ ssh_key }}"
 
   - name: add imagebuilder host to inventory
     ansible.builtin.add_host:
+      name: "{{ instance_name }}"
       hostname: "{{ imagebuilder_dns }}"
       groups:
       - "{{ instance_name }}"
       ansible_host: "{{ imagebuilder_dns }}"
       ansible_port: 22
       ansible_user: "{{ admin_user }}"
+      ansible_ssh_private_key_file: "{{ ansible_user_dir }}/.ssh/{{ ssh_key }}"
 
   - name: wait for image builder host to be ready
     wait_for:
