@@ -57,8 +57,14 @@
       - cockpit
       - http
   - name: install aws cli
-    ansible.builtin.command:
-      cmd: pip3 install awscli boto3 botocore
+    yum:
+      name: "{{ packages }}"
+      state: present
+    vars:
+      packages:
+      - awscli
+      - boto3
+      - botocore
       
 - name: setup imagebuilder with microshift
   when: microshift | default(true)
