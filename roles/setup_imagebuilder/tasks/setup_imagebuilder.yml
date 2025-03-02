@@ -63,8 +63,6 @@
     vars:
       packages:
       - awscli
-      - boto3
-      - botocore
       
 - name: setup imagebuilder with microshift
   when: microshift | default(true)
