@@ -1,0 +1,30 @@
+---
+- name: Install and Configure FDO Owner Server playbook
+  hosts: owner
+  tasks:
+  - name: load secrets from ansible vault
+    include_vars:
+      file: "./vars/secrets.yml"
+  - name: register the system
+    ansible.builtin.shell: |
+      subscription-manager register --username={{ rhuser }} --password={{ rhpassword }} --force
+      subscription-manager role --set="Red Hat Enterprise Linux Server"
+      subscription-manager service-level --set="Self-Support"
+      subscription-manager usage --set="Development/Test"
+      subscription-manager attach
+      subscription-manager config --rhsm.manage_repos=1
+
+  - name: Connect systemt to Red Hat
+    ansible.builtin.shell: |
+      rhc connect --username={{ rhuser }} --password={{ rhpassword }}
+      
+  - name: Install configure owner onboarding server
+    block:
+    - name: Install
+      ansible.builtin.include_role:
+        name: community.fdo.setup_owner_server
+    - name: Configure
+      ansible.builtin.include_role:
+        name: community.fdo.configure_owner_server
+      vars:
+        owner_onboarding_server_owner_addresses_dns_name: "{{ owner_server_dns_prefix }}.{{ base_domain }}"

@@ -1,9 +1,0 @@
----
-# defaults
-install_mfg: true
-install_rvs: true
-install_oob: true
-
-base_domain: "sandbox559.opentlc.com"
-rv_dns_prefix: "rendezvous"
-owner_server_dns_prefix: "owneronboarding"
