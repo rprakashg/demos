@@ -6,18 +6,27 @@
   - name: load secrets from ansible vault
     include_vars:
       file: "./vars/secrets.yml"
+      
+  - name: check if system is registered
+    ansible.builtin.stat:
+      path: /etc/insights-client/.registered
+    register: registered
+  
   - name: register the system
-    ansible.builtin.shell: |
-      subscription-manager register --username={{ rhuser }} --password={{ rhpassword }} --force
-      subscription-manager role --set="Red Hat Enterprise Linux Server"
-      subscription-manager service-level --set="Self-Support"
-      subscription-manager usage --set="Development/Test"
-      subscription-manager attach
-      subscription-manager config --rhsm.manage_repos=1
+    when: not registered.stat.exists
+    block:
+    - name: Register with subscription manager
+      ansible.builtin.shell: |
+        subscription-manager register --username={{ rhuser }} --password={{ rhpassword }} --force
+        subscription-manager role --set="Red Hat Enterprise Linux Server"
+        subscription-manager service-level --set="Self-Support"
+        subscription-manager usage --set="Development/Test"
+        subscription-manager attach
+        subscription-manager config --rhsm.manage_repos=1
 
-  - name: Connect systemt to Red Hat
-    ansible.builtin.shell: |
-      rhc connect --username={{ rhuser }} --password={{ rhpassword }}
+    - name: Connect system to Red Hat
+      ansible.builtin.shell: |
+        rhc connect --username={{ rhuser }} --password={{ rhpassword }}
   
   - name: Install configure Manufacturing Server
     block:
