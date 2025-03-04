@@ -8,7 +8,7 @@
   become: true
   ansible.builtin.import_tasks: register_system.yml
 - name: Install configure Manufacturing Server
-  delegate_to: "{{ groups['fdo'].manufacturing }}"
+  delegate_to: "{{ groups['fdo'].[0] }}"
   when: install_mfg
   block:
   - name: Install
@@ -21,7 +21,7 @@
       manufacturing_server_rendezvous_info_dns: "{{ rv_dns_prefix }}.{{ base_domain }}"
 - name: Install configure Rendezvous Server
   when: install_rvs
-  delegate_to: "{{ groups['fdo'].rendezvous }}"
+  delegate_to: "{{ groups['fdo'].[1] }}"
   block:
   - name: Install
     ansible.builtin.include_role:
@@ -31,7 +31,7 @@
       name: community.fdo.configure_rendezvous_server
 - name: Install configure owner onboarding server
   when: install_oob
-  delegate_to: "{{ groups['fdo'].owneronboarding }}"
+  delegate_to: "{{ groups['fdo'].[2] }}"
   block:
   - name: Install
     ansible.builtin.include_role:
