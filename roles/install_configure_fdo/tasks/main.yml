@@ -17,6 +17,7 @@
     ansible.builtin.include_role:
       name: community.fdo.configure_manufacturing_server
     vars:
+      enable_roll_back: false
       manufacturing_server_rendezvous_info_dns: "{{ rv_dns_prefix }}.{{ base_domain }}"
 #- name: Install configure Rendezvous Server
 #  when: install_rvs
