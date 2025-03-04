@@ -13,10 +13,10 @@
   block:
   - name: Install
     ansible.builtin.include_role:
-      name: ansible.community.fdo.setup_manufacturing_server
+      name: community.fdo.setup_manufacturing_server
   - name: Configure
     ansible.builtin.include_role:
-      name: ansible.community.fdo.configure_manufacturing_server
+      name: community.fdo.configure_manufacturing_server
     vars:
       manufacturing_server_rendezvous_info_dns: "{{ rv_dns_prefix }}.{{ base_domain }}"
 - name: Install configure Rendezvous Server
@@ -25,19 +25,19 @@
   block:
   - name: Install
     ansible.builtin.include_role:
-      name: ansible.community.fdo.setup_rendezvous_server
+      name: community.fdo.setup_rendezvous_server
   - name: Configure
     ansible.builtin.include_role:
-      name: ansible.community.fdo.configure_rendezvous_server
+      name: community.fdo.configure_rendezvous_server
 - name: Install configure owner onboarding server
   when: install_oob
   delegate_to: "{{ groups['fdo'].owneronboarding }}"
   block:
   - name: Install
     ansible.builtin.include_role:
-      name: ansible.community.fdo.setup_owner_server
+      name: community.fdo.setup_owner_server
   - name: Configure
     ansible.builtin.include_role:
-      name: ansible.community.fdo.configure_owner_server
+      name: community.fdo.configure_owner_server
     vars:
       owner_onboarding_server_owner_addresses_dns_name: "{{ owner_server_dns_prefix }}.{{ base_domain }}"
