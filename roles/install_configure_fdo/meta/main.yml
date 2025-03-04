@@ -1,10 +1,10 @@
 ---
 galaxy_info:
-  role_name: "install_fdo"
+  role_name: "install_configure_fdo"
   standalone: false
   company: ""
   description: >
-    Install FDO servers
+    Install and configure FDO servers
   author: rprakashg
   license: "GPL-3.0-or-later"
   min_ansible_version: "2.12"

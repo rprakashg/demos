@@ -1,5 +1,5 @@
 ---
-- name: Installl FDO playbook
+- name: Install and Configure FDO example playbook
   hosts: fdo
   tasks:
   - name: load secrets from ansible vault
@@ -7,4 +7,4 @@
       file: "./vars/secrets.yml"
   - name: install FDO
     ansible.builtin.include_role:
-      name: rprakashg.demos.install_fdo
+      name: rprakashg.demos.install_configure_fdo

@@ -1,0 +1,43 @@
+---
+- name: check if system is registered
+  ansible.builtin.stat:
+    path: /etc/insights-client/.registered
+  register: registered
+- name: register system if not already registered
+  when: not registered.stat.exists
+  become: true
+  ansible.builtin.import_tasks: register_system.yml
+- name: Install configure Manufacturing Server
+  delegate_to: "{{ groups['fdo'].manufacturing }}"
+  when: install_mfg
+  block:
+  - name: Install
+    ansible.builtin.include_role:
+      name: ansible.community.fdo.setup_manufacturing_server
+  - name: Configure
+    ansible.builtin.include_role:
+      name: ansible.community.fdo.configure_manufacturing_server
+    vars:
+      manufacturing_server_rendezvous_info_dns: "{{ rv_dns_prefix }}.{{ base_domain }}"
+- name: Install configure Rendezvous Server
+  when: install_rvs
+  delegate_to: "{{ groups['fdo'].rendezvous }}"
+  block:
+  - name: Install
+    ansible.builtin.include_role:
+      name: ansible.community.fdo.setup_rendezvous_server
+  - name: Configure
+    ansible.builtin.include_role:
+      name: ansible.community.fdo.configure_rendezvous_server
+- name: Install configure owner onboarding server
+  when: install_oob
+  delegate_to: "{{ groups['fdo'].owneronboarding }}"
+  block:
+  - name: Install
+    ansible.builtin.include_role:
+      name: ansible.community.fdo.setup_owner_server
+  - name: Configure
+    ansible.builtin.include_role:
+      name: ansible.community.fdo.configure_owner_server
+    vars:
+      owner_onboarding_server_owner_addresses_dns_name: "{{ owner_server_dns_prefix }}.{{ base_domain }}"
