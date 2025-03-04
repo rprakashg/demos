@@ -1,6 +1,6 @@
 ---
 - name: Install and Configure FDO example playbook
-  hosts: [mfgs, rvs, oobs]
+  hosts: localhost
   tasks:
   - name: load secrets from ansible vault
     include_vars:

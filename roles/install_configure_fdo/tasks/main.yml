@@ -1,5 +1,6 @@
 ---
 - name: check if system is registered
+  delegate_to: [node1, node2, node3]
   ansible.builtin.stat:
     path: /etc/insights-client/.registered
   register: registered
