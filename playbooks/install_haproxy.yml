@@ -1,5 +1,5 @@
 - name: Installl HAProxy playbook
-  hosts: groups["fdo"]
+  hosts: fdo
   tasks:
   - name: install haproxy
     ansible.builtin.include_role:
