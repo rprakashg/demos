@@ -1,6 +1,6 @@
 ---
 - name: Install and Configure FDO Manufacturing Server
-  hosts: manufacturing
+  hosts: fdo
   become: yes
   tasks:
   - name: load secrets from ansible vault

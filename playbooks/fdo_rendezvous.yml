@@ -1,6 +1,6 @@
 ---
 - name: Install and Configure FDO Rendezvous Server playbook
-  hosts: rendezvous
+  hosts: fdo
   become: yes
   tasks:
   - name: load secrets from ansible vault

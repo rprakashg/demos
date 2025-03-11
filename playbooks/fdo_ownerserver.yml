@@ -1,6 +1,6 @@
 ---
 - name: Install and Configure FDO Owner Server playbook
-  hosts: owner
+  hosts: fdo
   become: yes
   tasks:
   - name: load secrets from ansible vault
