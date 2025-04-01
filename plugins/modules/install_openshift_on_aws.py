@@ -85,7 +85,7 @@ from ansible.module_utils.basic import AnsibleModule  # noqa E402
 from jinja2 import Environment, FileSystemLoader
 from itertools import islice
 
-from ansible_collections.rprakashg.openshift_automation.plugins.module_utils.helper import Helper
+from ansible_collections.rprakashg.demos.plugins.module_utils.helper import Helper
 
 def get_azs(region, replicas):
     take: int
