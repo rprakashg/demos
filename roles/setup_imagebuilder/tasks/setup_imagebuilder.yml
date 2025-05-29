@@ -168,7 +168,7 @@
       dest: /etc/osbuild-worker/osbuild-worker.toml
 
 - name: generate a GPG key for signing commits built
-  when: create_gpg_key | default(true)
+  when: create_gpg_key | bool
   block:
   - name: generate the key
     ansible.builtin.shell: |
